@@ -15,45 +15,11 @@
 */
 
 #include <stdio.h>
-
-#include "abcc_types.h"
 #include "abp.h"
-
-#include "abcc.h"
-#include "abcc_command_sequencer_interface.h"
-#include "abcc_port.h"
-
-#include "application_data_object.h"   /* Application data object:   254 */
-#include "application_object.h"        /* Application object:        255 */
-
 #include "abcc_api.h"
-#include "abcc_api_config.h"
 #include "abcc_api_network_settings.h"
-
-#include "abcc_port.h"
-#include "ethernet_object.h"
-#include "opcua_object.h"
-#include "mqtt_object.h"
-#include "sync_object.h"
-#include "safety_object.h"
-#include "assembly_mapping_object.h"
-#include "anybus_file_system_interface_object.h"
-
-#include "ethernetip_object.h"
-#include "profinet_io_object.h"
-#include "ethernet_powerlink_object.h"
-#include "profibus_dpv1_object.h"
-#include "ethercat_object.h"
-#include "devicenet_object.h"
-#include "modbus_object.h"
-#include "canopen_object.h"
-#include "cclink_object.h"
-#include "cclink_ie_field_network_object.h"
-#include "bacnet_object.h"
-#include "cclink_ie_tsn_object.h"
-
-#include "abcc_object_config.h"
-#include "application_data_instance_config.h"
+#include "abcc_command_sequencer_interface.h"
+#include "application_data_object.h"   /* Application data object:   254 */
 
 /*------------------------------------------------------------------------------
 ** Comm settings values
@@ -782,6 +748,7 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
             eErrorCode = ABCC_EC_INTERNAL_ERROR;
          }
 #if ASM_OBJ_ENABLE
+#error "Assembly Mapping Object is not supported in this version of the ABCC API"
          /*
          ** Init Assembly mapping object
          */
@@ -795,7 +762,7 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
       if( eErrorCode == ABCC_EC_NO_ERROR )
       {
 #if APP_OBJ_ENABLE
-         if( APP_GetCandidateFwAvailable() == TRUE )
+         if( ABCC_CbfApplicationObjFirmwareAvailable_Get() == TRUE )
          {
             ABCC_LOG_INFO( "Waiting for firmware update to complete.\n" );
             lStartupTimeMs = ABCC_API_FW_UPGRADE_STARTUP_TIME_MS;
@@ -886,6 +853,7 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
       */
 
 #if SYNC_OBJ_ENABLE
+#error "Sync Object is not supported in this version of the ABCC API"
       if( SYNC_GetMode() == SYNC_MODE_NONSYNCHRONOUS )
       {
          ABCC_TriggerWrPdUpdate();
@@ -1114,6 +1082,7 @@ void ABCC_CbfWdTimeoutRecovered( void )
 }
 
 #if ABCC_CFG_SYNC_ENABLED
+#error "Sync Object is not supported in this version of the ABCC API"
 void ABCC_CbfSyncIsr( void )
 {
    /*

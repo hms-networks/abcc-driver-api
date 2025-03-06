@@ -13,7 +13,7 @@
 #ifndef ABCC_API_H
 #define ABCC_API_H
 #include "abcc.h"
-#include "abcc_driver_config.h"
+#include "../src/abcc_api_config.h"
 
 /*******************************************************************************
 ** Anybus CompactCom Driver API type definitions

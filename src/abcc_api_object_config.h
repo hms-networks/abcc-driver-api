@@ -15,7 +15,10 @@
 #define ABCC_OBJ_CFG_H_
 
 #include "abcc_driver_config.h"
-#include "abcc_config.h"
+
+#ifndef ABCC_API_CONFIG_H_
+#error "Do not include abcc_api_identification.h, include abcc_api_config.h instead."
+#endif
 
 /*------------------------------------------------------------------------------
 ** Supported host-side network objects - Set to 1 to include and enable the
@@ -730,7 +733,7 @@
 **
 ** PORTING ALERT!
 **
-** Read the comments about MAC addresses in "abcc_identification.h" before
+** Read the comments about MAC addresses in "abcc_api_identification.h" before
 ** enabling this attribute!
 */
 #ifndef PRT_IA_PORT1_MAC_ADDRESS_ENABLE
@@ -743,7 +746,7 @@
 **
 ** PORTING ALERT!
 **
-** Read the comments about MAC addresses in "abcc_identification.h" before
+** Read the comments about MAC addresses in "abcc_api_identification.h" before
 ** enabling this attribute!
 */
 #ifndef PRT_IA_PORT2_MAC_ADDRESS_ENABLE
@@ -1499,6 +1502,6 @@
 
 #endif /* #if APP_OBJ_ENABLE */
 
-#include "abcc_identification.h"
+#include "abcc_api_identification.h"
 
 #endif  /* inclusion lock */

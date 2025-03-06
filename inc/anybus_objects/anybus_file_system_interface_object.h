@@ -20,7 +20,7 @@
 #ifndef ANB_FSI_OBJ_H
 #define ANB_FSI_OBJ_H
 
-#include "abcc_object_config.h"
+#include "abcc_api.h"
 
 #if ANB_FSI_OBJ_ENABLE
 

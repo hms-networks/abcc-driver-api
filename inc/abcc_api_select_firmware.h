@@ -4,12 +4,10 @@
 ********************************************************************************
 */
 
-#include "abcc_object_config.h"
-
 #ifndef ABCC_API_SELECT_FW_H
 #define ABCC_API_SELECT_FW_H
 
-#include "abcc.h"
+#include "abcc_api.h"
 
 #if ANB_FSI_OBJ_ENABLE
 

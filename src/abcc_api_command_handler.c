@@ -11,28 +11,7 @@
 #include "abcc_api.h"
 #include "abcc_api_command_handler.h"
 #include "abcc_api_command_handler_lookup.h"
-
 #include "application_data_object.h"
-#include "application_object.h"
-#include "assembly_mapping_object.h"
-#include "ethernet_object.h"
-#include "mqtt_object.h"
-#include "opcua_object.h"
-#include "safety_object.h"
-#include "sync_object.h"
-
-#include "bacnet_object.h"
-#include "canopen_object.h"
-#include "cclink_ie_field_network_object.h"
-#include "cclink_ie_tsn_object.h"
-#include "cclink_object.h"
-#include "devicenet_object.h"
-#include "ethercat_object.h"
-#include "ethernetip_object.h"
-#include "ethernet_powerlink_object.h"
-#include "modbus_object.h"
-#include "profibus_dpv1_object.h"
-#include "profinet_io_object.h"
 
 #define ABCC_MATH_MIN( nX, nY )   ( ( (nX) < (nY) ) ? (nX) : (nY) )
 #define ABCC_OBJ_SPECIFIC_COMMAND( X ) ( ( X >= 0x10 && X <= 0x30 ) || X == 0x3F )

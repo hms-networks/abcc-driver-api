@@ -6,12 +6,12 @@
 ** Command handler lookup macros and callback function definitions.
 ********************************************************************************
 */
-#include "abcc.h"
+#include "abcc_api.h"
 #include "abp.h"
 #include "abp_eip.h"
 #include "abp_pnio.h"
 #include "abp_mod.h"
-#include "abcc_object_config.h"
+#include "abcc_api_object_config.h"
 
 #ifndef ABCC_HOST_ATTR_LOOKUP_H_
 #define ABCC_HOST_ATTR_LOOKUP_H_

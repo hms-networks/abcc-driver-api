@@ -11,7 +11,7 @@
 #define ABCC_API_CMD_HANDLER_H_
 
 #include "abp.h"
-#include "abcc_object_config.h"
+#include "abcc_api.h"
 
 /*------------------------------------------------------------------------------
 ** Definitions and prototypes for attribute lookup table.

@@ -903,7 +903,7 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
    return( eErrorCode );
 }
 
-void ABCC_API_SetAddress( UINT16 iSwitchValue )
+BOOL ABCC_API_SetAddress( UINT16 iSwitchValue )
 {
    appl_fSetAddr = TRUE;
 
@@ -912,7 +912,7 @@ void ABCC_API_SetAddress( UINT16 iSwitchValue )
       /*
       ** Address updated next time
       */
-      return;
+      return FALSE;
    }
 
    if( appl_fUserInitPrepDone == FALSE )
@@ -929,11 +929,9 @@ void ABCC_API_SetAddress( UINT16 iSwitchValue )
       appl_iNwNodeAddress = iSwitchValue;
 
       /*
-      ** Indicate to application object that the address is set by HW switches
+      ** Indicate to application that the address is set by HW switches
       */
-   #if APP_OBJ_ENABLE
-      APP_HwConfAddress( TRUE );
-   #endif
+      return TRUE;
    }
    else if( appl_iNwNodeAddress != iSwitchValue )
    {
@@ -944,17 +942,22 @@ void ABCC_API_SetAddress( UINT16 iSwitchValue )
      appl_iNwNodeAddress = iSwitchValue;
      appl_fSetAddrInProgress = TRUE;
      ABCC_CmdSeqAdd( appl_asAddressChangedCmdSeq, UpdateAddressDone, NULL, NULL );
+
+      /*
+      ** Indicate to application that the address will be set by HW switches
+      */
+      return TRUE;
    }
 }
 
-void ABCC_API_SetBaudrate( UINT8 bSwitchValue )
+BOOL ABCC_API_SetBaudrate( UINT8 bSwitchValue )
 {
    if( appl_fSetBaudRateInProgress )
    {
       /*
       ** Baud rate updated next time
       */
-      return;
+      return FALSE;
    }
 
    if( appl_fUserInitPrepDone == FALSE )
@@ -969,6 +972,7 @@ void ABCC_API_SetBaudrate( UINT8 bSwitchValue )
       appl_bNwBaudRate = bSwitchValue;
       ABCC_CmdSeqAdd( appl_asBaudRateChangedCmdSeq, UpdateBaudRateDone, NULL, NULL );
    }
+   return TRUE;
    appl_fSetBaudRate = TRUE;
 }
 

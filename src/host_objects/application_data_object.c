@@ -9,7 +9,7 @@
 #include "abcc_types.h"
 #include "abcc_software_port.h"
 #include "abcc_config.h"
-#include "abcc_api_config.h"
+#include "../abcc_api_config.h"
 #include "abp.h"
 #include "abcc_application_data_interface.h"
 #include "abcc.h"

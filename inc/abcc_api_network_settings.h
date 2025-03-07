@@ -52,10 +52,11 @@ ABCC_API_CommSettingType;
 **    iSwitchValue - Switch 1 value
 **
 ** Returns:
-**    None
+**    True:  bSwitchValue will be the new address
+**    False: Update of address already in progress
 **------------------------------------------------------------------------------
 */
-EXTFUNC void ABCC_API_SetAddress( UINT16 iSwitchValue );
+EXTFUNC BOOL ABCC_API_SetAddress( UINT16 iSwitchValue );
 
 /*------------------------------------------------------------------------------
 ** Set HW switch 2 value to the application. The value is used to generate the
@@ -66,10 +67,11 @@ EXTFUNC void ABCC_API_SetAddress( UINT16 iSwitchValue );
 **    bSwitchValue - Switch 2 value
 **
 ** Returns:
-**    None
+**    True:  bSwitchValue will be the new baudrate
+**    False: Update of baudrate already in progress
 **------------------------------------------------------------------------------
 */
-EXTFUNC void ABCC_API_SetBaudrate( UINT8 bSwitchValue );
+EXTFUNC BOOL ABCC_API_SetBaudrate( UINT8 bSwitchValue );
 
 /*------------------------------------------------------------------------------
 ** Set Comm settings (speed/duplex) for ports.

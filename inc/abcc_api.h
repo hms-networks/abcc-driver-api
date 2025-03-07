@@ -12,8 +12,14 @@
 
 #ifndef ABCC_API_H
 #define ABCC_API_H
+
+#include "abcc_types.h"
 #include "abcc.h"
+#include "abcc_error_codes.h"
+#include "abp.h"
+#include "abcc_config.h"
 #include "../src/abcc_api_config.h"
+#include "abcc_application_data_interface.h"
 
 /*******************************************************************************
 ** Anybus CompactCom Driver API type definitions
@@ -31,51 +37,6 @@ typedef UINT16 ABCC_API_NetworkType;
 **------------------------------------------------------------------------------
 */
 typedef ABCC_FwVersionType ABCC_API_FwVersionType;
-
-/*******************************************************************************
-** Anybus CompactCom Driver API global variables
-********************************************************************************
-*/
-/*------------------------------------------------------------------------------
-** List of Application data instances
-**
-** NOTE: The entries in the ADI list cannot be placed in arbitrary order, they
-** must be sorted in ascending order for all lookup functions in the driver and
-** the Application Data Object to work as intended! See example provided in the
-** abcc_application_data_interface.h file.
-**
-** PORTING ALERT!
-**
-** If the ADI structure is defined at system startup rather than at compile-time
-** the 'const' below should be removed. This would be the case when the ADIs
-** are defined by a local configuration file or by the modules plugged into the
-** local backplane. Note that the ADI structures MUST have been initialised with
-** valid data before the driver makes the call to AD_Init() in
-** './example_application/abcc_api_handler.c'.
-**
-** With a fixed ADI structure that can go into ROM, the 'const' should be left
-** in place.
-**------------------------------------------------------------------------------
-*/
-EXTVAR const AD_AdiEntryType ABCC_API_asAdiEntryList[];
-
-/*------------------------------------------------------------------------------
-** Default process data map
-**
-** See example provided in the abcc_application_data_interface.h file.
-**
-** PORTING ALERT!
-**
-** If the default PD map is defined during system startup rather than at
-** compile-time the 'const' below should be removed. Note that the default PD
-** map structures MUST have been initialised with valid data before the driver
-** makes the call to AD_Init() in
-** './example_application/abcc_api_handler.c'.
-**
-** With a fixed PD map that can go into ROM the 'const' should be left in place.
-**------------------------------------------------------------------------------
-*/
-EXTVAR const AD_MapType ABCC_API_asAdObjDefaultMap[];
 
 /*******************************************************************************
 ** Anybus CompactCom Driver API functions
@@ -241,6 +202,27 @@ EXTFUNC BOOL ABCC_API_IsSupervised( void );
 */
 void ABCC_API_CbfUserInit( ABCC_API_NetworkType iNetworkType, ABCC_API_FwVersionType iFirmwareVersion );
 
+#if ABCC_API_COMMAND_MESSAGE_HOOK_ENABLED
+/*------------------------------------------------------------------------------
+** A command message has been received from the ABCC. If enabled all received
+** commands from the ABCC will be passed to this function before handled by the
+** default command handler. This allows the user to implement user specific
+** handling of commands to any object or instance.
+** Regarding callback context, see comment for callback section above.
+**------------------------------------------------------------------------------
+** Arguments:
+**    psReceivedCommandMsg - Pointer to received command.
+**
+** Returns:
+**    TRUE -  Command handled by the callback function (this typically means
+**            that a response is generated and will be transmitted).
+**    FALSE - Command was not handled by the callback function, let the default
+**            command handler handle the command.
+**------------------------------------------------------------------------------
+*/
+EXTFUNC BOOL ABCC_API_CbfCommandMessageHook( ABP_MsgType* psReceivedCommandMsg );
+#endif
+
 /*------------------------------------------------------------------------------
 ** A function called every cycle after read and write data have been updated.
 ** The purpose of it is to have a function that can operate on ADIs when they
@@ -268,25 +250,87 @@ EXTFUNC void ABCC_API_CbfCyclicalProcessing( void );
 */
 EXTFUNC UINT16 ABCC_API_CbfGetNumAdi( void );
 
-#if ABCC_API_COMMAND_MESSAGE_HOOK_ENABLED
+/*******************************************************************************
+** Anybus CompactCom Driver API global variables
+********************************************************************************
+*/
 /*------------------------------------------------------------------------------
-** A command message has been received from the ABCC. If enabled all received
-** commands from the ABCC will be passed to this function before handled by the
-** default command handler. This allows the user to implement user specific
-** handling of commands to any object or instance.
-** Regarding callback context, see comment for callback section above.
-**------------------------------------------------------------------------------
-** Arguments:
-**    psReceivedCommandMsg - Pointer to received command.
+** List of Application data instances
 **
-** Returns:
-**    TRUE -  Command handled by the callback function (this typically means
-**            that a response is generated and will be transmitted).
-**    FALSE - Command was not handled by the callback function, let the default
-**            command handler handle the command.
+** NOTE: The entries in the ADI list cannot be placed in arbitrary order, they
+** must be sorted in ascending order for all lookup functions in the driver and
+** the Application Data Object to work as intended! See example provided in the
+** abcc_application_data_interface.h file.
+**
+** PORTING ALERT!
+**
+** If the ADI structure is defined at system startup rather than at compile-time
+** the 'const' below should be removed. This would be the case when the ADIs
+** are defined by a local configuration file or by the modules plugged into the
+** local backplane. Note that the ADI structures MUST have been initialised with
+** valid data before the driver makes the call to AD_Init() in
+** './example_application/abcc_api_handler.c'.
+**
+** With a fixed ADI structure that can go into ROM, the 'const' should be left
+** in place.
 **------------------------------------------------------------------------------
 */
-EXTFUNC BOOL ABCC_API_CbfCommandMessageHook( ABP_MsgType* psReceivedCommandMsg );
-#endif
+EXTVAR const AD_AdiEntryType ABCC_API_asAdiEntryList[];
+
+/*------------------------------------------------------------------------------
+** Default process data map
+**
+** See example provided in the abcc_application_data_interface.h file.
+**
+** PORTING ALERT!
+**
+** If the default PD map is defined during system startup rather than at
+** compile-time the 'const' below should be removed. Note that the default PD
+** map structures MUST have been initialised with valid data before the driver
+** makes the call to AD_Init() in
+** './example_application/abcc_api_handler.c'.
+**
+** With a fixed PD map that can go into ROM the 'const' should be left in place.
+**------------------------------------------------------------------------------
+*/
+EXTVAR const AD_MapType ABCC_API_asAdObjDefaultMap[];
+
+/*------------------------------------------------------------------------------
+** Pre-defined access combiantions of the descriptor bit field (bDesc) in the
+** AD_AdiEntryType.
+**------------------------------------------------------------------------------
+*/
+#define AD_ADI_DESC______  ( 0                            | 0                               | 0                                | 0                         | 0                         )
+#define AD_ADI_DESC_____G  ( 0                            | 0                               | 0                                | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC____S_  ( 0                            | 0                               | 0                                | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC____SG  ( 0                            | 0                               | 0                                | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC___W__  ( 0                            | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | 0                         )
+#define AD_ADI_DESC___W_G  ( 0                            | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC___WS_  ( 0                            | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC___WSG  ( 0                            | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC__R___  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | 0                         | 0                         )
+#define AD_ADI_DESC__R__G  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC__R_S_  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC__R_SG  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC__RW__  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | 0                         )
+#define AD_ADI_DESC__RW_G  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC__RWS_  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC__RWSG  ( 0                            | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_N____  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | 0                                | 0                         | 0                         )
+#define AD_ADI_DESC_N___G  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | 0                                | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_N__S_  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | 0                                | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC_N__SG  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | 0                                | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_N_W__  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | 0                         )
+#define AD_ADI_DESC_N_W_G  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_N_WS_  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC_N_WSG  ( ABP_APPD_DESCR_NVS_PARAMETER | 0                               | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_NR___  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | 0                         | 0                         )
+#define AD_ADI_DESC_NR__G  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_NR_S_  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC_NR_SG  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | 0                                | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_NRW__  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | 0                         )
+#define AD_ADI_DESC_NRW_G  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | 0                         | ABP_APPD_DESCR_GET_ACCESS )
+#define AD_ADI_DESC_NRWS_  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | 0                         )
+#define AD_ADI_DESC_NRWSG  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
 
 #endif  /* inclusion lock */

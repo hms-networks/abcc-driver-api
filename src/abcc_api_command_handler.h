@@ -10,8 +10,9 @@
 #ifndef ABCC_API_CMD_HANDLER_H_
 #define ABCC_API_CMD_HANDLER_H_
 
+#include "abcc_types.h"
 #include "abp.h"
-#include "abcc_api.h"
+#include "abcc_api_config.h"
 
 /*------------------------------------------------------------------------------
 ** Definitions and prototypes for attribute lookup table.

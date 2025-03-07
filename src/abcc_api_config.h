@@ -7,8 +7,8 @@
 ********************************************************************************
 */
 
-#ifndef ABCC_API_CONFIG_H
-#define ABCC_API_CONFIG_H
+#ifndef ABCC_API_CONFIG_H_
+#define ABCC_API_CONFIG_H_
 
 #include "abcc_driver_config.h"
 

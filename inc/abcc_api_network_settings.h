@@ -10,7 +10,8 @@
 
 #ifndef ABCC_API_NW_CONF_H
 #define ABCC_API_NW_CONF_H
-#include "abcc_api.h"
+
+#include "abcc_types.h"
 
 /*------------------------------------------------------------------------------
 **  Comm settings:

@@ -2,12 +2,18 @@
 ** Copyright 2025-present HMS Industrial Networks AB.
 ** Licensed under the MIT License.
 ********************************************************************************
+** File Description:
+** Interface for selecting a firmware from the internal file system of the
+** CompactCom B40 Mini (Loaded) and copying it to the firware candidate area in
+** preparation for installation after next reset of the CompactCom B40 Mini.
+********************************************************************************
 */
 
 #ifndef ABCC_API_SELECT_FW_H
 #define ABCC_API_SELECT_FW_H
 
-#include "abcc_api.h"
+#include "abcc_api_config.h"
+#include "abcc_error_codes.h"
 
 #if ANB_FSI_OBJ_ENABLE
 

@@ -11,7 +11,7 @@
 #include "abcc_api.h"
 #include "abcc_api_command_handler.h"
 #include "abcc_api_command_handler_lookup.h"
-#include "application_data_object.h"
+#include "host_objects/application_data_object.h"
 
 #define ABCC_MATH_MIN( nX, nY )   ( ( (nX) < (nY) ) ? (nX) : (nY) )
 #define ABCC_OBJ_SPECIFIC_COMMAND( X ) ( ( X >= 0x10 && X <= 0x30 ) || X == 0x3F )

@@ -15,9 +15,10 @@
 #define ABCC_IDENTIFICATION_H_
 
 #include "abcc_driver_config.h"
+#include "abcc_config.h"
 
 #ifndef ABCC_OBJ_CFG_H_
-#error "Do not include abcc_api_identification.h, include abcc_api_config.h instead."
+#error "Do not include abcc_api_object_config.h, include abcc_api_config.h instead."
 #endif
 
 /*------------------------------------------------------------------------------

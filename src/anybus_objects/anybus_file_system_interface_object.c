@@ -7,7 +7,7 @@
 ********************************************************************************
 */
 
-#include "abcc_api_object_config.h"
+#include "abcc_api_config.h"
 
 #if ANB_FSI_OBJ_ENABLE
 

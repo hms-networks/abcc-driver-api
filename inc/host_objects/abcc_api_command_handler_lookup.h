@@ -22,17 +22,6 @@
 #include "abp_etn.h"
 #include "abcc_types.h"
 
-#define ABCC_API_OBJ_ATTRIBUTE_RESPONSE_LIST \
-        APP_OBJ_OBJ_ATTRIBUTES \
-        BAC_OBJ_OBJ_ATTRIBUTES \
-        COP_OBJ_OBJ_ATTRIBUTES \
-        CFN_OBJ_OBJ_ATTRIBUTES \
-        ECT_OBJ_OBJ_ATTRIBUTES \
-        EIP_OBJ_OBJ_ATTRIBUTES \
-        PIR_OBJ_OBJ_ATTRIBUTES \
-        MOD_OBJ_OBJ_ATTRIBUTES \
-        ETN_OBJ_OBJ_ATTRIBUTES
-
 /*******************************************************************************
 ** Predefined macros to be registred into the user defined list
 ** ABCC_API_COMMAND_RESPONSE_LIST to select what commands to be responded to and
@@ -56,7 +45,7 @@
 ** Application Object (0xFF)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if APP_OBJ_ENABLE
 #define APP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Application" }, \
                                { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
@@ -117,7 +106,7 @@
 ** BACnet Host Object (0xEF)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if BAC_OBJ_ENABLE
 #define BAC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "BACnet" }, \
                                { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
@@ -154,7 +143,7 @@
 ** CANopen Object (0xFB)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if COP_OBJ_ENABLE
 #define COP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CANopen" }, \
                                { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
@@ -198,7 +187,7 @@
 ** CC-Link IE Field Network Host Object (0xE6)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if CFN_OBJ_ENABLE
 #define CFN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CC-Link IE Field Network" }, \
                                { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
@@ -232,7 +221,7 @@
 ** EtherCAT Object (0xF5)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if ECT_OBJ_ENABLE
 #define CFN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "EtherCAT" }, \
                                { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
@@ -288,7 +277,7 @@
 ** EtherNet/IP Host Object (0xF8)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if EIP_OBJ_ENABLE
 #define EIP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,            .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "EtherNet/IP" }, \
                                { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,             .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
@@ -344,16 +333,13 @@
 /* Enable EtherNet/IP QuickConnect */
 #define ABCC_ETHERNETIP_OBJ_DLR_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_EIP_QC, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNETIP_OBJ_DLR_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_EIP_QC, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjEnableDLR_Get }
-
-
-
 #endif
 
 /*------------------------------------------------------------------------------
 ** PROFINET IO Object (0xF6)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if PIR_OBJ_ENABLE
 #define PIR_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFINET IO" }, \
                                { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
@@ -415,7 +401,7 @@
 ** Modbus Host Object (0xFA)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if MOD_OBJ_ENABLE
 #define MOD_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Modbus" }, \
                                { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
@@ -462,7 +448,7 @@
 ** Ethernet Host Object (F9h)
 **------------------------------------------------------------------------------
 */
-/* Object attributes */
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if ETN_OBJ_ENABLE
 #define ETN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Ethernet" }, \
                                { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
@@ -473,7 +459,6 @@
 #endif
 
 #if ETN_OBJ_ENABLE
-
 /* HICP enabled */
 #define ABCC_ETHERNET_OBJ_HICP_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_HICP_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpEnabled_Get }
@@ -519,8 +504,22 @@
 /* Reset from HICP enabled */
 #define ABCC_ETHERNET_OBJ_DHCP_CLIENT_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_DHCP_CLIENT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_DHCP_CLIENT_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_DHCP_CLIENT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjDhcpClientEnabled_Get }
-
 #endif
+
+/*------------------------------------------------------------------------------
+** List that will automatically register enabled object attributes.
+**------------------------------------------------------------------------------
+*/
+#define ABCC_API_OBJ_ATTRIBUTE_RESPONSE_LIST \
+        APP_OBJ_OBJ_ATTRIBUTES \
+        BAC_OBJ_OBJ_ATTRIBUTES \
+        COP_OBJ_OBJ_ATTRIBUTES \
+        CFN_OBJ_OBJ_ATTRIBUTES \
+        ECT_OBJ_OBJ_ATTRIBUTES \
+        EIP_OBJ_OBJ_ATTRIBUTES \
+        PIR_OBJ_OBJ_ATTRIBUTES \
+        MOD_OBJ_OBJ_ATTRIBUTES \
+        ETN_OBJ_OBJ_ATTRIBUTES
 
 /*******************************************************************************
 ** Predefined callback function prototypes used by command_handler_lookup_table.
@@ -1251,26 +1250,28 @@ void ABCC_CbfEthernetObjIpConfiguration_Set( void* pPackedArrSrc, UINT16 iSizeBy
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the SNMP read-only community string.
+** Note: consider storing the string in non-volatile memory.
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pPackedStrDest - Pointer to buffer where string shall be written.
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       SNMP read-only community string
+**       Size of the written SNMP read-only community string
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfEthernetObjSnmpReadOnlyString_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the SNMP read-write community string.
+** Note: consider storing the string in non-volatile memory.
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pPackedStrDest - Pointer to buffer where string shall be written.
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       SNMP read-write community string
+**       Size of the written SNMP read-write community string
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfEthernetObjSnmpReadWriteString_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );

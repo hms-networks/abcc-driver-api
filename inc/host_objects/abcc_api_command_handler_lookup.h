@@ -754,7 +754,7 @@ UINT16 ABCC_CbfApplicationObjHWVersion_Get( void );
 **       Serial number of the device.
 **------------------------------------------------------------------------------
 */
-UINT32 ABCC_CbfCANopenObjSerialNmber_Get( void );
+UINT32 ABCC_CbfCANopenObjSerialNumber_Get( void );
 
 /*------------------------------------------------------------------------------
 ** EtherCAT Object (0xF5)

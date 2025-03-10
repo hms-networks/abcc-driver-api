@@ -1,5 +1,5 @@
 # abcc-api
-The Anybus CompactCom (ABCC) API is the easy-to-use interface for your host application towards the CompactCom.
+The Anybus CompactCom (ABCC) API is the easy-to-use interface for your host application towards the CompactCom Driver.
 
 To see examples of how it can be used in a project, go to [abcc-example-starterkit/](https://github.com/hms-networks/abcc-example-starterkit).
 

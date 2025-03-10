@@ -22,11 +22,11 @@ static const Command_Handler_Lookup_Type command_handler_lookup_table[] = { ABCC
 static const Command_Handler_Lookup_Type command_handler_lookup_table[] = { ABCC_API_OBJ_ATTRIBUTE_RESPONSE_LIST };
 #endif
 
-static BOOL SetResponseMessage( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry );
-static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry );
-static void GetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry );
-static void SetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry );
-static BOOL ObjectSpecificHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry );
+static void SetResponseMessage( ABP_MsgType* psReceivedCommandMsg );
+static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry );
+static void GetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry );
+static void SetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry );
+static BOOL ObjectSpecificHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry );
 
 void ABCC_CbfHandleCommandMessage( ABP_MsgType* psReceivedCommandMsg )
 {
@@ -44,18 +44,18 @@ void ABCC_CbfHandleCommandMessage( ABP_MsgType* psReceivedCommandMsg )
       return;
    default:
    {
-      const Command_Handler_Lookup_Type psEntry;
-      SetResponseMessage( psReceivedCommandMsg, &psEntry );
+      SetResponseMessage( psReceivedCommandMsg  );
       ABCC_SendRespMsg( psReceivedCommandMsg );
       return;
    }
    }
 }
 
-static BOOL SetResponseMessage( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry )
+static void SetResponseMessage( ABP_MsgType* psReceivedCommandMsg )
 {
+   const Command_Handler_Lookup_Type* psEntry;
    UINT8 bDestObj      = ABCC_GetMsgDestObj( psReceivedCommandMsg );
-   UINT8 bInst         = ABCC_GetMsgInstance( psReceivedCommandMsg );
+   UINT16 bInst        = ABCC_GetMsgInstance( psReceivedCommandMsg );
    ABP_MsgCmdType bCmd = ABCC_GetMsgCmdBits( psReceivedCommandMsg );
 
    const UINT32 lTableLength = sizeof( command_handler_lookup_table ) / sizeof( Command_Handler_Lookup_Type );
@@ -111,7 +111,7 @@ static BOOL SetResponseMessage( ABP_MsgType* psReceivedCommandMsg, Command_Handl
       return;
 }
 
-static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry )
+static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry )
 {
    switch( psEntry->bCommand )
    {
@@ -140,7 +140,7 @@ static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handl
                                              (char*)ABCC_GetMsgDataPtr( psReceivedCommandMsg ),
                                              ABCC_GetMaxMessageSize() ) )
          {
-            UINT16 iStrLength = strlen((char*)ABCC_GetMsgDataPtr( psReceivedCommandMsg ));
+            UINT16 iStrLength = (UINT16)strlen((char*)ABCC_GetMsgDataPtr( psReceivedCommandMsg ));
             if( iStrLength > ABCC_GetMaxMessageSize() )
             {
                ABCC_LOG_FATAL( ABCC_EC_MSG_BUFFER_OVERRUN, iStrLength, "Message buffer size exceeded.\n" );
@@ -168,7 +168,7 @@ static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handl
    return( FALSE );
 }
 
-static void GetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry )
+static void GetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry )
 {
    switch( psEntry->eServiceTag )
    {
@@ -250,7 +250,7 @@ static void GetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, Command_Hand
    }
 }
 
-static void SetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry )
+static void SetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry )
 {
    switch( psEntry->eServiceTag )
    {
@@ -299,7 +299,7 @@ static void SetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, Command_Hand
    }
 }
 
-static BOOL ObjectSpecificHandler( ABP_MsgType* psReceivedCommandMsg, Command_Handler_Lookup_Type* psEntry )
+static BOOL ObjectSpecificHandler( ABP_MsgType* psReceivedCommandMsg, const Command_Handler_Lookup_Type* psEntry )
 {
    switch( psEntry->bObject )
    {

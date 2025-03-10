@@ -436,9 +436,6 @@
 /* No. of ADI indexing bits */
 #define ABCC_APPLICATION_OBJ_ADI_INDEXING_BITS_VALUE(x)     { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_ADI_INDEXING_BITS,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
 
-/* No. of ADI indexing bits */
-#define ABCC_APPLICATION_OBJ_ADI_INDEXING_BITS_VALUE(x)     { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_MESSAGE_FORWARDING,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
-
 /* Modbus read/write offset, value format: _VALUE("\xRD\xWR") */
 #define ABCC_MODBUS_OBJ_RW_OFFSET_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_RW_OFFSET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                  .uAttrLength.iDataSize = ABP_MOD_IA_RW_OFFSET_DS }
 #define ABCC_MODBUS_OBJ_RW_OFFSET_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_RW_OFFSET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_MOD_IA_RW_OFFSET_DS, .uCbx.pnGetArrAttr = ABCC_CbfModbusObjReadWriteOffset_Get }

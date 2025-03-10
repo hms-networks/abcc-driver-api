@@ -41,7 +41,7 @@ typedef INT32 (*ABCC_INT32_Get_AttrFuncType) (void);
 typedef UINT16(*ABCC_STR_Get_AttrFuncType)   (char* pPackedStrDest, UINT16 iBuffSizeBytes);
 typedef UINT16(*ABCC_ARR_Get_AttrFuncType)   (void* pPackedArrDest, UINT16 iBuffSizeBytes);
 
-typedef void (*ABCC_BOOL8_Set_AttrFuncType) (BOOL);
+typedef void (*ABCC_BOOL8_Set_AttrFuncType) (BOOL8);
 typedef void (*ABCC_UINT8_Set_AttrFuncType) (UINT8);
 typedef void (*ABCC_INT8_Set_AttrFuncType)  (INT8);
 typedef void (*ABCC_UINT16_Set_AttrFuncType)(UINT16);

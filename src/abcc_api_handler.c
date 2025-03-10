@@ -30,6 +30,8 @@
 
 #include "abcc_api.h"
 #include "abcc_api_network_settings.h"
+#include "abcc_api_command_handler_lookup.h"
+#include "anybus_file_system_interface_object.h"
 
 /*------------------------------------------------------------------------------
 ** Comm settings values
@@ -910,11 +912,14 @@ BOOL ABCC_API_SetAddress( UINT16 iSwitchValue )
    if( appl_fSetAddrInProgress )
    {
       /*
-      ** Address updated next time
+      ** Address update already in progress.
       */
       return FALSE;
    }
 
+   /*
+   ** Check if still in SETUP state.
+   */
    if( appl_fUserInitPrepDone == FALSE )
    {
       /*
@@ -929,10 +934,13 @@ BOOL ABCC_API_SetAddress( UINT16 iSwitchValue )
       appl_iNwNodeAddress = iSwitchValue;
 
       /*
-      ** Indicate to application that the address is set by HW switches
+      ** Indicate to application that the address will be set.
       */
       return TRUE;
    }
+   /*
+   ** If post-SETUP state and new value differs from active value.
+   */
    else if( appl_iNwNodeAddress != iSwitchValue )
    {
      /*
@@ -944,10 +952,14 @@ BOOL ABCC_API_SetAddress( UINT16 iSwitchValue )
      ABCC_CmdSeqAdd( appl_asAddressChangedCmdSeq, UpdateAddressDone, NULL, NULL );
 
       /*
-      ** Indicate to application that the address will be set by HW switches
+      ** Indicate to application that the address will be set.
       */
       return TRUE;
    }
+   /*
+   ** Indicate to application that the address is already set to the requested value.
+   */
+   return TRUE;
 }
 
 BOOL ABCC_API_SetBaudrate( UINT8 bSwitchValue )

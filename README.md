@@ -81,7 +81,7 @@ include(${ABCC_API_DIR}/abcc-driver-api.cmake)
 
 5. Add directories containing include (.h) files related to the CompactCom Driver API to your target.
 ```
-target_include_directories(host_application_exec PRIVATE ${ABCC_API_INCLUDE_DIRS})
+target_include_directories(<your_target> PRIVATE ${ABCC_API_INCLUDE_DIRS})
 ```
 
 6. Add the CompactCom Driver API library to the user host application executable target.

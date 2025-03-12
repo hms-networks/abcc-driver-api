@@ -89,6 +89,133 @@
 **------------------------------------------------------------------------------
 */
 
-#include "abcc_api_object_config.h"
+/*******************************************************************************
+** Object configuration macros
+********************************************************************************
+*/
+/*------------------------------------------------------------------------------
+** Supported host-side network objects - Define to 1 in abcc_driver_config.h to
+** enable the object, and 0 to disable.
+**------------------------------------------------------------------------------
+*/
+#ifndef CIET_OBJ_ENABLE
+   #define CIET_OBJ_ENABLE                         0
+#endif
+#ifndef CFN_OBJ_ENABLE
+   #define CFN_OBJ_ENABLE                          0
+#endif
+#ifndef EPL_OBJ_ENABLE
+   #define EPL_OBJ_ENABLE                          0
+#endif
+#ifndef BAC_OBJ_ENABLE
+   #define BAC_OBJ_ENABLE                          0
+#endif
+#ifndef ECT_OBJ_ENABLE
+   #define ECT_OBJ_ENABLE                          0
+#endif
+#ifndef PRT_OBJ_ENABLE
+   #define PRT_OBJ_ENABLE                          0
+#endif
+#ifndef CCL_OBJ_ENABLE
+   #define CCL_OBJ_ENABLE                          0
+#endif
+#ifndef EIP_OBJ_ENABLE
+   #define EIP_OBJ_ENABLE                          0
+#endif
+#ifndef MOD_OBJ_ENABLE
+   #define MOD_OBJ_ENABLE                          0
+#endif
+#ifndef COP_OBJ_ENABLE
+   #define COP_OBJ_ENABLE                          0
+#endif
+#ifndef DEV_OBJ_ENABLE
+   #define DEV_OBJ_ENABLE                          0
+#endif
+#ifndef DPV1_OBJ_ENABLE
+   #define DPV1_OBJ_ENABLE                         0
+#endif
+
+/*------------------------------------------------------------------------------
+** Supported host-side objects - Define to 1 in abcc_driver_config.h to
+** enable the object, and 0 to disable.
+**------------------------------------------------------------------------------
+*/
+#ifndef APP_OBJ_ENABLE
+   #define APP_OBJ_ENABLE                          1
+#endif
+#ifndef SAFE_OBJ_ENABLE
+   #define SAFE_OBJ_ENABLE                         0
+#endif
+#ifndef SYNC_OBJ_ENABLE
+   #define SYNC_OBJ_ENABLE                         ABCC_CFG_SYNC_ENABLED
+#endif
+#ifndef ETN_OBJ_ENABLE
+   #define ETN_OBJ_ENABLE                          0
+#endif
+#ifndef OPCUA_OBJ_ENABLE
+   #define OPCUA_OBJ_ENABLE                        0
+#endif
+#ifndef MQTT_OBJ_ENABLE
+   #define MQTT_OBJ_ENABLE                         0
+#endif
+#ifndef ASM_OBJ_ENABLE
+   #define ASM_OBJ_ENABLE                          0
+#endif
+
+/*------------------------------------------------------------------------------
+** Supported module-side objects - Define to 1 in abcc_driver_config.h to
+** enable the object, and 0 to disable.
+**------------------------------------------------------------------------------
+*/
+#ifndef ANB_FSI_OBJ_ENABLE
+   #define ANB_FSI_OBJ_ENABLE                      0
+#endif
+
+/*------------------------------------------------------------------------------
+** The max. number of *concurrent FSI operations* that the FSI object keeps
+** track of. Affects static memory consumption inside the FSI object.
+**
+** NOTE: This is *not* the same as the max. number of existing FSI instance or
+** max. number of open files/directories.
+**------------------------------------------------------------------------------
+*/
+#ifndef ANB_FSI_MAX_CONCURRENT_OPERATIONS
+   #define ANB_FSI_MAX_CONCURRENT_OPERATIONS       ( 4 )
+#endif
+
+/*------------------------------------------------------------------------------
+** Application data Object (0xFE)
+** This object is required and always enabled.
+**------------------------------------------------------------------------------
+*/
+/*
+** These defines shall be set to the max number of process data mapping entries
+** that will be required by the implementation.
+** Note that each mapping entry represents a 'range' of elements from one ADI,
+** meaning that if only some elements from a multi-element ADI are to be mapped
+** it will require as many mapping entries as there are separate and non-
+** continuous ranges of elements to map.
+** Do not forget to consider remap scenarios if ABCC_CFG_REMAP_SUPPORT_ENABLED
+** is enabled in abcc_driver_config.h.
+*/
+#ifndef AD_MAX_NUM_WRITE_MAP_ENTRIES
+   #define AD_MAX_NUM_WRITE_MAP_ENTRIES             ( 64 )
+#endif
+#ifndef AD_MAX_NUM_READ_MAP_ENTRIES
+   #define AD_MAX_NUM_READ_MAP_ENTRIES              ( 64 )
+#endif
+
+/*
+** Attributes 5, 6, 7: Min, max and default attributes
+**
+** Enabling this will also enable and include functions that performs runtime
+** min/max range checks for 'SetAttribute' operations targeting ADI elements,
+** which will increase code ROM consumption.
+** If disabled no range checks will be made, and the min/max will be the full
+** range of each data type.
+*/
+#ifndef AD_IA_MIN_MAX_DEFAULT_ENABLE
+   #define AD_IA_MIN_MAX_DEFAULT_ENABLE            0
+#endif
 
 #endif

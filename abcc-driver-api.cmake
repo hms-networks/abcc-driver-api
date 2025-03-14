@@ -4,7 +4,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.10.0")
    include_guard(GLOBAL)
 endif()
 
-# Complete list of source (.c) files inside the Anybus CompactCom API. 
+# Complete list of source (.c) files inside the Anybus CompactCom API.
 set(abcc_api_SRCS
    ${ABCC_API_DIR}/src/abcc_api_select_firmware.c
    ${ABCC_API_DIR}/src/abcc_api_handler.c
@@ -13,7 +13,8 @@ set(abcc_api_SRCS
    ${ABCC_API_DIR}/src/anybus_objects/anybus_file_system_interface_object.c
 )
 
-# Complete list of source (.c) files inside the Anybus CompactCom API. 
+# Complete list of header (.h) files inside the Anybus CompactCom API. This is
+# only used to arrange the files correctly for display in IDEs.
 set(abcc_api_INCS
    ${ABCC_API_DIR}/inc/abcc_api.h
    ${ABCC_API_DIR}/inc/abcc_api_network_settings.h
@@ -26,13 +27,20 @@ set(abcc_api_INCS
 )
 
 # Creating a library target containing the Anybus CompactCom API.
-add_library(abcc_api EXCLUDE_FROM_ALL ${abcc_api_SRCS} ${abcc_api_INCS})
+# The include files are added only to keep the file and directory tree structure.
+add_library(abcc_api STATIC 
+   ${abcc_api_SRCS}
+   ${abcc_api_INCS}
+)
 
 # Keeping the file and directory tree structure of the Anybus CompactCom API when 
 # generating IDE projects.
-source_group(TREE ${ABCC_API_DIR} PREFIX "abcc-api" FILES ${abcc_api_SRCS} ${abcc_api_INCS})
+source_group(TREE ${ABCC_API_DIR} PREFIX "abcc-api" FILES
+   ${abcc_api_SRCS}
+   ${abcc_api_INCS}
+)
 
-# Essentially a renaming.
+# Essentially a renaming of the variable containing include directories.
 set(ABCC_DRIVER_INCLUDE_DIRS ${ABCC_API_INCLUDE_DIRS})
 
 # The directory containing the Anybus CompactCom Driver repository.
@@ -45,7 +53,7 @@ include(${ABCC_DRIVER_DIR}/abcc-driver.cmake)
 # externally accessible is appended to the list ABCC_API_INCLUDE_DIRS. Not using
 # append() command since the 'user unique' include (.h) files previously added is
 # included in ABCC_DRIVER_INCLUDE_DIRS from the previous "renaming" operation.
-set( ABCC_API_INCLUDE_DIRS
+set(ABCC_API_INCLUDE_DIRS
    ${ABCC_DRIVER_INCLUDE_DIRS}
    ${ABCC_API_DIR}/inc
    ${ABCC_API_DIR}/inc/host_objects

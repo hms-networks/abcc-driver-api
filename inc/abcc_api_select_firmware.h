@@ -12,7 +12,7 @@
 #ifndef ABCC_API_SELECT_FW_H
 #define ABCC_API_SELECT_FW_H
 
-#include "abcc_api_config.h"
+#include "../src/abcc_api_config.h"
 #include "abcc_error_codes.h"
 
 #if ANB_FSI_OBJ_ENABLE

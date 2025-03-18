@@ -7,11 +7,11 @@ To see examples of how it can be used in a project, go to [abcc-example-starterk
 
 ### Add this repo as a submodule
 
-*It's suggested to add the repository as a submodule in your projects `lib/` folder.*
+*It's suggested to add the repository as a submodule in your projects **lib/** folder.*
 ```
 git submodule add https://github.com/hms-networks/abcc-driver-api.git lib/abcc-driver-api
 ```
-This repository already contains another "nested" submodule ([abcc-driver/](https://github.com/hms-networks/abcc-driver)) that must be initialized. Therefore, go to the path of abcc-driver-api/ and initialize abcc-driver/.
+This repository already contains another "nested" submodule ([abcc-driver/](https://github.com/hms-networks/abcc-driver)) that must be initialized. Therefore, go to the path of **abcc-driver-api/** and initialize **abcc-driver/**.
 ```
 cd lib/abcc-driver-api
 ```
@@ -32,7 +32,7 @@ git add .gitmodules lib/abcc-driver-api
 
 This repository contains a submodule ([abcc-driver/](https://github.com/hms-networks/abcc-driver)) that must be initialized. Therefore, pass the flag `--recurse-submodules` when cloning.
 
-*It's suggested to clone the repository into your projects `lib/` folder.*
+*It's suggested to clone the repository into your projects **lib/** folder.*
 ```
 git clone --recurse-submodules https://github.com/hms-networks/abcc-driver-api.git lib/abcc-driver-api
 ```
@@ -48,7 +48,7 @@ git submodule update --init --recursive
 
 ### Configure
 
-The Anybus CompactCom Driver API shall **always** be configured by a file called `abcc_driver_config.h`, created by you, custom to your project. The file shall contain macro definitions to enable, disable, and set values of different features and funtionalities.
+The Anybus CompactCom Driver API shall **always** be configured by a file called **abcc_driver_config.h**, created by you, custom to your project. The file shall contain macro definitions to enable, disable, and set values of different features and funtionalities.
 
 The configuration file can either be generated simply with the [Anybus CompactCom Driver Configurator](https://compactcom40driver.online-config.anybus.com/), or created manually (advanced users).
 

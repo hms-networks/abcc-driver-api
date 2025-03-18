@@ -52,16 +52,16 @@ The Anybus CompactCom Driver API shall **always** be configured by a file called
 
 The configuration file can either be generated simply with the [Anybus CompactCom Driver Configurator](https://compactcom40driver.online-config.anybus.com/), or created manually (advanced users).
 
-### CMake
+### Alternative 1: CMake
 
-This repository can be included as a library into a CMake target by adding a few sections to your CMakeLists.txt file.
+This repository can be included as a library into a CMake target by adding a few sections to your **CMakeLists.txt** file.
 
-1. Add your file abcc_hardware_abstraction.c to your target.
+1. Add your file **abcc_hardware_abstraction.c** to your target.
 ```
 target_sources(<your_target> PRIVATE <"path/to/abcc_hardware_abstraction.c">)
 ```
 
-2. Create a variable called ABCC_API_INCLUDE_DIRS with directories containing **your** personal include (.h) files related to the CompactCom Driver API, such as `abcc_driver_config.h`.
+2. Create a variable called `ABCC_API_INCLUDE_DIRS` with directories containing **your** personal include (.h) files related to the CompactCom Driver API, such as **abcc_driver_config.h**.
 ```
 set(ABCC_API_INCLUDE_DIRS
     <${PROJECT_SOURCE_DIR}/path/to/include_directory>
@@ -69,7 +69,7 @@ set(ABCC_API_INCLUDE_DIRS
 )
 ```
 
-3. Create a variable called ABCC_API_DIR with the path to the directory where the CompactCom Driver API repository was cloned.
+3. Create a variable called `ABCC_API_DIR` with the path to the directory where the CompactCom Driver API repository was cloned.
 ```
 set(ABCC_API_DIR <"${PROJECT_SOURCE_DIR}/path/to/abcc-driver-api">)
 ```
@@ -89,3 +89,30 @@ target_include_directories(<your_target> PRIVATE ${ABCC_API_INCLUDE_DIRS})
 target_link_libraries(<your_target> abcc_api)
 ```
 The CompactCom Driver API should now be included into your project when building with CMake!
+
+### Alternative 2: Make
+
+This repository's Makefile, **abcc-driver-api.mk**, can be included into a Make target by adding a few sections to your higher level Makefile.
+
+1. Create `SRCS`, add your source files to it (optional), and create object files from the content of `SRCS`.
+```
+SRCS  = ./src/main.c
+SRCS += ./src/abcc_network_data_parameters.c
+SRCS += ./src/abcc_adaptation/abcc_hardware_abstraction.c
+...
+```
+2. Create `INCLUDES`, add your include paths to it (optional), and append the content as compiler flags when compiling. *Make sure to include the folder containing **abcc_driver_config.h** somehow, even if it's not in `INCLUDES` specifically.*.
+```
+INCLUDES = -I./src
+INCLUDES = -I./src/abcc_adaptation
+...
+```
+3. Create `ABCC_API_DIR` containing the path to the Anybus CompactCom Driver API directory.
+```
+ABCC_API_DIR := ./path/to/abcc-driver-api
+```
+4. Include **abcc-driver-api.mk**.
+```
+include $(ABCC_API_DIR)/abcc-driver-api.mk
+```
+The CompactCom Driver API should now compile together with your target!

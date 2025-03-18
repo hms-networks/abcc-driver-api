@@ -29,7 +29,6 @@
 #include "host_objects/application_data_object.h"   /* Application data object:   254 */
 
 #include "abcc_api.h"
-#include "abcc_api_network_settings.h"
 #include "abcc_api_command_handler_lookup.h"
 #include "anybus_file_system_interface_object.h"
 

@@ -44,7 +44,7 @@ void ABCC_CbfHandleCommandMessage( ABP_MsgType* psReceivedCommandMsg )
       return;
    default:
    {
-      SetResponseMessage( psReceivedCommandMsg  );
+      SetResponseMessage( psReceivedCommandMsg );
       ABCC_SendRespMsg( psReceivedCommandMsg );
       return;
    }
@@ -93,21 +93,21 @@ static void SetResponseMessage( ABP_MsgType* psReceivedCommandMsg )
                   /*
                   ** No command handler entry was found due to unsupported command.
                   */
-                  ABP_SetMsgErrorResponse( psReceivedCommandMsg, 0, ABP_ERR_UNSUP_CMD );
+                  ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_UNSUP_CMD );
                   return;
                }
             }
             /*
             ** No command handler entry was found due to unsupported instance.
             */
-            ABP_SetMsgErrorResponse( psReceivedCommandMsg, 0, ABP_ERR_UNSUP_INST );
+            ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_UNSUP_INST );
             return;
          }
       }
       /*
       ** No command handler entry was found due to unsupported object.
       */
-      ABP_SetMsgErrorResponse( psReceivedCommandMsg, 0, ABP_ERR_UNSUP_OBJ );
+      ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_UNSUP_OBJ );
       return;
 }
 
@@ -149,7 +149,7 @@ static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, const Command
          }
          else
          {
-            ABP_SetMsgErrorResponse( psReceivedCommandMsg, 0, ABP_ERR_INV_CMD_EXT_1 );
+            ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_INV_CMD_EXT_1 );
          }
          return( TRUE );
       }
@@ -162,7 +162,7 @@ static BOOL FindCommandHandler( ABP_MsgType* psReceivedCommandMsg, const Command
       /*
       ** The command code is unknown.
       */
-      ABP_SetMsgErrorResponse( psReceivedCommandMsg, 0, ABP_ERR_UNSUP_CMD );
+      ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_UNSUP_CMD );
       return( TRUE );
    }
    return( FALSE );
@@ -378,7 +378,7 @@ static BOOL ObjectSpecificHandler( ABP_MsgType* psReceivedCommandMsg, const Comm
          }
          else
          {
-            ABP_SetMsgErrorResponse( psReceivedCommandMsg, 0, ABP_ERR_OBJ_SPECIFIC );
+            ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_OBJ_SPECIFIC );
          }
          return( TRUE );
       default:

@@ -132,8 +132,6 @@ static ad_MapType ad_PdReadMapping[ AD_MAX_NUM_READ_MAP_ENTRIES ];
 static ad_MapType ad_PdWriteMapping[ AD_MAX_NUM_WRITE_MAP_ENTRIES ];
 static ad_MapInfoType ad_ReadMapInfo;
 static ad_MapInfoType ad_WriteMapInfo;
-static UINT8 bGetAccessMask = ABP_APPD_DESCR_GET_ACCESS;
-static UINT8 bSetAccessMask = ABP_APPD_DESCR_SET_ACCESS;
 
 /*------------------------------------------------------------------------------
 ** Converts number of octet offset to byte offset.
@@ -1589,7 +1587,7 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
          if( fExplicit )
          {
             if( !( psAdiEntry->psStruct[ i ].bDesc &
-                   bSetAccessMask ) )
+                   ABP_APPD_DESCR_SET_ACCESS ) )
             {
                *piSrcBitOffset += ( ABCC_GetDataTypeSizeInBits( psAdiEntry->psStruct[ i ].bDataType ) *
                                    psAdiEntry->psStruct[ i ].iNumSubElem );
@@ -2240,25 +2238,20 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = ABP_APPD_IA_DESCRIPTOR_DS * psAdiEntry->bNumOfElements;
                for( i = 0; i < psAdiEntry->bNumOfElements; i++ )
                {
-                  UINT8 bDesc = psAdiEntry->psStruct[i].bDesc;
-                  bDesc |= bDesc & bSetAccessMask ? bSetAccessMask : 0;
-                  bDesc |= bDesc & bGetAccessMask ? bGetAccessMask : 0;
-                  ABCC_SetMsgData8( psMsgBuffer, bDesc, i );
+                  ABCC_SetMsgData8( psMsgBuffer,
+                                    psAdiEntry->psStruct[i].bDesc, i );
                }
             }
             else
 #endif
             {
-               UINT8 bDesc = psAdiEntry->bDesc;
-               bDesc |= bDesc & bSetAccessMask ? bSetAccessMask : 0;
-               bDesc |= bDesc & bGetAccessMask ? bGetAccessMask : 0;
-               ABCC_SetMsgData8( psMsgBuffer, bDesc, 0 );
+               ABCC_SetMsgData8( psMsgBuffer, psAdiEntry->bDesc, 0 );
                iDataSize = ABP_APPD_IA_DESCRIPTOR_DS;
             }
             break;
 
          case ABP_APPD_IA_VALUE: /* Value. */
-            if( !( psAdiEntry->bDesc & bGetAccessMask ) )
+            if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                break;
@@ -2266,7 +2259,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             else if( ( psAdiEntry->psStruct != NULL ) &&
                        !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                bGetAccessMask ) )
+                                                ABP_APPD_DESCR_GET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                break;
@@ -2390,7 +2383,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 
          case ABP_APPD_IA_VALUE:
 
-            if( !( psAdiEntry->bDesc & bSetAccessMask ) )
+            if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
                break;
@@ -2512,7 +2505,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
             case ABP_APPD_IA_VALUE:
-               if( !( psAdiEntry->bDesc & bGetAccessMask ) )
+               if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
                {
                   bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                   break;
@@ -2520,7 +2513,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
                else if( ( psAdiEntry->psStruct != NULL ) &&
                           !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                   bGetAccessMask ) )
+                                                   ABP_APPD_DESCR_GET_ACCESS ) )
                {
                   bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                   break;
@@ -2575,7 +2568,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
             case ABP_APPD_IA_VALUE:
-               if( !( psAdiEntry->bDesc & bSetAccessMask ) )
+               if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
                {
                   bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
                   break;
@@ -2583,7 +2576,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
                else if( ( psAdiEntry->psStruct != NULL ) &&
                         !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                 bSetAccessMask ) )
+                                                 ABP_APPD_DESCR_SET_ACCESS ) )
                {
                   bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
                   break;
@@ -2832,16 +2825,6 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
    ad_fDoNetworkEndianSwap = ( eNetFormat == NET_LITTLEENDIAN ) ? FALSE : TRUE;
 #endif
 
-   /*
-   ** EtherCAT require get access on write process data and set access on read
-   ** process data. This logic ensures this is done.
-   */
-   if( ABCC_NetworkType() == ABP_NW_TYPE_ECT )
-   {
-      bGetAccessMask = ABP_APPD_DESCR_GET_ACCESS | ABP_APPD_DESCR_MAPPABLE_WRITE_PD;
-      bSetAccessMask = ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_MAPPABLE_READ_PD;
-   }
-
    *ppsAdiEntry = ad_asADIEntryList;
    *ppsDefaultMap = ad_asDefaultMap;
 
@@ -2905,7 +2888,7 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
 
          for( i = bStartIndex; i < bNumElements + bStartIndex; i++ )
          {
-            if( !( psAdiEntry->psStruct[ i ].bDesc & bGetAccessMask ) )
+            if( !( psAdiEntry->psStruct[ i ].bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
             {
                *piDestBitOffset += ( ABCC_GetDataTypeSizeInBits( psAdiEntry->psStruct[ i ].bDataType ) *
                                      psAdiEntry->psStruct[ i ].iNumSubElem );

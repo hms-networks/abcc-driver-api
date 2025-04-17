@@ -2836,7 +2836,7 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
    ** Some protocols require get access on write process data and set access on read
    ** process data. This logic ensures this is done.
    */
-   UINT8 bNetworkType = ABCC_NetworkType();
+   UINT16 bNetworkType = ABCC_NetworkType();
    if( ( bNetworkType == ABP_NW_TYPE_ECT ) ||
        ( bNetworkType == ABP_NW_TYPE_COP ) ||
        ( bNetworkType == ABP_NW_TYPE_EPL ) )

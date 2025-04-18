@@ -67,7 +67,7 @@ typedef struct
    {
       UINT8 bAttr;
    }uCmdExt;
-   enum ABP_MsgCmdType bCommand;
+   UINT16 bCommand;
    enum ABCC_ATTR_SERVICE_TAG eServiceTag;
    union
    {

@@ -712,7 +712,7 @@ void ABCC_API_UserInitComplete()
 
 void ABCC_API_RunTimerSystem( const INT16 iDeltaTimeMs )
 {
-   if( appl_eAbccHandlerState > ABCC_API_WAITCOM )
+   if( appl_eAbccHandlerState > ABCC_API_INIT )
    {
       ABCC_RunTimerSystem( iDeltaTimeMs );
    }

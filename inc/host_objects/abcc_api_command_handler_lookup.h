@@ -20,6 +20,7 @@
 #include "abp_pnio.h"
 #include "abp_mod.h"
 #include "abp_etn.h"
+#include "abp_dpv1.h"
 #include "abcc_types.h"
 
 /*******************************************************************************
@@ -504,6 +505,25 @@
 #endif
 
 /*------------------------------------------------------------------------------
+** PRFIBUS DP-V1 Host Object (0xFD)
+**------------------------------------------------------------------------------
+*/
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
+#if DPV1_OBJ_ENABLE
+#define DPV1_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFIBUS DP-V1" }, \
+                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x04 }, \
+                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#else
+#define DPV1_OBJ_OBJ_ATTRIBUTES
+#endif
+
+#if DPV1_OBJ_ENABLE
+/* PNO Ident Number (default = 1815h) */
+#define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#endif
+
+/*------------------------------------------------------------------------------
 ** List that will automatically register enabled object attributes.
 **------------------------------------------------------------------------------
 */
@@ -516,7 +536,8 @@
         EIP_OBJ_OBJ_ATTRIBUTES \
         PIR_OBJ_OBJ_ATTRIBUTES \
         MOD_OBJ_OBJ_ATTRIBUTES \
-        ETN_OBJ_OBJ_ATTRIBUTES
+        ETN_OBJ_OBJ_ATTRIBUTES \
+        DPV1_OBJ_OBJ_ATTRIBUTES
 
 /*******************************************************************************
 ** Predefined callback function prototypes used by command_handler_lookup_table.

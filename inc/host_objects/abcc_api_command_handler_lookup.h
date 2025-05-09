@@ -341,16 +341,16 @@
 **------------------------------------------------------------------------------
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
-#if PIR_OBJ_ENABLE
-#define PIR_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFINET IO" }, \
+#if PRT_OBJ_ENABLE
+#define PRT_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFINET IO" }, \
                                { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
                                { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
                                { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
-#define PIR_OBJ_OBJ_ATTRIBUTES
+#define PRT_OBJ_OBJ_ATTRIBUTES
 #endif
 
-#if PIR_OBJ_ENABLE
+#if PRT_OBJ_ENABLE
 /* Device ID */
 #define ABCC_PROFINET_OBJ_DEVICE_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_DEVICE_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_DEVICE_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_DEVICE_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjDeviceId_Get }
@@ -534,7 +534,7 @@
         CFN_OBJ_OBJ_ATTRIBUTES \
         ECT_OBJ_OBJ_ATTRIBUTES \
         EIP_OBJ_OBJ_ATTRIBUTES \
-        PIR_OBJ_OBJ_ATTRIBUTES \
+        PRT_OBJ_OBJ_ATTRIBUTES \
         MOD_OBJ_OBJ_ATTRIBUTES \
         ETN_OBJ_OBJ_ATTRIBUTES \
         DPV1_OBJ_OBJ_ATTRIBUTES

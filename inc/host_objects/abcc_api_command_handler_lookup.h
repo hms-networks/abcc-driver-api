@@ -505,7 +505,7 @@
 #endif
 
 /*------------------------------------------------------------------------------
-** PRFIBUS DP-V1 Host Object (0xFD)
+** PROFIBUS DP-V1 Host Object (0xFD)
 **------------------------------------------------------------------------------
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */

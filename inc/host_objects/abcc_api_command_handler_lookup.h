@@ -541,9 +541,9 @@
 #define ABCC_PROFIBUS_OBJ_HW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFIBUS_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                         .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjHardwareRev_Get }
 
-/* Attribute 12: Software Revision ("VXX.YY.ZZ")*/
+/* Attribute 12: Software Revision (format: Type(CHAR) Major(UINT8) Minor(UINT8) Build(UINT8)) Example V03.04.01 = ("\x56\x03\x04\x01") */
 #define ABCC_PROFIBUS_OBJ_SW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer      = (x), .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS }
-#define ABCC_PROFIBUS_OBJ_SW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SW_REV_DS,                      .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
+#define ABCC_PROFIBUS_OBJ_SW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SW_REV_DS,                         .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
 
 #endif
 
@@ -739,7 +739,7 @@ BOOL8 ABCC_CbfApplicationObjFirmwareAvailable_Get( void );
 void ABCC_CbfApplicationObjFirmwareAvailable_Set( BOOL8 fValue );
 
 /*------------------------------------------------------------------------------
-** Callback function to state weather the network address is configurable via
+** Callback function to state whether the network address is configurable via
 ** hardware, such as switches or similar. This information is required by some
 ** network protocols, e.g., EtherNet/IP.
 **------------------------------------------------------------------------------
@@ -1405,15 +1405,14 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pPackedStrDest - Pointer to buffer where a packed struct of
-**                        1 x CHAR, 3 x UINT8 shall be written in
-**                        little-endian byte order.
-**                        Example: "V123" as 0x33 0x32 0x31 0x56.
+**                        1 x CHAR, 3 x UINT8 shall be written.
+**                        Example V03.04.01 = ("\x56\x03\x04\x01").
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       Size of the inserted array in bytes, always 4 in this case
+**       Size of the inserted array in bytes, always 4 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
 
 #endif

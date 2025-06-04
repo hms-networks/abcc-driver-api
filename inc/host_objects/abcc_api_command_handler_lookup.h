@@ -24,12 +24,12 @@
 #include "abcc_types.h"
 
 /*******************************************************************************
-** Predefined macros to be registred into the user defined list
+** Predefined macros to be registered into the user defined list
 ** ABCC_API_COMMAND_RESPONSE_LIST to select what commands to be responded to and
-** how (callback function of constant value).
+** how (callback function or constant value).
 **
-** To use constat value:
-**    The macros ending with _VALUE(x) shall be registred with x replaced by the
+** To use constant value:
+**    The macros ending with _VALUE(x) shall be registered with x replaced by the
 **    value of the datatype specified in .uData.
 **
 ** To use callback function:
@@ -38,7 +38,7 @@
 **
 ** While both constant values and callback functions can be mixed in
 ** ABCC_API_COMMAND_RESPONSE_LIST, both types for a specific command cannot be
-** registred simultaneously.
+** registered simultaneously.
 ********************************************************************************
 */
 
@@ -63,44 +63,44 @@
 /* Reset request (object command) */
 #define ABCC_APPLICATION_OBJ_OA_RESET_REQUEST_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00,                                           .bCommand = ABP_APP_CMD_RESET_REQUEST,                                                                                       .uCbx.pnResetReqObj    = ABCC_CbfApplicationObj_ResetRequest }
 
-/* Configured */
+/* Attribute 1: Configured */
 #define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetUint32Attr  = ABCC_CbfApplicationObjConfigured_Get }
 
-/* Supported languages */
+/* Attribute 2: Supported languages */
 #define ABCC_APPLICATION_OBJ_SUP_LANG_GET_VALUE(x, y)     { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SUP_LANG,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = (y) }
 #define ABCC_APPLICATION_OBJ_SUP_LANG_GET_CBFUNC          { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SUP_LANG,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER,                                                             .uCbx.pnGetArrAttr     = ABCC_CbfApplicationObjSupportedLang_Get }
 #define ABCC_APPLICATION_OBJ_SUP_LANG_GET_ENUM_STR_CBFUNC { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SUP_LANG,     .bCommand = ABP_CMD_GET_ENUM_STR,                                                                                            .uCbx.pnGetEnumStrAttr = ABCC_CbfApplicationObjSupportedLang_GetEnumString }
 
-/* Serial number */
+/* Attribute 3: Serial number */
 #define ABCC_APPLICATION_OBJ_SERIAL_NR_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SER_NUM,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 #define ABCC_APPLICATION_OBJ_SERIAL_NR_GET_CBFUNC         { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SER_NUM,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfApplicationObjSerialNum_Get }
 
-/* Parameter control sum */
+/* Attribute 4: Parameter control sum */
 #define ABCC_APPLICATION_OBJ_PARAM_CTRL_SUM_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_PAR_CRTL_SUM, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_APP_IA_PAR_CRTL_SUM_DS,     .uCbx.pnGetArrAttr     = ABCC_CbfApplicationObjParamControlSum_Get }
 
-/* Vendor name */
-#define ABCC_APPLICATION_OBJ_VENDOR_NAME_GET_VALUE(x)     { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_VENDOR_NAME,  .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString          = (x) }
-#define ABCC_APPLICATION_OBJ_VENDOR_NAME_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_VENDOR_NAME,  .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_APP_IA_VENDOR_NAME_MAX_DS,  .uCbx.pnGetStrAttr     = ABCC_CbfApplicationObjVendorName_Get }
-
-/* Product name */
-#define ABCC_APPLICATION_OBJ_PRODUCT_NAME_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_PRODUCT_NAME, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString          = (x) }
-#define ABCC_APPLICATION_OBJ_PRODUCT_NAME_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_PRODUCT_NAME, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_APP_IA_PRODUCT_NAME_MAX_DS, .uCbx.pnGetStrAttr     = ABCC_CbfApplicationObjProductName_Get }
-
-/* Firmware version */
-#define ABCC_APPLICATION_OBJ_FW_VERSION_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = ABP_APP_IA_FW_VERSION_DS }
-#define ABCC_APPLICATION_OBJ_FW_VERSION_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_APP_IA_FW_VERSION_DS,       .uCbx.pnGetArrAttr     = ABCC_CbfApplicationObjFWVersion_Get }
-
-/* Hardware version */
-#define ABCC_APPLICATION_OBJ_HW_VERSION_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
-#define ABCC_APPLICATION_OBJ_HW_VERSION_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16,                                                             .uCbx.pnGetUint16Attr  = ABCC_CbfApplicationObjHWVersion_Get }
-
-/* Firmware Available flag */
+/* Attribute 5: Candidate firmware available flag */
 #define ABCC_APPLICATION_OBJ_FW_AVAILABLE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_AVAILABLE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr   = ABCC_CbfApplicationObjFirmwareAvailable_Get }
 #define ABCC_APPLICATION_OBJ_FW_AVAILABLE_SET_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_AVAILABLE, .bCommand = ABP_CMD_SET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnSetBool8Attr   = ABCC_CbfApplicationObjFirmwareAvailable_Set }
 
-/* Hardware configurable address */
+/* Attribute 6: Hardware configurable address */
 #define ABCC_APPLICATION_OBJ_HW_CONF_ADDR_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_CONF_ADDR, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_APPLICATION_OBJ_HW_CONF_ADDR_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_CONF_ADDR, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfApplicationObjHWConfAddress_Get }
+
+/* Attribute 8: Vendor name */
+#define ABCC_APPLICATION_OBJ_VENDOR_NAME_GET_VALUE(x)     { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_VENDOR_NAME,  .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString          = (x) }
+#define ABCC_APPLICATION_OBJ_VENDOR_NAME_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_VENDOR_NAME,  .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_APP_IA_VENDOR_NAME_MAX_DS,  .uCbx.pnGetStrAttr     = ABCC_CbfApplicationObjVendorName_Get }
+
+/* Attribute 9: Product name */
+#define ABCC_APPLICATION_OBJ_PRODUCT_NAME_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_PRODUCT_NAME, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString          = (x) }
+#define ABCC_APPLICATION_OBJ_PRODUCT_NAME_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_PRODUCT_NAME, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_APP_IA_PRODUCT_NAME_MAX_DS, .uCbx.pnGetStrAttr     = ABCC_CbfApplicationObjProductName_Get }
+
+/* Attribute 10: Firmware version */
+#define ABCC_APPLICATION_OBJ_FW_VERSION_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = ABP_APP_IA_FW_VERSION_DS }
+#define ABCC_APPLICATION_OBJ_FW_VERSION_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_APP_IA_FW_VERSION_DS,       .uCbx.pnGetArrAttr     = ABCC_CbfApplicationObjFWVersion_Get }
+
+/* Attribute 11: Hardware version */
+#define ABCC_APPLICATION_OBJ_HW_VERSION_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
+#define ABCC_APPLICATION_OBJ_HW_VERSION_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16,                                                             .uCbx.pnGetUint16Attr  = ABCC_CbfApplicationObjHWVersion_Get }
 #endif
 
 /*------------------------------------------------------------------------------
@@ -118,25 +118,25 @@
 #endif
 
 #if BAC_OBJ_ENABLE
-/* Object name (max length: 64)*/
+/* Attribute 1: Object name (max. length: 64 bytes) */
 #define ABCC_BACNET_OBJ_OA_OBJ_NAME_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_OBJECT_NAME,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Vendor name (max length: 64)*/
+/* Attribute 2: Vendor name (max. length: 64 bytes) */
 #define ABCC_BACNET_OBJ_OA_VENDOR_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_VENDOR_NAME,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Vendor identifier */
+/* Attribute 3: Vendor identifier */
 #define ABCC_BACNET_OBJ_OA_VENDOR_ID_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_VENDOR_IDENTIFIER,    .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16    = (x) }
 
-/* Model name (max length: ?)*/
+/* Attribute 4: Model name (max length: ?) */
 #define ABCC_BACNET_OBJ_OA_MODLE_NAME_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_MODEL_NAME,           .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Firmware revision (max length: 16)*/
+/* Attribute 5: Firmware revision (max. length: 16 bytes) */
 #define ABCC_BACNET_OBJ_OA_FW_REV_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_FIRMWARE_REVISION,    .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Application software version (max length: 16)*/
+/* Attribute 6: Application software version (max. length: 16 bytes) */
 #define ABCC_BACNET_OBJ_OA_APP_SW_VER_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_APP_SOFTWARE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Password (max length: 20)*/
+/* Attribute 9: Password (max. length: 20 bytes) */
 #define ABCC_BACNET_OBJ_OA_PASSWORD_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_PASSWORD,             .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 #endif
 
@@ -155,32 +155,32 @@
 #endif
 
 #if COP_OBJ_ENABLE
-/* Vendor ID */
+/* Attribute 1: Vendor ID */
 #define ABCC_CANOPEN_OBJ_VENDOR_ID_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_VENDOR_ID,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 
-/* Product code */
+/* Attribute 2: Product code */
 #define ABCC_CANOPEN_OBJ_PRODUCT_CODE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_PRODUCT_CODE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 
-/* Major revision */
+/* Attribute 3: Major revision */
 #define ABCC_CANOPEN_OBJ_MAJOR_REV_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_MAJOR_REV,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
 
-/* Minor revision */
+/* Attribute 4: Minor revision */
 #define ABCC_CANOPEN_OBJ_MINOR_REV_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_MINOR_REV,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
 
-/* Serial number */
+/* Attribute 5: Serial number */
 #define ABCC_CANOPEN_OBJ_SERIAL_NUM_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 #define ABCC_CANOPEN_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfCANopenObjSerialNumber_Get }
 
-/* Manufacturer device name (max length: 64)*/
+/* Attribute 6: Manufacturer device name (max. length: 64 bytes) */
 #define ABCC_CANOPEN_OBJ_MANF_DEV_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_MANF_DEV_NAME,      .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Manufacturer hardware version (max length: 64)*/
+/* Attribute 7: Manufacturer hardware version (max. length: 64 bytes) */
 #define ABCC_CANOPEN_OBJ_MANF_HW_VER_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_MANF_HW_VER,      .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Manufacturer software version (max length: 64)*/
+/* Attribute 8: Manufacturer software version (max. length: 64 bytes) */
 #define ABCC_CANOPEN_OBJ_MANF_SW_VER_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_MANF_SW_VER,      .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Device type */
+/* Attribute 10: Device type */
 #define ABCC_CANOPEN_OBJ_DEVICE_TYPE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_DEVICE_TYPE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 #endif
 
@@ -199,22 +199,22 @@
 #endif
 
 #if CFN_OBJ_ENABLE
-/* Vendor code */
+/* Attribute 1: Vendor code */
 #define ABCC_CCLINKIE_OBJ_VENDOR_CODE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_VENDOR_CODE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
 
-/* Vendor name (max length: 31)*/
+/* Attribute 2: Vendor name (max. length: 31 bytes) */
 #define ABCC_CCLINKIE_OBJ_VENDOR_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_VENDOR_NAME,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Model/Device type */
+/* Attribute 3: Model/Device type */
 #define ABCC_CCLINKIE_OBJ_MODEL_TYPE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_MODEL_TYPE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
 
-/* Model name (max length: 19)*/
+/* Attribute 4: Model name (max. length: 19 bytes)*/
 #define ABCC_CCLINKIE_OBJ_MODEL_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_MODEL_NAME,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Model code */
+/* Attribute 5: Model code */
 #define ABCC_CCLINKIE_OBJ_MODEL_CODE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_MODEL_CODE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 
-/* Software version */
+/* Attribute 6: Software version */
 #define ABCC_CCLINKIE_OBJ_SW_VERSION_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_SW_VERSION,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8        = (x) }
 #endif
 
@@ -233,43 +233,43 @@
 #endif
 
 #if ECT_OBJ_ENABLE
-/* Vendor ID */
+/* Attribute 1: Vendor ID */
 #define ABCC_ETHERCAT_OBJ_VENDOR_ID_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_VENDOR_ID,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 
-/* Product code */
+/* Attribute 2: Product code */
 #define ABCC_ETHERCAT_OBJ_PRODUCT_CODE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_PRODUCT_CODE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 
-/* Major revision */
+/* Attribute 3: Major revision */
 #define ABCC_ETHERCAT_OBJ_MAJOR_REV_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MAJOR_REV,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
 
-/* Minor revision */
+/* Attribute 4: Minor revision */
 #define ABCC_ETHERCAT_OBJ_MINOR_REV_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MINOR_REV,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
 
-/* Serial number */
+/* Attribute 5: Serial number */
 #define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 #define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNmber_Get }
 
-/* Device name (max length: 64)*/
+/* Attribute 6: Manufacturer Device Name (max. length: 64 bytes) */
 #define ABCC_ETHERCAT_OBJ_DEVICE_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MANF_DEV_NAME,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Device hardware version ("X.YY")  (max length: 64)*/
+/* Attribute 7: Manufacturer Hardware Version ("X.YY")  (max. length: 64 bytes) */
 #define ABCC_ETHERCAT_OBJ_HW_VER_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MANF_HW_VER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Device software version ("X.YY.ZZ") (max length: 64)*/
+/* Attribute 8: Manufacturer Software Version ("X.YY.ZZ") (max. length: 64 bytes) */
 #define ABCC_ETHERCAT_OBJ_SW_VER_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MANF_SW_VER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Device type */
+/* Attribute 10: Device type */
 #define ABCC_ETHERCAT_OBJ_DEVICE_TYPE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_DEVICE_TYPE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
 
-/* Enable FoE */
+/* Attribute 16: Enable FoE */
 #define ABCC_ETHERCAT_OBJ_FOE_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ENABLE_FOE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERCAT_OBJ_FOE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ENABLE_FOE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEtherCATObjEnableFoE_Get }
 
-/* Enable EoE */
+/* Attribute 17: Enable EoE */
 #define ABCC_ETHERCAT_OBJ_EOE_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ENABLE_EOE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERCAT_OBJ_EOE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ENABLE_EOE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEtherCATObjEnableEoE_Get }
 
-/* Set Device ID as configured alias */
+/* Attribute 19: Set Device ID as configured station alias */
 #define ABCC_ETHERCAT_OBJ_DEV_ID_AS_CSA_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SET_DEV_ID_AS_CSA, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERCAT_OBJ_DEV_ID_AS_CSA_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SET_DEV_ID_AS_CSA, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEtherCATObjDeviceIDAsAlias_Get }
 #endif
@@ -289,51 +289,51 @@
 #endif
 
 #if EIP_OBJ_ENABLE
-/* Vendor ID */
+/* Attribute 1: Vendor ID */
 #define ABCC_ETHERNETIP_OBJ_VENDOR_ID_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_VENDOR_ID,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16   = (x) }
 #define ABCC_ETHERNETIP_OBJ_VENDOR_ID_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_VENDOR_ID,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                             .uCbx.pnGetUint16Attr = ABCC_CbfEthernetIpObjVendorId_Get }
 
-/* Device type */
+/* Attribute 2: Device type */
 #define ABCC_ETHERNETIP_OBJ_DEVICE_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_DEVICE_TYPE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16   = (x) }
 #define ABCC_ETHERNETIP_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_DEVICE_TYPE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                             .uCbx.pnGetUint16Attr = ABCC_CbfEthernetIpObjDeviceType_Get }
 
-/* Product code */
+/* Attribute 3: Product code */
 #define ABCC_ETHERNETIP_OBJ_PRODUCT_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PRODUCT_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
 #define ABCC_ETHERNETIP_OBJ_PRODUCT_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PRODUCT_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                             .uCbx.pnGetUint16Attr = ABCC_CbfEthernetIpObjProductCode_Get }
 
-/* Revision */
+/* Attribute 4: Revision */
 #define ABCC_ETHERNETIP_OBJ_REVISION_GET_VALUE(x)     { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_REVISION,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                             .uAttrLength.iDataSize = ABP_EIP_IA_REVISION_DS }
 
-/* Serial number */
+/* Attribute 5: Serial number */
 #define ABCC_ETHERNETIP_OBJ_SERIAL_NUM_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_SERIAL_NUMBER,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32   = (x) }
 #define ABCC_ETHERNETIP_OBJ_SERIAL_NUM_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_SERIAL_NUMBER,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32,                             .uCbx.pnGetUint32Attr = ABCC_CbfEthernetIpObjSerialNumber_Get }
 
-/* Product name */
+/* Attribute 6: Product name */
 #define ABCC_ETHERNETIP_OBJ_PRODUCT_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PRODUCT_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Enable communication settings from network */
+/* Attribute 9: Enable communication settings from network */
 #define ABCC_ETHERNETIP_OBJ_COMM_SETTINGS_FROM_NET_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_COMM_SETTINGS_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNETIP_OBJ_COMM_SETTINGS_FROM_NET_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_COMM_SETTINGS_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjCommSettingsFromNet_Get }
 
-/* CIP Request forwarding */
+/* Attribute 11: CIP Request forwarding */
 #define ABCC_ETHERNETIP_OBJ_CIP_FORWARDING_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_APP_CIP_OBJECTS, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNETIP_OBJ_CIP_FORWARDING_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_APP_CIP_OBJECTS, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjCipForwarding_Get }
 
-/* Disable strict IO match */
+/* Attribute 16: Disable strict IO match */
 #define ABCC_ETHERNETIP_OBJ_STRICT_IO_MATCH_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_DISABLE_STRICT_IO_MATCH, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNETIP_OBJ_STRICT_IO_MATCH_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_DISABLE_STRICT_IO_MATCH, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjDisableStrictIoMatch_Get }
 
-/* Enable EtherNet/IP QuickConnect */
+/* Attribute 26: Enable EtherNet/IP QuickConnect */
 #define ABCC_ETHERNETIP_OBJ_QUICK_CONNECT_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_EIP_QC, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNETIP_OBJ_QUICK_CONNECT_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_EIP_QC, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjEnableQuickConnect_Get }
 
-/* ABCC ADI Object Number */
+/* Attribute 30: ABCC ADI Object Number */
 #define ABCC_ETHERNETIP_OBJ_ADI_OBJECT_NR_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ABCC_ADI_OBJECT,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16   = (x) }
 #define ABCC_ETHERNETIP_OBJ_ADI_OBJECT_NR_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ABCC_ADI_OBJECT,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                             .uCbx.pnGetUint16Attr = ABCC_CbfEthernetIpObjAdiObjectNumber_Get }
 
-/* Enable EtherNet/IP QuickConnect */
-#define ABCC_ETHERNETIP_OBJ_DLR_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_EIP_QC, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
-#define ABCC_ETHERNETIP_OBJ_DLR_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ENABLE_EIP_QC, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjEnableDLR_Get }
+/* Attribute 31: Enable DLR */
+#define ABCC_ETHERNETIP_OBJ_DLR_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ABCC_ENABLE_DLR, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_ETHERNETIP_OBJ_DLR_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_ABCC_ENABLE_DLR, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjEnableDLR_Get }
 #endif
 
 /*------------------------------------------------------------------------------
@@ -351,50 +351,52 @@
 #endif
 
 #if PRT_OBJ_ENABLE
-/* Device ID */
+/* Attribute 1: Device ID */
 #define ABCC_PROFINET_OBJ_DEVICE_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_DEVICE_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_DEVICE_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_DEVICE_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjDeviceId_Get }
 
-/* Vendor ID */
+/* Attribute 2: Vendor ID */
 #define ABCC_PROFINET_OBJ_VENDOR_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_VENDOR_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_VENDOR_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_VENDOR_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjVendorId_Get }
 
-/* Station Type */
+/* Attribute 3: Station Type (max. length: 25 bytes) */
 #define ABCC_PROFINET_OBJ_STATION_TYPE_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_STATION_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 #define ABCC_PROFINET_OBJ_STATION_TYPE_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_STATION_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_PNIO_IA_STATION_TYPE_DS, .uCbx.pnGetStrAttr    = ABCC_CbfProfinetIoObjStationType_Get }
 
-/* Max. no. of simultaneous application relationships (ARs) (valid range: 1-4) */
+/* Attribute 4: Max. no. of simultaneous application relationships (ARs) (valid range: 1-4) */
 #define ABCC_PROFINET_OBJ_MAX_AR_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_MAX_AR,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32      = (x) }
 #define ABCC_PROFINET_OBJ_MAX_AR_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_MAX_AR,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32,                                                       .uCbx.pnGetUint32Attr = ABCC_CbfProfinetIoObjMaxAr_Get }
 
-/* Order ID */
+/* Attribute 8: Order ID (max. length: 20 bytes) */
 #define ABCC_PROFINET_OBJ_ORDER_ID_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_ORDER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 #define ABCC_PROFINET_OBJ_ORDER_ID_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_ORDER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_PNIO_IA_IM_ORDER_ID_DS, .uCbx.pnGetStrAttr    = ABCC_CbfProfinetIoObjOrderId_Get }
 
-/* Serial Number */
+/* Attribute 9: Serial Number (max. length: 16 bytes) */
 #define ABCC_PROFINET_OBJ_SERIAL_NUM_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_SERIAL_NBR, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 #define ABCC_PROFINET_OBJ_SERIAL_NUM_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_SERIAL_NBR, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_PNIO_IA_IM_SERIAL_NBR_DS, .uCbx.pnGetStrAttr    = ABCC_CbfProfinetIoObjSerialNumber_Get }
 
-/* Hardware revision */
+/* Attribute 10: Hardware revision */
 #define ABCC_PROFINET_OBJ_HW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjHwRevision_Get }
 
-/* Revision counter */
+/* Attribute 12: Revision counter */
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjRevisionCounter_Get }
 
-/* I&M5 Module order ID */
+/* Attribute 25: I&M5 Module order ID */
 #define ABCC_PROFINET_OBJ_MODULE_ORDER_ID_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_MODULE_ORDER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 
-/* I&M5 Annotation */
+/* Attribute 26: I&M5 Annotation */
 #define ABCC_PROFINET_OBJ_ANNOTATION_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_ANNOTATION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 
-/* I&M5 enabled */
+/* Attribute 27: Enable I&M5 */
 #define ABCC_PROFINET_OBJ_IM5_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM5_ENABLED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 
-/* S2 redundancy protocol */
+/* Attribute 28: Enable S2 redundancy protocol */
 #define ABCC_PROFINET_OBJ_S2_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_S2_ENABLED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_PROFINET_OBJ_S2_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_S2_ENABLED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfProfinetIoObjS2Enabled_Get }
+
+/* Attribute 29: S2 Primary AR handle */
 #define ABCC_PROFINET_OBJ_S2_ENABLED_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_S2_PRIMARY_AR_HANDLE,   .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT16,                                                   .uCbx.pnSetUint16Attr = ABCC_CbfProfinetIoObjS2PrimaryArHandle_Set }
 #endif
 
@@ -413,31 +415,31 @@
 #endif
 
 #if MOD_OBJ_ENABLE
-/* Vendor name (max length: 244)*/
+/* Attribute 1: Vendor name (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_VENDOR_NAME_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_VENDOR_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Product code (max length: 244)*/
+/* Attribute 2: Product code (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_PRODUCT_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_PRODUCT_CODE,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Revision (max length: 244)*/
+/* Attribute 3: Revision (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_REVISION_GET_VALUE(x)     { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_REVISION,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Vendor URL (max length: 244)*/
+/* Attribute 4: Vendor URL (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_VENDOR_URL_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_VENDOR_URL,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Product name (max length: 244)*/
+/* Attribute 5: Product name (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_PRODUCT_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_PRODUCT_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Model name (max length: 244)*/
+/* Attribute 6: Model name (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_MODEL_NAME_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_MODEL_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* User application name (max length: 244)*/
+/* Attribute 7: User application name (max. length: 244 bytes) */
 #define ABCC_MODBUS_OBJ_SER_APP_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_USER_APP_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* No. of ADI indexing bits */
+/* Attribute 8: No. of ADI indexing bits */
 #define ABCC_APPLICATION_OBJ_ADI_INDEXING_BITS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_ADI_INDEXING_BITS,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
 
-/* Modbus read/write offset, value format: _VALUE("\xRD\xWR") */
+/* Attribute 11: Modbus read/write offset, value format: _VALUE("\xRD\xWR") */
 #define ABCC_MODBUS_OBJ_RW_OFFSET_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_RW_OFFSET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                  .uAttrLength.iDataSize = ABP_MOD_IA_RW_OFFSET_DS }
 #define ABCC_MODBUS_OBJ_RW_OFFSET_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_RW_OFFSET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_MOD_IA_RW_OFFSET_DS, .uCbx.pnGetArrAttr = ABCC_CbfModbusObjReadWriteOffset_Get }
 #endif
@@ -457,49 +459,49 @@
 #endif
 
 #if ETN_OBJ_ENABLE
-/* HICP enabled */
+/* Attribute 2: Enable HICP */
 #define ABCC_ETHERNET_OBJ_HICP_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_HICP_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpEnabled_Get }
 
-/* Web server enabled */
+/* Attribute 2: Enable Web server */
 #define ABCC_ETHERNET_OBJ_WEB_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_WEB, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_WEB_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_WEB, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjWebEnabled_Get }
 
-/* Web server ADI access enabled */
+/* Attribute 5: Enable Web server ADI access */
 #define ABCC_ETHERNET_OBJ_WEB_ADI_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_WEB_ADI_ACCESS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_WEB_ADI_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_WEB_ADI_ACCESS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjWebAdiEnabled_Get }
 
-/* FTP server enabled */
+/* Attribute 6: Enable FTP server */
 #define ABCC_ETHERNET_OBJ_FTP_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_FTP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_FTP_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_FTP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjFtpEnabled_Get }
 
-/* Admin mode enabled */
+/* Attribute 7: Enable Admin mode */
 #define ABCC_ETHERNET_OBJ_ADMIN_MODE_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ADMIN_MODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_ADMIN_MODE_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ADMIN_MODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjAdminMode_Get }
 
-/* Network status bitfield */
+/* Attribute 8: Network status bitfield */
 #define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
 
-/* Address conflict detection (ACD) enabled */
+/* Attribute 11: Enable Address Conflict Detection (ACD) */
 #define ABCC_ETHERNET_OBJ_ACD_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ACD, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_ACD_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ACD, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjAcdEnabled_Get }
 
-/* Reset from HICP enabled */
+/* Attribute 15: Enable Reset from HICP */
 #define ABCC_ETHERNET_OBJ_HICP_RESET_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP_RESET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_HICP_RESET_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP_RESET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpResetEnabled_Get }
 
-/* IP configuration */
+/* Attribute 16: IP configuration */
 #define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
 
-/* SNMP read-only community string */
+/* Attribute 20: SNMP read-only community string */
 #define ABCC_ETHERNET_OBJ_SNMP_READ_ONLY_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_ONLY, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 #define ABCC_ETHERNET_OBJ_SNMP_READ_ONLY_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_ONLY, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_ETN_IA_SNMP_READ_ONLY_DS, .uCbx.pnGetStrAttr    = ABCC_CbfEthernetObjSnmpReadOnlyString_Get }
 
-/* SNMP read-write community string */
+/* Attribute 21: SNMP read-write community string */
 #define ABCC_ETHERNET_OBJ_SNMP_READ_WRITE_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_WRITE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 #define ABCC_ETHERNET_OBJ_SNMP_READ_WRITE_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_WRITE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_ETN_IA_SNMP_READ_WRITE_DS, .uCbx.pnGetStrAttr    = ABCC_CbfEthernetObjSnmpReadWriteString_Get }
 
-/* Reset from HICP enabled */
+/* Attribute 24: Enable DHCP Client */
 #define ABCC_ETHERNET_OBJ_DHCP_CLIENT_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_DHCP_CLIENT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_DHCP_CLIENT_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_DHCP_CLIENT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjDhcpClientEnabled_Get }
 #endif
@@ -519,9 +521,33 @@
 #endif
 
 #if DPV1_OBJ_ENABLE
-/* PNO Ident Number (default = 1815h) */
+/* Attribute 1: PNO Ident Number (default = 1815h) */
 #define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                             .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjPNOIdentNumber_Get }
+
+/* Attribute 8: Manufacturer ID */
+#define ABCC_PROFIBUS_OBJ_MANUFACTURER_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_MANUFACTURER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_PROFIBUS_OBJ_MANUFACTURER_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_MANUFACTURER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfbusObjManufacturerId_Get }
+
+/* Attribute 9: Order ID (max. length: 20 bytes) */
+#define ABCC_PROFIBUS_OBJ_ORDER_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ORDER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
+#define ABCC_PROFIBUS_OBJ_ORDER_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ORDER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_DPV1_IA_ORDER_ID_DS,                .uCbx.pnGetStrAttr = ABCC_CbfProfibusObjOrderId_Get }
+
+/* Attribute 10: Serial Number (max. length: 16 bytes) */
+#define ABCC_PROFIBUS_OBJ_SERIAL_NO_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SERIAL_NO,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,   .uData.pacString      = (x) }
+#define ABCC_PROFIBUS_OBJ_SERIAL_NO_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SERIAL_NO,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,  .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SERIAL_NO_DS,               .uCbx.pnGetStrAttr = ABCC_CbfProfibusObjSerialNo_Get }
+
+/* Attribute 11: Hardware Revision */
+#define ABCC_PROFIBUS_OBJ_HW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_PROFIBUS_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                         .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjHardwareRev_Get }
+
+/* Attribute 12: Software Revision (format: Type(CHAR) Major(UINT8) Minor(UINT8) Build(UINT8)) Example V03.04.01 = ("\x56\x03\x04\x01") */
+#define ABCC_PROFIBUS_OBJ_SW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer      = (x), .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS }
+#define ABCC_PROFIBUS_OBJ_SW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SW_REV_DS,                         .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
+
 #endif
+
+
 
 /*------------------------------------------------------------------------------
 ** List that will automatically register enabled object attributes.
@@ -584,7 +610,7 @@ void ABCC_CbfApplicationObj_Reset( ABP_ResetType eResetType );
 BOOL8 ABCC_CbfApplicationObj_ResetRequest( ABP_ResetType eResetType );
 
 /*------------------------------------------------------------------------------
-** Callback function to provide wether the device is configured from it's
+** Callback function to provide whether the device is configured from it's
 ** out-of-box (default) values or not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -664,7 +690,7 @@ UINT16 ABCC_CbfApplicationObjParamControlSum_Get( UINT16* pPackedArrDest, UINT16
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       Vendor name of the device.
+**       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfApplicationObjVendorName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
@@ -678,7 +704,7 @@ UINT16 ABCC_CbfApplicationObjVendorName_Get( char* pPackedStrDest, UINT16 iBuffS
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       Product name of the device.
+**       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfApplicationObjProductName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
@@ -713,7 +739,7 @@ BOOL8 ABCC_CbfApplicationObjFirmwareAvailable_Get( void );
 void ABCC_CbfApplicationObjFirmwareAvailable_Set( BOOL8 fValue );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether the network address is configurable via
+** Callback function to state whether the network address is configurable via
 ** hardware, such as switches or similar. This information is required by some
 ** network protocols, e.g., EtherNet/IP.
 **------------------------------------------------------------------------------
@@ -791,7 +817,7 @@ UINT32 ABCC_CbfCANopenObjSerialNumber_Get( void );
 UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether the file over EtherCAT (FoE) is enabled or
+** Callback function to state whether the file over EtherCAT (FoE) is enabled or
 ** not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -805,7 +831,7 @@ UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
 BOOL8 ABCC_CbfEtherCATObjEnableFoE_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether the Ethernet over EtherCAT (FoE) is enabled
+** Callback function to state whether the Ethernet over EtherCAT (FoE) is enabled
 ** or not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -819,7 +845,7 @@ BOOL8 ABCC_CbfEtherCATObjEnableFoE_Get( void );
 BOOL8 ABCC_CbfEtherCATObjEnableEoE_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether to use the device ID as configured alias.
+** Callback function to state whether to use the device ID as configured alias.
 ** The alias is what appears in EtherCAT configuration tools, etc.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -1008,7 +1034,7 @@ UINT16 ABCC_CbfProfinetIoObjVendorId_Get( void );
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       PROFINET Station Type.
+**       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
@@ -1022,8 +1048,8 @@ UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pPackedStrDest, UINT16 iBuffS
 **
 ** Returns:
 **       Maximum number of simultaneous application relationships (ARs).
-**          Valid range: 1-4
-**          Note: With S2 redundancy enabled, the minimum number of ARs is 2.
+**       Valid range: 1-4
+**       Note: With S2 redundancy enabled, the minimum number of ARs is 2.
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfinetIoObjMaxAr_Get( void );
@@ -1036,7 +1062,7 @@ UINT16 ABCC_CbfProfinetIoObjMaxAr_Get( void );
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       PROFINET Order ID of the device.
+**       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfinetIoObjOrderId_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
@@ -1049,7 +1075,7 @@ UINT16 ABCC_CbfProfinetIoObjOrderId_Get( char* pPackedStrDest, UINT16 iBuffSizeB
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
-**       PROFINET Serial Number of the device.
+**       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfinetIoObjSerialNumber_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
@@ -1307,5 +1333,86 @@ UINT16 ABCC_CbfEthernetObjSnmpReadWriteString_Get( char* pPackedStrDest, UINT16 
 **------------------------------------------------------------------------------
 */
 BOOL8 ABCC_CbfEthernetObjDhcpClientEnabled_Get( void );
+
+/*------------------------------------------------------------------------------
+** PROFIBUS DP-V1 IO Object (0xFD)
+**------------------------------------------------------------------------------
+*/
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the PNO Ident Number to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       PROFIBUS PNO Ident Number of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjPNOIdentNumber_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Manufacturer ID.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       PROFIBUS Manufacturer ID of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfbusObjManufacturerId_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Order ID.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjOrderId_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Serial Number.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjSerialNo_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Hardware Revision.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       PROFIBUS Hardware Revision of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Software Revision.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where a packed struct of
+**                        1 x CHAR, 3 x UINT8 shall be written.
+**                        Example V03.04.01 = ("\x56\x03\x04\x01").
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes, always 4 in this case.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
 
 #endif

@@ -228,10 +228,6 @@ static void GetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, const Comman
                                                             psEntry->uAttrLength.iMaxDataSize ?
                                                             psEntry->uAttrLength.iMaxDataSize :
                                                             ABCC_GetMaxMessageSize() );
-            ABCC_SetMsgString( psReceivedCommandMsg,
-                               psEntry->uData.pacStringBuffer,
-                               iSizeBytes,
-                               0 );
             ABP_SetMsgResponse( psReceivedCommandMsg, iSizeBytes );
          }
          else

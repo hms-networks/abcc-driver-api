@@ -610,7 +610,7 @@ void ABCC_CbfApplicationObj_Reset( ABP_ResetType eResetType );
 BOOL8 ABCC_CbfApplicationObj_ResetRequest( ABP_ResetType eResetType );
 
 /*------------------------------------------------------------------------------
-** Callback function to provide wether the device is configured from it's
+** Callback function to provide whether the device is configured from it's
 ** out-of-box (default) values or not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -817,7 +817,7 @@ UINT32 ABCC_CbfCANopenObjSerialNumber_Get( void );
 UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether the file over EtherCAT (FoE) is enabled or
+** Callback function to state whether the file over EtherCAT (FoE) is enabled or
 ** not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -831,7 +831,7 @@ UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
 BOOL8 ABCC_CbfEtherCATObjEnableFoE_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether the Ethernet over EtherCAT (FoE) is enabled
+** Callback function to state whether the Ethernet over EtherCAT (FoE) is enabled
 ** or not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -845,7 +845,7 @@ BOOL8 ABCC_CbfEtherCATObjEnableFoE_Get( void );
 BOOL8 ABCC_CbfEtherCATObjEnableEoE_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to state wether to use the device ID as configured alias.
+** Callback function to state whether to use the device ID as configured alias.
 ** The alias is what appears in EtherCAT configuration tools, etc.
 **------------------------------------------------------------------------------
 ** Arguments:

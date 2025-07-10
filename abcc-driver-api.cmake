@@ -28,7 +28,7 @@ set(abcc_api_INCS
 
 # Creating a library target containing the Anybus CompactCom API.
 # The include files are added only to keep the file and directory tree structure.
-add_library(abcc_api STATIC 
+add_library(abcc_api OBJECT 
    ${abcc_api_SRCS}
    ${abcc_api_INCS}
 )

@@ -52,6 +52,9 @@ set(ABCC_DRIVER_INCLUDE_DIRS ${ABCC_API_INCLUDE_DIRS})
 # The directory containing the Anybus CompactCom Driver repository.
 set(ABCC_DRIVER_DIR ${ABCC_API_DIR}/abcc-driver)
 
+# The Anybus CompactCom Driver library will be of OBJECT type.
+set(ABCC_LIB_TYPE OBJECT)
+
 # Including the Anybus CompactCom Driver's CMake module file.
 include(${ABCC_DRIVER_DIR}/abcc-driver.cmake)
 

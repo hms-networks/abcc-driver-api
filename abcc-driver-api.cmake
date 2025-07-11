@@ -26,9 +26,15 @@ set(abcc_api_INCS
    ${ABCC_API_DIR}/src/host_objects/application_data_object.h
 )
 
+# Check if ABCC_LIB_TYPE is not already defined. ABCC_LIB_TYPE can be set in a
+# higher level CMake file to the desired library type of the Anybus CompactCom API.
+if(NOT DEFINED ABCC_LIB_TYPE)
+   set(ABCC_LIB_TYPE STATIC)
+endif()
+
 # Creating a library target containing the Anybus CompactCom API.
 # The include files are added only to keep the file and directory tree structure.
-add_library(abcc_api STATIC 
+add_library(abcc_api ${ABCC_LIB_TYPE}
    ${abcc_api_SRCS}
    ${abcc_api_INCS}
 )

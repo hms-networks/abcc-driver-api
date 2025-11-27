@@ -1279,7 +1279,7 @@ BOOL8 ABCC_CbfEthernetObjHicpResetEnabled_Get( void );
 ** host application.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed UINT32 array of
+**       pPackedArrSrc  - Pointer to buffer where a packed UINT32 array of
 **                        length 3 (size 12 in bytes) shall be written.
 **                           Element 1 (IP address)
 **                           Element 2 (Subnet mask)

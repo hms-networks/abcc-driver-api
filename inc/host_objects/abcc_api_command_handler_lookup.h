@@ -383,6 +383,14 @@
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjRevisionCounter_Get }
 
+/* Attribute 17: PROFINET Port 1 MAC Address (max. length: 6 bytes) */
+#define ABCC_PROFINET_OBJ_PORT1_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_PNIO_IA_PORT1_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_PROFINET_OBJ_PORT1_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_PNIO_IA_PORT1_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfinetIoObjPort1MacAddress_Get }
+
+/* Attribute 18: PROFINET Port 2 MAC Address (max. length: 6 bytes) */
+#define ABCC_PROFINET_OBJ_PORT2_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_PNIO_IA_PORT2_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_PROFINET_OBJ_PORT2_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_PNIO_IA_PORT2_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfinetIoObjPort2MacAddress_Get }
+
 /* Attribute 25: I&M5 Module order ID */
 #define ABCC_PROFINET_OBJ_MODULE_ORDER_ID_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_MODULE_ORDER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 
@@ -459,11 +467,15 @@
 #endif
 
 #if ETN_OBJ_ENABLE
+/* Attribute 1: MAC Address (max. length: 6 bytes) */
+#define ABCC_ETHERNET_OBJ_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_ETHERNET_OBJ_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfEthernetObjMacAddress_Get }
+
 /* Attribute 2: Enable HICP */
 #define ABCC_ETHERNET_OBJ_HICP_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_HICP_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpEnabled_Get }
 
-/* Attribute 2: Enable Web server */
+/* Attribute 3: Enable Web server */
 #define ABCC_ETHERNET_OBJ_WEB_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_WEB, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNET_OBJ_WEB_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_WEB, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjWebEnabled_Get }
 
@@ -481,6 +493,14 @@
 
 /* Attribute 8: Network status bitfield */
 #define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
+
+/* Attribute 9: Port 1 MAC Address (max. length: 6 bytes) */
+#define ABCC_ETHERNET_OBJ_PORT1_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_PORT1_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_ETHERNET_OBJ_PORT1_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_PORT1_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfEthernetObjPort1MacAddress_Get }
+
+/* Attribute 10: Port 2 MAC Address (max. length: 6 bytes) */
+#define ABCC_ETHERNET_OBJ_PORT2_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_PORT2_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_ETHERNET_OBJ_PORT2_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_PORT2_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfEthernetObjPort2MacAddress_Get }
 
 /* Attribute 11: Enable Address Conflict Detection (ACD) */
 #define ABCC_ETHERNET_OBJ_ACD_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ACD, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
@@ -1105,6 +1125,36 @@ UINT16 ABCC_CbfProfinetIoObjHwRevision_Get( void );
 UINT16 ABCC_CbfProfinetIoObjRevisionCounter_Get( void );
 
 /*------------------------------------------------------------------------------
+** Callback function to retrieve the PROFINET Port 1 MAC address 
+** to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 6 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfinetIoObjPort1MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the PROFINET Port 2 MAC address 
+** to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 6 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfinetIoObjPort2MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
 ** Callback function to retrieve wheter CompactCom will support PROFINET S2
 ** redundancy protocol or not.
 **------------------------------------------------------------------------------
@@ -1158,6 +1208,20 @@ UINT16 ABCC_CbfModbusObjReadWriteOffset_Get( UINT16* pPackedArrDest, UINT16 iBuf
 ** Ethernet Host Object (0xF9)
 **------------------------------------------------------------------------------
 */
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the MAC address to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 6 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfEthernetObjMacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve wheter CompactCom will support HICP or not.
 **------------------------------------------------------------------------------
@@ -1246,6 +1310,34 @@ BOOL8 ABCC_CbfEthernetObjAdminMode_Get( void );
 **------------------------------------------------------------------------------
 */
 void ABCC_CbfEthernetObjNetworkStatus_Set( UINT16 iNwStatus );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Port 1 MAC address to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 6 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfEthernetObjPort1MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Port 2 MAC address to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 6 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfEthernetObjPort2MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve wheter Address Conflict Detection (ACD) is

@@ -480,7 +480,7 @@
 #define ABCC_ETHERNET_OBJ_ADMIN_MODE_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ADMIN_MODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjAdminMode_Get }
 
 /* Attribute 8: Network status bitfield */
-#define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
+#define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
 
 /* Attribute 11: Enable Address Conflict Detection (ACD) */
 #define ABCC_ETHERNET_OBJ_ACD_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ACD, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
@@ -491,7 +491,7 @@
 #define ABCC_ETHERNET_OBJ_HICP_RESET_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP_RESET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpResetEnabled_Get }
 
 /* Attribute 16: IP configuration */
-#define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
+#define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
 
 /* Attribute 20: SNMP read-only community string */
 #define ABCC_ETHERNET_OBJ_SNMP_READ_ONLY_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_ONLY, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }

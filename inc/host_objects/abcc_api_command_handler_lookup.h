@@ -311,6 +311,20 @@
 /* Attribute 6: Product name */
 #define ABCC_ETHERNETIP_OBJ_PRODUCT_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PRODUCT_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
+/* Attribute 7: Producing instance number
+** Required if there is at least one write mappable assembly mapping instance defined.
+** The array must have the same size as the number of process data mappable write assemblies.
+*/
+#define ABCC_ETHERNETIP_OBJ_PROD_INSTANCE_GET_VALUE(x, y) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PROD_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                                   .uAttrLength.iDataSize = (y) }
+#define ABCC_ETHERNETIP_OBJ_PROD_INSTANCE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PROD_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER,                                                             .uCbx.pnGetArrAttr     = ABCC_CbfEthernetIpObjProducingInstance_Get }
+
+/* Attribute 8: Consuming instance number
+** Required if there is at least one read mappable assembly mapping instance defined.
+** The array must have the same size as the number of process data mappable read assemblies.
+*/
+#define ABCC_ETHERNETIP_OBJ_CONS_INSTANCE_GET_VALUE(x, y) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_CONS_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                                   .uAttrLength.iDataSize = (y) }
+#define ABCC_ETHERNETIP_OBJ_CONS_INSTANCE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_CONS_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER,                                                             .uCbx.pnGetArrAttr     = ABCC_CbfEthernetIpObjConsumingInstance_Get }
+
 /* Attribute 9: Enable communication settings from network */
 #define ABCC_ETHERNETIP_OBJ_COMM_SETTINGS_FROM_NET_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_COMM_SETTINGS_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERNETIP_OBJ_COMM_SETTINGS_FROM_NET_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_COMM_SETTINGS_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEthernetIpObjCommSettingsFromNet_Get }
@@ -909,6 +923,38 @@ UINT16 ABCC_CbfEthernetIpObjProductCode_Get( void );
 **------------------------------------------------------------------------------
 */
 UINT32 ABCC_CbfEthernetIpObjSerialNumber_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the instance numbers of the producing
+** EtherNet/IP Assembly instances. If the Assembly mapping object is disabled 
+** ( ASM_OBJ_ENABLE = 0 ), only one entry in the array is allowed.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer where a packed UINT16 array with
+**                        little-endian byte order shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfEthernetIpObjProducingInstance_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the instance numbers of the consuming
+** EtherNet/IP Assembly instances. If the Assembly mapping object is disabled 
+** ( ASM_OBJ_ENABLE = 0 ), only one entry in the array is allowed.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer where a packed UINT16 array with
+**                        little-endian byte order shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfEthernetIpObjConsumingInstance_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide wheter the communication settings shall be

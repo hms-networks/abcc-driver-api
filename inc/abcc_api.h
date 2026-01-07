@@ -38,6 +38,29 @@ typedef UINT16 ABCC_API_NetworkType;
 */
 typedef ABCC_FwVersionType ABCC_API_FwVersionType;
 
+#if ASM_OBJ_ENABLE
+/*------------------------------------------------------------------------------
+** Structure representing an assembly mapping instance.
+**------------------------------------------------------------------------------
+*/
+typedef struct ASM_Instance
+{
+   const UINT32 lDescriptor;
+#if ASM_SUPPORT_DYNAMIC_INSTANCES
+   AD_MapType* psMap;
+#else
+   const AD_MapType* psMap;
+#endif
+#if ASM_IA_NAME_ENABLE
+   const char* pacName;
+#endif
+#if ASM_IA_MAX_NUM_ADI_MAPS_ENABLE
+   const UINT16 iMaxNumAdiMaps;
+#endif
+}
+ASM_InstanceType;
+#endif
+
 /*******************************************************************************
 ** Anybus CompactCom Driver API functions
 ********************************************************************************
@@ -177,6 +200,34 @@ EXTFUNC BOOL ABCC_API_IsSupervised( void );
 **------------------------------------------------------------------------------
 */
 #define ABCC_API_ISR ABCC_ISR
+#endif
+
+#if ASM_OBJ_ENABLE
+/*------------------------------------------------------------------------------
+** Get an array of all assembly instances. The instances returned will be
+** assigned an instance number by the Assembly mapping object according to the
+** index in the array (starting from 1).
+**------------------------------------------------------------------------------
+** Arguments:
+**    None
+**
+** Returns:
+**    Pointer to array of assembly instances.
+**------------------------------------------------------------------------------
+*/
+EXTFUNC const ASM_InstanceType** ABCC_API_CbfGetAsmInstances( void );
+
+/*------------------------------------------------------------------------------
+** Get number of assembly instances.
+**------------------------------------------------------------------------------
+** Arguments:
+**    None
+**
+** Returns:
+**    Number of assembly instances.
+**------------------------------------------------------------------------------
+*/
+EXTFUNC UINT16 ABCC_API_CbfGetNumAsmInstances( void );
 #endif
 
 /*******************************************************************************

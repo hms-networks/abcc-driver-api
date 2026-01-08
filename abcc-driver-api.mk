@@ -21,6 +21,7 @@ SRCS += $(ABCC_API_DIR)/src/abcc_api_handler.c
 SRCS += $(ABCC_API_DIR)/src/abcc_api_command_handler.c
 SRCS += $(ABCC_API_DIR)/src/host_objects/application_data_object.c
 SRCS += $(ABCC_API_DIR)/src/anybus_objects/anybus_file_system_interface_object.c
+SRCS += $(ABCC_API_DIR)/src/anybus_objects/diagnostic_object.c
 
 # add the Anybus CompactCom Driver API include directories
 INCLUDES += -I$(ABCC_API_DIR)/inc

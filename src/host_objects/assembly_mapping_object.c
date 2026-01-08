@@ -19,7 +19,7 @@
 #include "assembly_mapping_object.h"
 
 #if !ABCC_CFG_REMAP_SUPPORT_ENABLED
-   #error "ABCC_CFG_REMAP_SUPPORT_ENABLED must be set to 1 to use the assembly mapping ojbect"
+   #error "ABCC_CFG_REMAP_SUPPORT_ENABLED must be set to 1 to use the assembly mapping object"
 #endif
 
 /*------------------------------------------------------------------------------

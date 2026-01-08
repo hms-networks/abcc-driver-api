@@ -7,7 +7,7 @@
 ********************************************************************************
 */
 
-#include "abcc_api_config.h"
+#include "../abcc_api_config.h"
 
 #if ASM_OBJ_ENABLE
 

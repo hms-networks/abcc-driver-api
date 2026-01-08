@@ -942,7 +942,7 @@ UINT16 ABCC_CbfEthernetIpObjProducingInstance_Get( UINT16* pPackedArrDest, UINT1
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the instance numbers of the consuming
-** EtherNet/IP Assembly instances. If the Assembly mapping object is disabled 
+** EtherNet/IP Assembly instances. If the Assembly mapping object is disabled
 ** ( ASM_OBJ_ENABLE = 0 ), only one entry in the array is allowed.
 **------------------------------------------------------------------------------
 ** Arguments:

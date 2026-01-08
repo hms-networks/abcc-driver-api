@@ -957,7 +957,7 @@ UINT16 ABCC_CbfEthernetIpObjProducingInstance_Get( UINT16* pPackedArrDest, UINT1
 UINT16 ABCC_CbfEthernetIpObjConsumingInstance_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
-** Callback function to provide wheter the communication settings shall be
+** Callback function to provide whether the communication settings shall be
 ** settable from the network or not.
 **------------------------------------------------------------------------------
 ** Arguments:

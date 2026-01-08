@@ -312,15 +312,15 @@
 #define ABCC_ETHERNETIP_OBJ_PRODUCT_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PRODUCT_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
 /* Attribute 7: Producing instance number
-** Required if there is at least one write mappable assembly mapping instance defined.
-** The array must have the same size as the number of process data mappable write assemblies.
+** Required if there is at least one write mappable assembly mapping instance defined in the Assembly mapping
+** object. The array must have the same size as the number of process data mappable write assemblies.
 */
 #define ABCC_ETHERNETIP_OBJ_PROD_INSTANCE_GET_VALUE(x, y) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PROD_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                                   .uAttrLength.iDataSize = (y) }
 #define ABCC_ETHERNETIP_OBJ_PROD_INSTANCE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_PROD_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER,                                                             .uCbx.pnGetArrAttr     = ABCC_CbfEthernetIpObjProducingInstance_Get }
 
 /* Attribute 8: Consuming instance number
-** Required if there is at least one read mappable assembly mapping instance defined.
-** The array must have the same size as the number of process data mappable read assemblies.
+** Required if there is at least one read mappable assembly mapping instance defined in the Assembly mapping
+** object. The array must have the same size as the number of process data mappable read assemblies.
 */
 #define ABCC_ETHERNETIP_OBJ_CONS_INSTANCE_GET_VALUE(x, y) { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_CONS_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                                   .uAttrLength.iDataSize = (y) }
 #define ABCC_ETHERNETIP_OBJ_CONS_INSTANCE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EIP_IA_CONS_INSTANCE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER,                                                             .uCbx.pnGetArrAttr     = ABCC_CbfEthernetIpObjConsumingInstance_Get }

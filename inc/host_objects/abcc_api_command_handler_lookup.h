@@ -926,7 +926,7 @@ UINT32 ABCC_CbfEthernetIpObjSerialNumber_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the instance numbers of the producing
-** EtherNet/IP Assembly instances. If the Assembly mapping object is disabled 
+** EtherNet/IP Assembly instances. If the Assembly mapping object is disabled
 ** ( ASM_OBJ_ENABLE = 0 ), only one entry in the array is allowed.
 **------------------------------------------------------------------------------
 ** Arguments:

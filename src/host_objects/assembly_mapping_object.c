@@ -7,13 +7,12 @@
 ********************************************************************************
 */
 
-#include "abcc_object_config.h"
+#include "abcc_api_config.h"
 
 #if ASM_OBJ_ENABLE
 
 #include "abcc.h"
 #include "abp_asm.h"
-#include "application_data_instance_config.h"
 #include "abcc_api.h"
 #include "abcc_application_data_interface.h"
 #include "application_data_object.h"

@@ -691,7 +691,7 @@ void ASM_Init( void )
       {
          ABCC_LOG_ERROR( ABCC_EC_BAD_ASSEMBLY_INSTANCE,
             (UINT32)iIndex,
-            "Assembly instance %" PRIu16 " is defined as dynamic although not supported\"n",
+            "Assembly instance %" PRIu16 " is defined as dynamic although not supported\n",
             iIndex );
       }
 

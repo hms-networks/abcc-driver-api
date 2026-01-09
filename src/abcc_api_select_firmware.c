@@ -406,21 +406,22 @@ void ABCC_API_SelectFirmware(
    ABCC_API_CommonEtnFirmwareType eFirmware,
    ABCC_API_pnSelectFwResultCallback pnResultCallback )
 {
+
    if( eFirmware < 0 || eFirmware >= ABCC_API_NW_TYPE_LAST )
    {
-      pnResultCallback( ABCC_EC_PARAMETER_NOT_VALID );
-      return;
-   }
-
-   if( !pnResultCallback )
-   {
-      pnResultCallback( ABCC_EC_PARAMETER_NOT_VALID );
+      if( pnResultCallback )
+      {
+         pnResultCallback( ABCC_EC_PARAMETER_NOT_VALID );
+      }
       return;
    }
 
    if( appl_eSelectFwState > SELECT_FW_STATE_NOT_STARTED )
    {
-      pnResultCallback( ABCC_EC_NO_RESOURCES );
+      if( pnResultCallback )
+      {
+         pnResultCallback( ABCC_EC_NO_RESOURCES );
+      }
       return;
    }
 

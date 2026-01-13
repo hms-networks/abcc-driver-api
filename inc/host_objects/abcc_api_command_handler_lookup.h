@@ -1546,8 +1546,8 @@ UINT16 ABCC_CbfDeviceNetObjProductCode_Get( void );
 **       pPackedArrDest - Pointer to buffer where a packed UINT8 array of length
 **                        2 (size 2 in bytes) and little-endian byte order shall
 **                        be written. The most significant byte is the major
-**                        version and the least significant is the minor 
-**                        version. 
+**                        version and the least significant is the minor
+**                        version.
 **       iBuffSizeBytes - Size of the buffer in bytes. Always 2 in this case.
 **
 ** Returns:

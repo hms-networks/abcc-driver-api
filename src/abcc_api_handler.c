@@ -1235,6 +1235,11 @@ void ABCC_CbfUserInitReq( void )
       appl_fNwSupportsCommSettings = FALSE;
    }
 
+   if (appl_fNwSupportsNodeId)
+       ABCC_API_SetAddress(0x07);       //just adapt the node address value here (BEG)
+   if (appl_fNwSupportsBaudRate)
+       ABCC_API_SetBaudrate(0x11);      //just adapt the baudrate value here (BEG)
+
    /*
    ** Start user init preparation command sequence
    */

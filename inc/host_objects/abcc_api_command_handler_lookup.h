@@ -1667,7 +1667,7 @@ BOOL8 ABCC_CbfDeviceNetObjCipForwarding_Get( void );
 BOOL8 ABCC_CbfDeviceNetObjParamObject_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to retrieve wheter CompactCom will support DeviceNet
+** Callback function to retrieve whether CompactCom will support DeviceNet
 ** QuickConnect or not.
 **------------------------------------------------------------------------------
 ** Arguments:

@@ -21,6 +21,7 @@
 #include "abp_mod.h"
 #include "abp_etn.h"
 #include "abp_dpv1.h"
+#include "abp_dev.h"
 #include "abcc_types.h"
 
 /*******************************************************************************
@@ -547,6 +548,88 @@
 
 #endif
 
+/*------------------------------------------------------------------------------
+** DeviceNet Host Object (0xFC)
+**------------------------------------------------------------------------------
+*/
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
+#if DEV_OBJ_ENABLE
+#define DEV_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "DeviceNet" }, \
+                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#else
+#define DEV_OBJ_OBJ_ATTRIBUTES
+#endif
+
+#if DEV_OBJ_ENABLE
+/* Attribute 1: Vendor ID */
+#define ABCC_DEVICENET_OBJ_VENDOR_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_VENDOR_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_DEVICENET_OBJ_VENDOR_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_VENDOR_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfDeviceNetObjVendorID_Get }
+
+/* Attribute 2: Device Type */
+#define ABCC_DEVICENET_OBJ_DEVICE_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_DEVICE_TYPE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_DEVICENET_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_DEVICE_TYPE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                   .uCbx.pnGetUint16Attr = ABCC_CbfDeviceNetObjDeviceType_Get }
+
+/* Attribute 3: Product Code */
+#define ABCC_DEVICENET_OBJ_PRODUCT_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_PRODUCT_CODE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_DEVICENET_OBJ_PRODUCT_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_PRODUCT_CODE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                 .uCbx.pnGetUint16Attr = ABCC_CbfDeviceNetObjProductCode_Get }
+
+/* Attribute 4: Revision */
+#define ABCC_DEVICENET_OBJ_REVISION_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_REVISION,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                      .uAttrLength.iDataSize = ABP_DEV_IA_REVISION_DS }
+#define ABCC_DEVICENET_OBJ_REVISION_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_REVISION,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DEV_IA_REVISION_DS,  .uCbx.pnGetArrAttr = ABCC_CbfDeviceNetObjRevision_Get }
+
+/* Attribute 5: Serial Number */
+#define ABCC_DEVICENET_OBJ_SERIAL_NUM_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_SERIAL_NUMBER,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32   = (x) }
+#define ABCC_DEVICENET_OBJ_SERIAL_NUM_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_SERIAL_NUMBER,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32,                             .uCbx.pnGetUint32Attr = ABCC_CbfDeviceNetObjSerialNumber_Get }
+
+/* Attribute 6: Product Name */
+#define ABCC_DEVICENET_OBJ_PRODUCT_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_PRODUCT_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
+#define ABCC_DEVICENET_OBJ_PRODUCT_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_PRODUCT_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = 32, .uCbx.pnGetStrAttr     = ABCC_CbfDeviceNetObjProductName_Get }
+
+/* Attribute 7: Producing Instance Number */
+#define ABCC_DEVICENET_OBJ_PRODUCING_INSTANCE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_PROD_INSTANCE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_DEVICENET_OBJ_PRODUCING_INSTANCE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_PROD_INSTANCE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                 .uCbx.pnGetUint16Attr = ABCC_CbfDeviceNetObjProducingInstance_Get }
+
+/* Attribute 8: Consuming Instance Number */
+#define ABCC_DEVICENET_OBJ_CONSUMING_INSTANCE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_CONS_INSTANCE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
+#define ABCC_DEVICENET_OBJ_CONSUMING_INSTANCE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_CONS_INSTANCE,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                 .uCbx.pnGetUint16Attr = ABCC_CbfDeviceNetObjConsumingInstance_Get }
+
+/* Attribute 9: Enable Address from Network */
+#define ABCC_DEVICENET_OBJ_ADDRESS_FROM_NET_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ADDRESS_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_DEVICENET_OBJ_ADDRESS_FROM_NET_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ADDRESS_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfDeviceNetObjAddressFromNet_Get }
+
+/* Attribute 10: Enable Baud Rate from Network */
+#define ABCC_DEVICENET_OBJ_BAUD_RATE_FROM_NET_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_BAUD_RATE_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_DEVICENET_OBJ_BAUD_RATE_FROM_NET_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_BAUD_RATE_FROM_NET, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfDeviceNetObjBaudRateFromNet_Get }
+
+/* Attribute 11: Enable CIP Forwarding */
+#define ABCC_DEVICENET_OBJ_CIP_FORWARDING_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ENABLE_APP_CIP_OBJECTS, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_DEVICENET_OBJ_CIP_FORWARDING_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ENABLE_APP_CIP_OBJECTS, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfDeviceNetObjCipForwarding_Get }
+
+/* Attribute 12: Enable Parameter Object */
+#define ABCC_DEVICENET_OBJ_PARAMETER_OBJECT_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ENABLE_PARAM_OBJECT, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_DEVICENET_OBJ_PARAMETER_OBJECT_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ENABLE_PARAM_OBJECT, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfDeviceNetObjParamObject_Get }
+
+/* Attribute 13: Enable Quick Connect */
+#define ABCC_DEVICENET_OBJ_QUICK_CONNECT_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ENABLE_QUICK_CONNECT, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_DEVICENET_OBJ_QUICK_CONNECT_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ENABLE_QUICK_CONNECT, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfDeviceNetObjEnableQuickConnect_Get }
+
+/* Attribute 20: Anybus CompactCom ADI Object Number */
+#define ABCC_DEVICENET_OBJ_ADI_OBJECT_NR_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ABCC_ADI_OBJECT,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16   = (x) }
+#define ABCC_DEVICENET_OBJ_ADI_OBJECT_NR_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_ABCC_ADI_OBJECT,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                             .uCbx.pnGetUint16Attr = ABCC_CbfDeviceNetObjAdiObjectNumber_Get }
+
+/* Attribute 21: Producing instance number list */
+/* Not implemented */
+
+/* Attribute 22: Consuming instance number list */
+/* Not implemented */
+
+/* Attribute 23: Enable Group 2 Only mode */
+#define ABCC_DEVICENET_OBJ_GROUP_2_ONLY_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_GROUP_2_ONLY_MODE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
+#define ABCC_DEVICENET_OBJ_GROUP_2_ONLY_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DEV_IA_GROUP_2_ONLY_MODE, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfDeviceNetObjGroup2Only_Get }
+
+#endif
 
 
 /*------------------------------------------------------------------------------
@@ -563,7 +646,8 @@
         PRT_OBJ_OBJ_ATTRIBUTES \
         MOD_OBJ_OBJ_ATTRIBUTES \
         ETN_OBJ_OBJ_ATTRIBUTES \
-        DPV1_OBJ_OBJ_ATTRIBUTES
+        DPV1_OBJ_OBJ_ATTRIBUTES \
+        DEV_OBJ_OBJ_ATTRIBUTES
 
 /*******************************************************************************
 ** Predefined callback function prototypes used by command_handler_lookup_table.
@@ -1414,5 +1498,217 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** DeviceNet Host Object (0xFC)
+**------------------------------------------------------------------------------
+*/
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the DeviceNet Vendor ID to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       DeviceNet Vendor ID of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjVendorID_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the DeviceNet Device Type to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       DeviceNet Device Type of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjDeviceType_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the DeviceNet Product Code to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       DeviceNet Product Code of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjProductCode_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the software revision of the device.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer where a packed UINT8 array of length
+**                        2 (size 2 in bytes) and little-endian byte order shall
+**                        be written. The most significant byte is the major
+**                        version and the least significant is the minor
+**                        version.
+**       iBuffSizeBytes - Size of the buffer in bytes. Always 2 in this case.
+**
+** Returns:
+**       Size of the array in bytes, always 2 in this case. Needed for internal
+**       logic of the driver.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjRevision_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes);
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the device's serial number to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Serial number of the device.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfDeviceNetObjSerialNumber_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the product name to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjProductName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the Producing Instance Number.
+**
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Producing Instance Number
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjProducingInstance_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the Consuming Instance Number.
+**
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Consuming Instance Number
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjConsumingInstance_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide whether the node address shall be
+** settable from the network or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  Node address shall be settable from the network.
+**       False: Node address shall not be settable from the network.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfDeviceNetObjAddressFromNet_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide whether the baud rate shall be
+** settable from the network or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  Baud rate shall be settable from the network.
+**       False: Baud rate shall not be settable from the network.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfDeviceNetObjBaudRateFromNet_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide whether requests to unknown CIP objects shall be
+** forwarded to the application or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  Requests to unknown CIP objects will be forwarded to the
+**              application.
+**       False: Requests to unknown CIP objects will not be forwarded to the
+**              application.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfDeviceNetObjCipForwarding_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve whether CompactCom will support the CIP
+** Parameter Object or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  CIP Parameter Object is enabled.
+**       False: CIP Parameter Object is disabled.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfDeviceNetObjParamObject_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve whether CompactCom will support DeviceNet
+** QuickConnect or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  DeviceNet QuickConnect is enabled.
+**       False: DeviceNet QuickConnect is disabled.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfDeviceNetObjEnableQuickConnect_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the CIP object number where the network data
+** parameters (ADIs) shall be accessible.
+** Valid object numbers are within the vendor specific ranges (0064h - 00C7h and
+** 0300h - 04FFh). Any other value will disable the ADI object.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       CIP object number where the network data parameters (ADIs) shall be
+**       accessible.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfDeviceNetObjAdiObjectNumber_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to enable the CompactCom to function as a Group 2 Only 
+** Slave. This is a legacy feature for communicating with some master
+** devices that do not support UCMM.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  Group 2 Only enabled
+**       False: Group 2 Only disabled
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfDeviceNetObjGroup2Only_Get( void );
 
 #endif

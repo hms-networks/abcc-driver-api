@@ -49,20 +49,20 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if APP_OBJ_ENABLE
-#define APP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Application" }, \
-                               { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
-                               { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define APP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Application" }, \
+                               { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
+                               { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define APP_OBJ_OBJ_ATTRIBUTES
 #endif
 
 #if APP_OBJ_ENABLE
 /* Reset (object command) */
-#define ABCC_APPLICATION_OBJ_OA_RESET_CBFUNC              { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00,                                           .bCommand = ABP_CMD_RESET,                                                                                                   .uCbx.pnResetObj       = ABCC_CbfApplicationObj_Reset }
+#define ABCC_APPLICATION_OBJ_OA_RESET_CBFUNC              { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ,                                           .bCommand = ABP_CMD_RESET,                                                                                                   .uCbx.pnResetObj       = ABCC_CbfApplicationObj_Reset }
 
 /* Reset request (object command) */
-#define ABCC_APPLICATION_OBJ_OA_RESET_REQUEST_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x00,                                           .bCommand = ABP_APP_CMD_RESET_REQUEST,                                                                                       .uCbx.pnResetReqObj    = ABCC_CbfApplicationObj_ResetRequest }
+#define ABCC_APPLICATION_OBJ_OA_RESET_REQUEST_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ,                                           .bCommand = ABP_APP_CMD_RESET_REQUEST,                                                                                       .uCbx.pnResetReqObj    = ABCC_CbfApplicationObj_ResetRequest }
 
 /* Attribute 1: Configured */
 #define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetUint32Attr  = ABCC_CbfApplicationObjConfigured_Get }
@@ -110,10 +110,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if BAC_OBJ_ENABLE
-#define BAC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "BACnet" }, \
-                               { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                               { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define BAC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_BAC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "BACnet" }, \
+                               { .bObject = ABP_OBJ_NUM_BAC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_BAC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_BAC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define BAC_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -147,10 +147,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if COP_OBJ_ENABLE
-#define COP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CANopen" }, \
-                               { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                               { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define COP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_COP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CANopen" }, \
+                               { .bObject = ABP_OBJ_NUM_COP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_COP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_COP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define COP_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -191,10 +191,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if CFN_OBJ_ENABLE
-#define CFN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CC-Link IE Field Network" }, \
-                               { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                               { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define CFN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_CFN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CC-Link IE Field Network" }, \
+                               { .bObject = ABP_OBJ_NUM_CFN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_CFN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_CFN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define CFN_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -225,10 +225,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if ECT_OBJ_ENABLE
-#define ECT_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "EtherCAT" }, \
-                               { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                               { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define ECT_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_ECT, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "EtherCAT" }, \
+                               { .bObject = ABP_OBJ_NUM_ECT, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_ECT, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_ECT, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define ECT_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -281,10 +281,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if EIP_OBJ_ENABLE
-#define EIP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,            .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "EtherNet/IP" }, \
-                               { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,             .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
-                               { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,        .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_EIP, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST,    .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define EIP_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_EIP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,            .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "EtherNet/IP" }, \
+                               { .bObject = ABP_OBJ_NUM_EIP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,             .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
+                               { .bObject = ABP_OBJ_NUM_EIP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,        .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_EIP, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST,    .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define EIP_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -343,10 +343,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if PRT_OBJ_ENABLE
-#define PRT_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFINET IO" }, \
-                               { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
-                               { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define PRT_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFINET IO" }, \
+                               { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
+                               { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define PRT_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -407,10 +407,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if MOD_OBJ_ENABLE
-#define MOD_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Modbus" }, \
-                               { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                               { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define MOD_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_MOD, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Modbus" }, \
+                               { .bObject = ABP_OBJ_NUM_MOD, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_MOD, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_MOD, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define MOD_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -451,10 +451,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if ETN_OBJ_ENABLE
-#define ETN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Ethernet" }, \
-                               { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
-                               { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define ETN_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_ETN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Ethernet" }, \
+                               { .bObject = ABP_OBJ_NUM_ETN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
+                               { .bObject = ABP_OBJ_NUM_ETN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_ETN, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define ETN_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -481,7 +481,7 @@
 #define ABCC_ETHERNET_OBJ_ADMIN_MODE_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ADMIN_MODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjAdminMode_Get }
 
 /* Attribute 8: Network status bitfield */
-#define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
+#define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
 
 /* Attribute 11: Enable Address Conflict Detection (ACD) */
 #define ABCC_ETHERNET_OBJ_ACD_ENABLED_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_ACD, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
@@ -492,7 +492,7 @@
 #define ABCC_ETHERNET_OBJ_HICP_RESET_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP_RESET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpResetEnabled_Get }
 
 /* Attribute 16: IP configuration */
-#define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
+#define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
 
 /* Attribute 20: SNMP read-only community string */
 #define ABCC_ETHERNET_OBJ_SNMP_READ_ONLY_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_ONLY, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
@@ -513,10 +513,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if DPV1_OBJ_ENABLE
-#define DPV1_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFIBUS DP-V1" }, \
-                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x04 }, \
-                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define DPV1_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "PROFIBUS DP-V1" }, \
+                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x04 }, \
+                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                                { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define DPV1_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -1363,8 +1363,8 @@ BOOL8 ABCC_CbfEthernetObjHicpResetEnabled_Get( void );
 ** host application.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed UINT32 array of
-**                        length 3 (size 12 in bytes) shall be written.
+**       pPackedArrSrc  - Pointer to buffer where a packed UINT32 array of
+**                        length 3 (size 12 in bytes) is available.
 **                           Element 1 (IP address)
 **                           Element 2 (Subnet mask)
 **                           Element 3 (Default gateway)

@@ -129,14 +129,17 @@ EXTFUNC void ABCC_API_Restart( void );
 EXTFUNC ABP_AnbStateType ABCC_API_AnbState( void );
 
 /*------------------------------------------------------------------------------
-** This function shall be called within ABCC_API_CbfUserInit() context to
-** progress from Anybus state SETUP to NW_INIT.
+** This function shall be called when the last response from the user specific
+** setup/init has been received, but not before ABCC_API_CbfUserInit() has been
+** called, to progress from Anybus state SETUP to NW_INIT. This is typically
+** done within the last response handler for the command within SETUP state, or
+** within the context of ABCC_API_CbfUserInit() if no command sequence is used.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    None
 **
 ** Returns:
-**    Anybus state
+**    None
 **------------------------------------------------------------------------------
 */
 EXTFUNC void ABCC_API_UserInitComplete( void );
@@ -187,8 +190,8 @@ EXTFUNC BOOL ABCC_API_IsSupervised( void );
 ** application to make adjustments and send commands based on the ABCC module's
 ** network type, before moving to NW_INIT state.
 **
-** Note: ABCC_API_UserInitComplete() must be called inside this function to
-**       progress.
+** Note: ABCC_API_UserInitComplete() must be called sometime after this function
+**       has been called, to progress from Anybus state SETUP to NW_INIT.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    iNetworkType     - The 16 bit network type code of the ABCC module. See
@@ -334,3 +337,4 @@ EXTVAR const AD_MapType ABCC_API_asAdObjDefaultMap[];
 #define AD_ADI_DESC_NRWSG  ( ABP_APPD_DESCR_NVS_PARAMETER | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_GET_ACCESS )
 
 #endif  /* inclusion lock */
+

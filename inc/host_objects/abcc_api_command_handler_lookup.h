@@ -1340,7 +1340,7 @@ UINT16 ABCC_CbfEthernetObjPort1MacAddress_Get( void* pPackedArrDest, UINT16 iBuf
 UINT16 ABCC_CbfEthernetObjPort2MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
-** Callback function to retrieve wheter Address Conflict Detection (ACD) is
+** Callback function to retrieve whether Address Conflict Detection (ACD) is
 ** enabled or not.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -1508,3 +1508,4 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
 
 #endif
+

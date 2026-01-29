@@ -218,4 +218,32 @@
    #define AD_IA_MIN_MAX_DEFAULT_ENABLE            0
 #endif
 
+#if ASM_OBJ_ENABLE
+/*------------------------------------------------------------------------------
+** Assembly Mapping Object (0xEB)
+**------------------------------------------------------------------------------
+*/
+/*
+** Support for dynamic assembly instances.
+*/
+#ifndef ASM_SUPPORT_DYNAMIC_INSTANCES
+   #define ASM_SUPPORT_DYNAMIC_INSTANCES          0
+#endif
+
+/*
+** Support instance name strings.
+*/
+#ifndef ASM_IA_NAME_ENABLE
+   #define ASM_IA_NAME_ENABLE                     0
+#endif
+
+/*
+** Support maximum number of application data instances (ADIs) in an assembly
+** map.
+*/
+#ifndef ASM_IA_MAX_NUM_ADI_MAPS_ENABLE
+   #define ASM_IA_MAX_NUM_ADI_MAPS_ENABLE         0
+#endif
+#endif /* ASM_OBJ_ENABLE */
+
 #endif

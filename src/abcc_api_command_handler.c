@@ -12,6 +12,7 @@
 #include "abcc_api_command_handler.h"
 #include "abcc_api_command_handler_lookup.h"
 #include "host_objects/application_data_object.h"
+#include "host_objects/assembly_mapping_object.h"
 
 #define ABCC_MATH_MIN( nX, nY )   ( ( (nX) < (nY) ) ? (nX) : (nY) )
 #define ABCC_OBJ_SPECIFIC_COMMAND( X ) ( ( X >= 0x10 && X <= 0x30 ) || X == 0x3F )
@@ -42,6 +43,11 @@ void ABCC_CbfHandleCommandMessage( ABP_MsgType* psReceivedCommandMsg )
    case ABP_OBJ_NUM_APPD:
       AD_ProcObjectRequest( psReceivedCommandMsg );
       return;
+#if ASM_OBJ_ENABLE
+   case ABP_OBJ_NUM_ASM:
+      ASM_ProcessCmdMsg( psReceivedCommandMsg );
+      return;
+#endif
    default:
    {
       SetResponseMessage( psReceivedCommandMsg );

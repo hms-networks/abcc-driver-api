@@ -1919,7 +1919,7 @@ UINT16 ABCC_CbfSyncObjSyncMode_Get( void );
 void ABCC_CbfSyncObjSyncMode_Set( UINT16 iSyncMode );
 
 /*------------------------------------------------------------------------------
-** Callback function to return the supported sync modes from the host applicaton
+** Callback function to return the supported sync modes from the host application
 ** side.
 **------------------------------------------------------------------------------
 ** Arguments:

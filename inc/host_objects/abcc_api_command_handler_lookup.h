@@ -1906,7 +1906,6 @@ UINT16 ABCC_CbfSyncObjSyncMode_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to set the synchronization mode from the network side.
-** side.
 **------------------------------------------------------------------------------
 ** Arguments:
 **       0: Non synchronous operation

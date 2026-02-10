@@ -1885,7 +1885,7 @@ UINT32 ABCC_CbfSyncObjInputProcessing_Get( void );
 **       None
 **
 ** Returns:
-**       Input processing time (ns)
+**       Minimum cycle time (ns)
 **------------------------------------------------------------------------------
 */
 UINT32 ABCC_CbfSyncObjMinCycleTime_Get( void );

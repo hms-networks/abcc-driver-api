@@ -647,7 +647,7 @@
 #endif
 
 #if SYNC_OBJ_ENABLE
-/* Attribute 1: Cycle Time */
+/* Attribute 1: Cycle time */
 #define ABCC_SYNC_OBJ_CYCLE_TIME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
 #define ABCC_SYNC_OBJ_CYCLE_TIME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjCycleTime_Get }
 #define ABCC_SYNC_OBJ_CYCLE_TIME_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CYCLE_TIME, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnSetUint32Attr = ABCC_CbfSyncObjCycleTime_Set }
@@ -1791,7 +1791,7 @@ UINT32 ABCC_CbfSyncObjCycleTime_Get( void );
 ** network side.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       Cycle time coming from the network.
+**       lCycleTime - Cycle time coming from the network.
 **
 ** Returns:
 **       None
@@ -1817,7 +1817,7 @@ UINT32 ABCC_CbfSyncObjOutputValid_Get( void );
 ** network side.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       Output valid time (ns)
+**       lOutputValid - Output valid time (ns)
 **
 ** Returns:
 **       None
@@ -1843,7 +1843,7 @@ UINT32 ABCC_CbfSyncObjInputCapture_Get( void );
 ** network side.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       Input capture time (ns)
+**       lInputCapture - Input capture time (ns)
 **
 ** Returns:
 **       None
@@ -1908,8 +1908,8 @@ UINT16 ABCC_CbfSyncObjSyncMode_Get( void );
 ** Callback function to set the synchronization mode from the network side.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       0: Non synchronous operation
-**       1: Synchronous operation
+**       iSyncMode - 0: Non synchronous operation
+**                   1: Synchronous operation
 **
 ** Returns:
 **       None
@@ -1918,8 +1918,8 @@ UINT16 ABCC_CbfSyncObjSyncMode_Get( void );
 void ABCC_CbfSyncObjSyncMode_Set( UINT16 iSyncMode );
 
 /*------------------------------------------------------------------------------
-** Callback function to return the supported sync modes from the host application
-** side.
+** Callback function to return the supported sync modes from the host
+** application side as a bit field.
 **------------------------------------------------------------------------------
 ** Arguments:
 **       None
@@ -1935,7 +1935,7 @@ UINT16 ABCC_CbfSyncObjSupportedSyncModes_Get( void );
 ** Callback function to set the control task cycle factor from the network side.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       Control task cycle factor
+**       iControlCycleFactor - Control task cycle factor
 **
 ** Returns:
 **       None

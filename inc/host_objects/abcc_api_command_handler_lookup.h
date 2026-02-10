@@ -636,7 +636,7 @@
 ** Sync Object (0xEE)
 **------------------------------------------------------------------------------
 */
-/* Object attributes (These are registred into the list automatically when the object is enabled.) */
+/* Object attributes (These are registered into the list automatically when the object is enabled.) */
 #if SYNC_OBJ_ENABLE
 #define SYNC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Sync" }, \
                                 { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \

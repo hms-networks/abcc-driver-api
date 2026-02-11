@@ -22,6 +22,7 @@
 #include "abp_etn.h"
 #include "abp_dpv1.h"
 #include "abp_dev.h"
+#include "abp_sync.h"
 #include "abcc_types.h"
 
 /*******************************************************************************
@@ -631,6 +632,61 @@
 
 #endif
 
+/*------------------------------------------------------------------------------
+** Sync Object (0xEE)
+**------------------------------------------------------------------------------
+*/
+/* Object attributes (These are registered into the list automatically when the object is enabled.) */
+#if SYNC_OBJ_ENABLE
+#define SYNC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Sync" }, \
+                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#else
+#define SYNC_OBJ_OBJ_ATTRIBUTES
+#endif
+
+#if SYNC_OBJ_ENABLE
+/* Attribute 1: Cycle time */
+#define ABCC_SYNC_OBJ_CYCLE_TIME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_CYCLE_TIME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjCycleTime_Get }
+#define ABCC_SYNC_OBJ_CYCLE_TIME_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CYCLE_TIME, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnSetUint32Attr = ABCC_CbfSyncObjCycleTime_Set }
+
+/* Attribute 2: Output valid */
+#define ABCC_SYNC_OBJ_OUTPUT_VALID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_VALID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_OUTPUT_VALID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_VALID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjOutputValid_Get }
+#define ABCC_SYNC_OBJ_OUTPUT_VALID_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_VALID, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnSetUint32Attr = ABCC_CbfSyncObjOutputValid_Set }
+
+/* Attribute 3: Input capture */
+#define ABCC_SYNC_OBJ_INPUT_CAPTURE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_CAPTURE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_INPUT_CAPTURE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_CAPTURE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjInputCapture_Get }
+#define ABCC_SYNC_OBJ_INPUT_CAPTURE_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_CAPTURE, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnSetUint32Attr = ABCC_CbfSyncObjInputCapture_Set }
+
+/* Attribute 4: Output processing */
+#define ABCC_SYNC_OBJ_OUTPUT_PROCESSING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_OUTPUT_PROCESSING_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjOutputProcessing_Get }
+
+/* Attribute 5: Input processing */
+#define ABCC_SYNC_OBJ_INPUT_PROCESSING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_INPUT_PROCESSING_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjInputProcessing_Get }
+
+/* Attribute 6: Min cycle time */
+#define ABCC_SYNC_OBJ_MIN_CYCLE_TIME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_MIN_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_MIN_CYCLE_TIME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_MIN_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjMinCycleTime_Get }
+
+/* Attribute 7: Sync mode */
+#define ABCC_SYNC_OBJ_SYNC_MODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_SYNC_MODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_SYNC_OBJ_SYNC_MODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_SYNC_MODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfSyncObjSyncMode_Get }
+#define ABCC_SYNC_OBJ_SYNC_MODE_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_SYNC_MODE, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnSetUint16Attr = ABCC_CbfSyncObjSyncMode_Set }
+
+/* Attribute 8: Supported sync modes */
+#define ABCC_SYNC_OBJ_SUP_SYNC_MODES_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_SUPPORTED_SYNC_MODES, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_SYNC_OBJ_SUP_SYNC_MODES_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_SUPPORTED_SYNC_MODES, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfSyncObjSupportedSyncModes_Get }
+
+/* Attribute 9: Control task cycle factor */
+#define ABCC_SYNC_OBJ_CTRL_CYCLE_FACTOR_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_CONTROL_CYCLE_FACTOR, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnSetUint16Attr = ABCC_CbfSyncObjControlCycleFactor_Set }
+
+#endif
 
 /*------------------------------------------------------------------------------
 ** List that will automatically register enabled object attributes.
@@ -647,7 +703,8 @@
         MOD_OBJ_OBJ_ATTRIBUTES \
         ETN_OBJ_OBJ_ATTRIBUTES \
         DPV1_OBJ_OBJ_ATTRIBUTES \
-        DEV_OBJ_OBJ_ATTRIBUTES
+        DEV_OBJ_OBJ_ATTRIBUTES \
+        SYNC_OBJ_OBJ_ATTRIBUTES
 
 /*******************************************************************************
 ** Predefined callback function prototypes used by command_handler_lookup_table.
@@ -1318,7 +1375,7 @@ BOOL8 ABCC_CbfEthernetObjAdminMode_Get( void );
 ** Arguments:
 **       iNwStatus - Netork status bitfield.
 **                   Bit 0 (Link) - 0: Link down, 1: Link up
-**                   Bit 1 (IP established) - 0: IP address not established, 
+**                   Bit 1 (IP established) - 0: IP address not established,
 **                                            1: IP address established
 **                   Bit 2 (reserved)
 **                   Bit 3 (Link port 1) - 0: Link down, 1: Link up
@@ -1452,7 +1509,7 @@ UINT16 ABCC_CbfProfbusObjManufacturerId_Get( void );
 ** Arguments:
 **       pPackedStrDest - Pointer to buffer where string shall be written.
 **       iBuffSizeBytes - Size of the buffer in bytes.
-** 
+**
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
@@ -1697,7 +1754,7 @@ BOOL8 ABCC_CbfDeviceNetObjEnableQuickConnect_Get( void );
 UINT16 ABCC_CbfDeviceNetObjAdiObjectNumber_Get( void );
 
 /*------------------------------------------------------------------------------
-** Callback function to enable the CompactCom to function as a Group 2 Only 
+** Callback function to enable the CompactCom to function as a Group 2 Only
 ** Slave. This is a legacy feature for communicating with some master
 ** devices that do not support UCMM.
 **------------------------------------------------------------------------------
@@ -1710,5 +1767,181 @@ UINT16 ABCC_CbfDeviceNetObjAdiObjectNumber_Get( void );
 **------------------------------------------------------------------------------
 */
 BOOL8 ABCC_CbfDeviceNetObjGroup2Only_Get( void );
+
+/*------------------------------------------------------------------------------
+** Sync Object (0xEE)
+**------------------------------------------------------------------------------
+*/
+
+/*------------------------------------------------------------------------------
+** Callback function to return the application cycle time in nanoseconds from
+** the host application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Application cycle time in nanoseconds.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfSyncObjCycleTime_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the application cycle time in nanoseconds from the
+** network side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       lCycleTime - Cycle time coming from the network.
+**
+** Returns:
+**       None
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfSyncObjCycleTime_Set( UINT32 lCycleTime );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the output valid time in nanoseconds from the
+** host application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Output valid time (ns)
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfSyncObjOutputValid_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the output valid time in nanoseconds from the
+** network side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       lOutputValid - Output valid time (ns)
+**
+** Returns:
+**       None
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfSyncObjOutputValid_Set( UINT32 lOutputValid );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the input capture time in nanoseconds from the
+** host application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Input capture time (ns)
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfSyncObjInputCapture_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the input capture time in nanoseconds from the
+** network side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       lInputCapture - Input capture time (ns)
+**
+** Returns:
+**       None
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfSyncObjInputCapture_Set( UINT32 lInputCapture );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the output processing time in nanoseconds from
+** the host application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Output processing time (ns)
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfSyncObjOutputProcessing_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the input processing time in nanoseconds from
+** the host application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Input processing time (ns)
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfSyncObjInputProcessing_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the minimum cycle time in nanoseconds from
+** the host application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Minimum cycle time (ns)
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfSyncObjMinCycleTime_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the synchronization mode from the host
+** application side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       0: Non synchronous operation
+**       1: Synchronous operation
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfSyncObjSyncMode_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the synchronization mode from the network side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       iSyncMode - 0: Non synchronous operation
+**                   1: Synchronous operation
+**
+** Returns:
+**       None
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfSyncObjSyncMode_Set( UINT16 iSyncMode );
+
+/*------------------------------------------------------------------------------
+** Callback function to return the supported sync modes from the host
+** application side as a bit field.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Bit 0: Non synchronous mode supported
+**       Bit 1: Synchronous mode supported
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfSyncObjSupportedSyncModes_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the control task cycle factor from the network side.
+**------------------------------------------------------------------------------
+** Arguments:
+**       iControlCycleFactor - Control task cycle factor
+**
+** Returns:
+**       None
+**------------------------------------------------------------------------------
+*/
+
+void ABCC_CbfSyncObjControlCycleFactor_Set( UINT16 iControlCycleFactor );
 
 #endif

@@ -53,9 +53,9 @@ appl_SelectFwState;
 ********************************************************************************
 */
 static appl_SelectFwState appl_eSelectFwState = SELECT_FW_STATE_NOT_STARTED;
-static ABCC_API_CommonEtnFirmwareType appl_eTargetFirmware;
+static ABCC_API_CommonEtnFirmwareType appl_eTargetFirmware = ABCC_API_NW_TYPE_LAST;
 static ANB_FSI_DirEntryType appl_sDirectoryEntry = { 0 };
-static ABCC_API_pnSelectFwResultCallback appl_pnResultCallback;
+static ABCC_API_pnSelectFwResultCallback appl_pnResultCallback = NULL;
 static const char* appl_acNetworkIdentifiers[] = { "PIR", "EIP", "ECT", "EIT" };
 
 static char appl_acFirmwareFilesSrcFolder[ ABP_FSI_MAX_PATH_LENGTH + 1 ] = ABCC_API_FIRMWARE_SRC_FOLDER "\\";
@@ -408,19 +408,19 @@ void ABCC_API_SelectFirmware(
 {
    if( eFirmware < 0 || eFirmware >= ABCC_API_NW_TYPE_LAST )
    {
-      pnResultCallback( ABCC_EC_PARAMETER_NOT_VALID );
-      return;
-   }
-
-   if( !pnResultCallback )
-   {
-      pnResultCallback( ABCC_EC_PARAMETER_NOT_VALID );
+      if( pnResultCallback )
+      {
+         pnResultCallback( ABCC_EC_PARAMETER_NOT_VALID );
+      }
       return;
    }
 
    if( appl_eSelectFwState > SELECT_FW_STATE_NOT_STARTED )
    {
-      pnResultCallback( ABCC_EC_NO_RESOURCES );
+      if( pnResultCallback )
+      {
+         pnResultCallback( ABCC_EC_NO_RESOURCES );
+      }
       return;
    }
 

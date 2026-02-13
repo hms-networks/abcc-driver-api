@@ -864,8 +864,7 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
       */
 
 #if SYNC_OBJ_ENABLE
-#error "Sync Object is not supported in this version of the ABCC API"
-      if( SYNC_GetMode() == SYNC_MODE_NONSYNCHRONOUS )
+      if( ABCC_CbfSyncObjSyncMode_Get() == 0 )
       {
          ABCC_TriggerWrPdUpdate();
       }
@@ -1107,7 +1106,6 @@ void ABCC_CbfWdTimeoutRecovered( void )
 }
 
 #if ABCC_CFG_SYNC_ENABLED
-#error "Sync Object is not supported in this version of the ABCC API"
 void ABCC_CbfSyncIsr( void )
 {
    /*
@@ -1116,6 +1114,14 @@ void ABCC_CbfSyncIsr( void )
    ABCC_API_CbfSyncIsr();
 }
 #endif
+
+void ABCC_API_SetAppStatus( ABP_AppStatusType eAppStatus );
+{
+   /*
+   ** Set the application status
+   */
+   ABCC_SetAppStatus( eAppStatus );
+}
 
 #if ABCC_CFG_INT_ENABLED
 void ABCC_CbfEvent( UINT16 iEvents )

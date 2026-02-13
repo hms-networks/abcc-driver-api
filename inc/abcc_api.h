@@ -159,6 +159,20 @@ EXTFUNC void ABCC_API_UserInitComplete( void );
 */
 EXTFUNC BOOL ABCC_API_IsSupervised( void );
 
+/*------------------------------------------------------------------------------
+** Sets the current application status.
+** Note! This information is only supported in SPI and parallel operating mode.
+** When used for other operating modes the call has no effect.
+**------------------------------------------------------------------------------
+** Arguments:
+**    eAppStatus        - Current application status
+**
+** Returns:
+**    None
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_SetAppStatus( ABP_AppStatusType eAppStatus );
+
 #if ABCC_CFG_INT_ENABLED
 /*------------------------------------------------------------------------------
 ** This function should be called from inside the ABCC interrupt service routine
@@ -252,6 +266,23 @@ EXTFUNC void ABCC_API_CbfCyclicalProcessing( void );
 **------------------------------------------------------------------------------
 */
 EXTFUNC UINT16 ABCC_API_CbfGetNumAdi( void );
+
+#if ABCC_CFG_SYNC_ENABLE
+/*------------------------------------------------------------------------------
+** If sync is supported this function will be invoked at the sync event.
+** The function is executed in interrupt context. If the separate sync pin in
+** the ABCC interface is used this function shall be called from the interrupt
+** handler. If the ABCC interrupt is used the driver will call this function.
+**------------------------------------------------------------------------------
+** Arguments:
+**    None
+**
+** Returns:
+**    None
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_CbfSyncIsr( void );
+#endif
 
 /*******************************************************************************
 ** Anybus CompactCom Driver API global variables

@@ -160,6 +160,19 @@ EXTFUNC void ABCC_API_UserInitComplete( void );
 EXTFUNC BOOL ABCC_API_IsSupervised( void );
 
 /*------------------------------------------------------------------------------
+** Get the current application status.
+** Note! This information is only supported in SPI and parallel operating mode.
+**------------------------------------------------------------------------------
+** Arguments:
+**    None
+**
+** Returns:
+**    The application status of the ABCC
+**------------------------------------------------------------------------------
+*/
+EXTFUNC ABP_AppStatusType ABCC_API_GetAppStatus( void );
+
+/*------------------------------------------------------------------------------
 ** Sets the current application status.
 ** Note! This information is only supported in SPI and parallel operating mode.
 ** When used for other operating modes the call has no effect.
@@ -267,7 +280,7 @@ EXTFUNC void ABCC_API_CbfCyclicalProcessing( void );
 */
 EXTFUNC UINT16 ABCC_API_CbfGetNumAdi( void );
 
-#if ABCC_CFG_SYNC_ENABLE
+#if ABCC_CFG_SYNC_ENABLED
 /*------------------------------------------------------------------------------
 ** If sync is supported this function will be invoked at the sync event.
 ** The function is executed in interrupt context. If the separate sync pin in

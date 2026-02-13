@@ -1115,7 +1115,15 @@ void ABCC_CbfSyncIsr( void )
 }
 #endif
 
-void ABCC_API_SetAppStatus( ABP_AppStatusType eAppStatus );
+ABP_AppStatusType ABCC_API_GetAppStatus( void )
+{
+   /*
+   ** Get the application status
+   */
+   return ABCC_GetAppStatus();
+}
+
+void ABCC_API_SetAppStatus( ABP_AppStatusType eAppStatus )
 {
    /*
    ** Set the application status

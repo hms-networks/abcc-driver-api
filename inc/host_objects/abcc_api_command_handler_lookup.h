@@ -386,11 +386,11 @@
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjRevisionCounter_Get }
 
 /* Attribute 17: PROFINET Port 1 MAC Address (length: 6 bytes) */
-#define ABCC_PROFINET_OBJ_PORT1_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_PORT1_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_PROFINET_OBJ_PORT1_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_PORT1_MAC_ADDRESS_DS, .uData.pacStringBuffer = (x) }
 #define ABCC_PROFINET_OBJ_PORT1_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_PORT1_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfinetIoObjPort1MacAddress_Get }
 
 /* Attribute 18: PROFINET Port 2 MAC Address (length: 6 bytes) */
-#define ABCC_PROFINET_OBJ_PORT2_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_PORT2_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_PROFINET_OBJ_PORT2_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_PORT2_MAC_ADDRESS_DS, .uData.pacStringBuffer = (x) }
 #define ABCC_PROFINET_OBJ_PORT2_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_PORT2_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfinetIoObjPort2MacAddress_Get }
 
 /* Attribute 25: I&M5 Module order ID */
@@ -470,7 +470,7 @@
 
 #if ETN_OBJ_ENABLE
 /* Attribute 1: MAC Address (length: 6 bytes) */
-#define ABCC_ETHERNET_OBJ_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_ETHERNET_OBJ_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_MAC_ADDRESS_DS, .uData.pacStringBuffer = (x) }
 #define ABCC_ETHERNET_OBJ_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfEthernetObjMacAddress_Get }
 
 /* Attribute 2: Enable HICP */
@@ -497,11 +497,11 @@
 #define ABCC_ETHERNET_OBJ_NW_STATUS_SET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_NETWORK_STATUS, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                .uCbx.pnSetUint16Attr = ABCC_CbfEthernetObjNetworkStatus_Set }
 
 /* Attribute 9: Port 1 MAC Address (length: 6 bytes) */
-#define ABCC_ETHERNET_OBJ_PORT1_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_PORT1_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_ETHERNET_OBJ_PORT1_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_PORT1_MAC_ADDRESS_DS, .uData.pacStringBuffer = (x) }
 #define ABCC_ETHERNET_OBJ_PORT1_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT1_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_PORT1_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfEthernetObjPort1MacAddress_Get }
 
 /* Attribute 10: Port 2 MAC Address (length: 6 bytes) */
-#define ABCC_ETHERNET_OBJ_PORT2_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_PORT2_MAC_ADDRESS_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_ETHERNET_OBJ_PORT2_MAC_ADDRESS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_PORT2_MAC_ADDRESS_DS, .uData.pacStringBuffer = (x) }
 #define ABCC_ETHERNET_OBJ_PORT2_MAC_ADDRESS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_PORT2_MAC_ADDRESS,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_PORT2_MAC_ADDRESS_DS, .uCbx.pnGetArrAttr = ABCC_CbfEthernetObjPort2MacAddress_Get }
 
 /* Attribute 11: Enable Address Conflict Detection (ACD) */

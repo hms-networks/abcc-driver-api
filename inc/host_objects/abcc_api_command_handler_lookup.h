@@ -575,10 +575,10 @@
 */
 /* Object attributes (These are registred into the list automatically when the object is enabled.) */
 #if DEV_OBJ_ENABLE
-#define DEV_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "DeviceNet" }, \
-                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define DEV_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_DEV, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "DeviceNet" }, \
+                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_DEV, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define DEV_OBJ_OBJ_ATTRIBUTES
 #endif
@@ -658,10 +658,10 @@
 */
 /* Object attributes (These are registered into the list automatically when the object is enabled.) */
 #if SYNC_OBJ_ENABLE
-#define SYNC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Sync" }, \
-                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
-                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
-                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x00, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#define SYNC_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "Sync" }, \
+                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                                { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
 #else
 #define SYNC_OBJ_OBJ_ATTRIBUTES
 #endif

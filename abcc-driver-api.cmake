@@ -11,6 +11,7 @@ set(abcc_api_SRCS
    ${ABCC_API_DIR}/src/abcc_api_command_handler.c
    ${ABCC_API_DIR}/src/host_objects/application_data_object.c
    ${ABCC_API_DIR}/src/anybus_objects/anybus_file_system_interface_object.c
+   ${ABCC_API_DIR}/src/anybus_objects/diagnostic_object.c
 )
 
 # Complete list of header (.h) files inside the Anybus CompactCom API. This is
@@ -21,6 +22,7 @@ set(abcc_api_INCS
    ${ABCC_API_DIR}/inc/abcc_api_select_firmware.h
    ${ABCC_API_DIR}/inc/host_objects/abcc_api_command_handler_lookup.h
    ${ABCC_API_DIR}/inc/anybus_objects/anybus_file_system_interface_object.h
+   ${ABCC_API_DIR}/inc/anybus_objects/diagnostic_object.h
    ${ABCC_API_DIR}/src/abcc_api_config.h
    ${ABCC_API_DIR}/src/abcc_api_command_handler.h
    ${ABCC_API_DIR}/src/host_objects/application_data_object.h

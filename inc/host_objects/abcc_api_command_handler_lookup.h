@@ -680,15 +680,15 @@
 #define ABCC_SYNC_OBJ_INPUT_CAPTURE_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_CAPTURE, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnSetUint32Attr = ABCC_CbfSyncObjInputCapture_Set }
 
 /* Attribute 4: Output processing */
-#define ABCC_SYNC_OBJ_OUTPUT_PROCESSING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_OUTPUT_PROCESSING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
 #define ABCC_SYNC_OBJ_OUTPUT_PROCESSING_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_OUTPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjOutputProcessing_Get }
 
 /* Attribute 5: Input processing */
-#define ABCC_SYNC_OBJ_INPUT_PROCESSING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_INPUT_PROCESSING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
 #define ABCC_SYNC_OBJ_INPUT_PROCESSING_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_INPUT_PROCESSING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjInputProcessing_Get }
 
 /* Attribute 6: Min cycle time */
-#define ABCC_SYNC_OBJ_MIN_CYCLE_TIME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_MIN_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.iUnsigned32 = (x) }
+#define ABCC_SYNC_OBJ_MIN_CYCLE_TIME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_MIN_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
 #define ABCC_SYNC_OBJ_MIN_CYCLE_TIME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_SYNC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_SYNC_IA_MIN_CYCLE_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfSyncObjMinCycleTime_Get }
 
 /* Attribute 7: Sync mode */

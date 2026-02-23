@@ -22,6 +22,7 @@
 #include "abp_etn.h"
 #include "abp_dpv1.h"
 #include "abp_dev.h"
+#include "abp_epl.h"
 #include "abp_sync.h"
 #include "abcc_types.h"
 
@@ -652,6 +653,75 @@
 
 #endif
 
+
+/*------------------------------------------------------------------------------
+** POWERLINK Host Object (0xE9)
+**------------------------------------------------------------------------------
+*/
+/* Object attributes (These are registred into the list automatically when the object is enabled.) */
+#if EPL_OBJ_ENABLE
+#define EPL_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_EPL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "POWERLINK" }, \
+                               { .bObject = ABP_OBJ_NUM_EPL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_EPL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_EPL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#else
+#define EPL_OBJ_OBJ_ATTRIBUTES
+#endif
+
+#if EPL_OBJ_ENABLE
+/* Attribute 1: Vendor ID (default = 0x0000001B) */
+#define ABCC_POWERLINK_OBJ_VENDOR_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_VENDOR_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
+#define ABCC_POWERLINK_OBJ_VENDOR_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_VENDOR_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfPowerlinkObjVendorId_Get } 
+
+/* Attribute 2: Product Code (default = 0x00000028) */
+#define ABCC_POWERLINK_OBJ_PRODUCT_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_PRODUCT_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
+#define ABCC_POWERLINK_OBJ_PRODUCT_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_PRODUCT_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfPowerlinkObjProductCode_Get }  
+
+/* Attribute 3: Revision High Word (default = 0x0000) */
+#define ABCC_POWERLINK_OBJ_MAJOR_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MAJOR_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_POWERLINK_OBJ_MAJOR_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MAJOR_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfPowerlinkObjMajorRev_Get } 
+
+/* Attribute 4: Revision Low Word */
+#define ABCC_POWERLINK_OBJ_MINOR_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MINOR_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_POWERLINK_OBJ_MINOR_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MINOR_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfPowerlinkObjMinorRev_Get } 
+
+/* Attribute 5: Serial Number (default = 0x00000028) */
+#define ABCC_POWERLINK_OBJ_SERIAL_NUMBER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
+#define ABCC_POWERLINK_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfPowerlinkObjSerialNumber_Get }  
+
+/* Attribute 6: Manufacturer Device Name (max. length: 64 bytes) */
+#define ABCC_POWERLINK_OBJ_MANF_DEV_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_DEV_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
+#define ABCC_POWERLINK_OBJ_MANF_DEV_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_DEV_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_EPL_IA_MANF_DEV_NAME_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfPowerlinkObjManfDevName_Get }
+
+/* Attribute 7: Manufacturer Hardware Version (max. length: 64 bytes) */
+#define ABCC_POWERLINK_OBJ_MANF_HW_VER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_HW_VER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
+#define ABCC_POWERLINK_OBJ_MANF_HW_VER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_HW_VER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_EPL_IA_MANF_HW_VER_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfPowerlinkObjManfHwVer_Get }
+
+/* Attribute 8: Manufacturer Software Version (max. length: 64 bytes) */
+#define ABCC_POWERLINK_OBJ_MANF_SW_VER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_SW_VER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
+#define ABCC_POWERLINK_OBJ_MANF_SW_VER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_SW_VER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_EPL_IA_MANF_SW_VER_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfPowerlinkObjManfSwVer_Get }
+
+/* Attribute 10: Device Type (default = 0x00000000) */
+#define ABCC_POWERLINK_OBJ_DEVICE_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
+#define ABCC_POWERLINK_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfPowerlinkObjDeviceType_Get }
+
+/* Attribute 14: Manufacturer name (max. length: 64 bytes) */
+#define ABCC_POWERLINK_OBJ_MANF_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
+#define ABCC_POWERLINK_OBJ_MANF_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MANF_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_EPL_IA_MANF_NAME_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfPowerlinkObjManfName_Get }
+
+/* Attribute 17: Enable IT Functionality (default = True) */
+#define ABCC_POWERLINK_OBJ_ENABLE_IT_FUNC_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_ENABLE_IT_FUNC, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uData.fBool8 = (x) }
+#define ABCC_POWERLINK_OBJ_ENABLE_IT_FUNC_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_ENABLE_IT_FUNC, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfPowerlinkObjEnableItFunc_Get }
+
+/* Attribute 19: SDO/IT Frame Ratio (default = 3) */
+#define ABCC_POWERLINK_OBJ_SDO_IT_FRAME_RATIO_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_SDO_IT_FRAME_RATIO, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+#define ABCC_POWERLINK_OBJ_SDO_IT_FRAME_RATIO_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_SDO_IT_FRAME_RATIO, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfPowerlinkObjSdoItFrameRatio_Get }
+
+/* Attribute 21: Application Software Date and Time */
+#define ABCC_POWERLINK_OBJ_APP_SW_DATE_AND_TIME_GET_CBFUNC  { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_APP_SW_DATE_AND_TIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_EPL_APP_SW_DATE_AND_TIME_DS, .uCbx.pnGetArrAttr = ABCC_CbfPowerlinkObjAppSwDateTime_Get }
+#define ABCC_POWERLINK_OBJ_APP_SW_DATE_AND_TIME_SET_CBFUNC  { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_APP_SW_DATE_AND_TIME, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_EPL_APP_SW_DATE_AND_TIME_DS, .uCbx.pnSetArrAttr = ABCC_CbfPowerlinkObjAppSwDateTime_Set }
+#endif
+
 /*------------------------------------------------------------------------------
 ** Sync Object (0xEE)
 **------------------------------------------------------------------------------
@@ -720,6 +790,7 @@
         ETN_OBJ_OBJ_ATTRIBUTES \
         DPV1_OBJ_OBJ_ATTRIBUTES \
         DEV_OBJ_OBJ_ATTRIBUTES \
+        EPL_OBJ_OBJ_ATTRIBUTES \
         SYNC_OBJ_OBJ_ATTRIBUTES
 
 /*******************************************************************************
@@ -1855,6 +1926,190 @@ UINT16 ABCC_CbfDeviceNetObjAdiObjectNumber_Get( void );
 **------------------------------------------------------------------------------
 */
 BOOL8 ABCC_CbfDeviceNetObjGroup2Only_Get( void );
+
+/*------------------------------------------------------------------------------
+** POWERLINK Object (0xE9)
+**------------------------------------------------------------------------------
+*/
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Vendor ID to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Vendor ID of the device.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfPowerlinkObjVendorId_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Product Code to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Product Code of the device.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfPowerlinkObjProductCode_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Revision High Word to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Revision high word of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjMajorRev_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Revision Low Word to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Revision low word of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjMinorRev_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Serial Number to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Serial Number of the device.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfPowerlinkObjSerialNumber_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Manufacturer Device Name.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjManfDevName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Manufacturer Hardware Version.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjManfHwVer_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Manufacturer Software Version.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjManfSwVer_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Device Type to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Device type of the device.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfPowerlinkObjDeviceType_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Manufacturer Software Version.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjManfName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve whether CompactCom will support 
+** IT Functionality or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True: IT Functionality is enabled.
+**       False: IT Functionality is disabled.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfPowerlinkObjEnableItFunc_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the SDO/IT Frame Ratio to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Device type of the device.
+**------------------------------------------------------------------------------
+*/
+UINT8 ABCC_CbfPowerlinkObjSdoItFrameRatio_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Application Software Date and Time
+** to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT32.
+**       iBuffSizeBytes - Size of the buffer in bytes, 8 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfPowerlinkObjAppSwDateTime_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the Application Software Date and Time
+** to the host application.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrSrc - Pointer to buffer containing the data
+**                       as a packed array of UINT32.
+**       iSizeBytes    - Size of the buffer in bytes, 8 bytes.
+**
+** Returns:
+**       None.
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfPowerlinkObjAppSwDateTime_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Sync Object (0xEE)

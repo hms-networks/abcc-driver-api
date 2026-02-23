@@ -282,11 +282,13 @@ static void SetAttributeHandler( ABP_MsgType* psReceivedCommandMsg, const Comman
       psEntry->uCbx.pnSetStrAttr(
          (char*)ABCC_GetMsgDataPtr( psReceivedCommandMsg ),
          ABCC_GetMsgDataSize( psReceivedCommandMsg ) );
+      ABP_SetMsgResponse( psReceivedCommandMsg, 0 );
       return;
    case SERVICE_BUFFER:
       psEntry->uCbx.pnSetArrAttr(
          ABCC_GetMsgDataPtr( psReceivedCommandMsg ),
          ABCC_GetMsgDataSize( psReceivedCommandMsg ) );
+      ABP_SetMsgResponse( psReceivedCommandMsg, 0 );
       return;
    default:
      ABP_SetMsgErrorResponse( psReceivedCommandMsg, 1, ABP_ERR_GENERAL_ERROR );

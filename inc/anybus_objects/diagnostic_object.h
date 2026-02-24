@@ -357,7 +357,7 @@ DI_BuildCmdCreateDiag(
 */
 DI_BuildCmdAddExtDiag(
    psMsg,
-   0,    /* Slot 0, the SWDG says "Set to zero if unknown or unsupported. */
+   0,    /* Slot 0, the SWDG says "Set to zero if unknown or unsupported." */
    2,    /* ADI 2 */
    0,    /* There is only one element in the ADI (the UINT8) which is */
          /* index/element 0.                                          */

@@ -68,7 +68,7 @@
 
 /*------------------------------------------------------------------------------
 ** Perform some basic sanity checks on the PROFINET-specific values that goes
-** into a ChannelDiagnosis of ExtChannelDiagnosis structure.
+** into a ChannelDiagnosis or ExtChannelDiagnosis structure.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    iChannelNumber, iChannelProperties, iChannelErrorType,

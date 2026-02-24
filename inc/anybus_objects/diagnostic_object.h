@@ -75,7 +75,8 @@
 **   reserves vendor-specific error code 0x7000 for the reporting of various
 **   SYNC-related problems. Check the PROFINET network manual for details.
 ** - Error codes related to functional safety (0x0040 - 0x005F) and to
-**   interface/media-related error (0x8000 - 0x8010) are reserved for the ABCC.
+**   interface/media-related errors (0x8000 - 0x8010) are reserved for the
+**   ABCC.
 */
 enum
 {
@@ -257,10 +258,9 @@ EXTFUNC ABCC_ErrorCodeType DI_BuildCmdAddExtDiag( ABP_MsgType* psMsg, UINT16 iSl
 #if PRT_OBJ_ENABLE
 
 /*------------------------------------------------------------------------------
-** Message builder functions that adds a ChannelDiagnosis,
-** ExtChannelDiagnosis, or QualifiedChannelDiagnosis structures to an existing
-** 'create diagnostic event' command. The generic command builders must first
-** have been called.
+** Message builder functions that add a ChannelDiagnosis, ExtChannelDiagnosis,
+** or QualifiedChannelDiagnosis structures to an existing 'create diagnostic
+** event' command. The generic command builders must first have been called.
 **
 ** As with the generic diagnostics builders above those functions are intended
 ** to be used 'in series':
@@ -315,7 +315,7 @@ EXTFUNC ABCC_ErrorCodeType DI_PRT_BuildCmdAddQualChannelDiag( ABP_MsgType* psMsg
 ** NOTE:
 ** The message API of the ABCC driver is not covered here, it is assumed that
 ** the "psMsg" pointer used here points to a previously allocated message
-** buffer that we can build the 'create diagnostic event' command in. Likewise
+** buffer that we can build the 'create diagnostic event' command in. Likewise,
 ** the return value of the builder function is not validated in this example.
 */
 
@@ -331,14 +331,14 @@ EXTFUNC ABCC_ErrorCodeType DI_PRT_BuildCmdAddQualChannelDiag( ABP_MsgType* psMsg
 { 2, PD_READ,  AD_MAP_ALL_ELEM, 0 },
 
 /*
-** Now, our monitoring hardware for the outputs has detected a short circut on
+** Now, our monitoring hardware for the outputs has detected a short circuit on
 ** channel / output bit 2 of our output module, and using the generic severity
 ** and event codes we will report that as a "major, recoverable" severity and
 ** "current, device, output" event code.
 */
 
 /*
-** Build a 'Create diag. event' command with a "major, recovrable" severity,
+** Build a 'Create diag. event' command with a "major, recoverable" severity,
 ** and "'current, device, output" event code.
 */
 DI_BuildCmdCreateDiag(
@@ -389,7 +389,7 @@ ABCC_SetMsgSourceId( psMsg, ABCC_GetNewSourceId() );
 **
 ** NOTE:
 ** The functions, constants, bitmasks, values, and descriptions here are not
-** intended to be a substitue for the PROFINET specification. It is assumed
+** intended to be a substitute for the PROFINET specification. It is assumed
 ** that an implementor that decides to add PROFINET-specific diagnostics to
 ** their device understands how PROFINET diagnostics works, and has access to
 ** this specification.
@@ -454,7 +454,7 @@ DI_PRT_BuildCmdAddChannelDiag(
 ** will change the UserStructureIdentifier from ChannelDiagnosis to
 ** ExtChannelDiagnosis, and add the ExtChannelErrorType and ExtChannelAddValue
 ** values to the correct places. In this case there is no more error
-** information to supply, but those fields needs to be present if a qualifier
+** information to supply, but those fields need to be present if a qualifier
 ** is to be added.
 */
 DI_PRT_BuildCmdAddExtChannelDiag(

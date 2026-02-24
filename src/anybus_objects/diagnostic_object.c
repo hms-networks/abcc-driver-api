@@ -25,9 +25,9 @@
 #define DI_PRT_CHAN_DIAG_LEN                          ( ABP_UINT16_SIZEOF + ABP_UINT16_SIZEOF + ABP_UINT16_SIZEOF + ABP_UINT16_SIZEOF )
 #define DI_PRT_EXT_CHAN_DIAG_LEN                      ( ABP_UINT16_SIZEOF + ABP_UINT32_SIZEOF )
 
-#define DI_PRT_USI_CHAN_DIAG                          ( 0x8000 )
-#define DI_PRT_USI_EXT_CHAN_DIAG                      ( 0x8002 )
-#define DI_PRT_USI_QUAL_CHAN_DIAG                     ( 0x8003 )
+#define DI_PRT_USI_CHAN_DIAG                          ( 0x8000U )
+#define DI_PRT_USI_EXT_CHAN_DIAG                      ( 0x8002U )
+#define DI_PRT_USI_QUAL_CHAN_DIAG                     ( 0x8003U )
 
 /*
 ** Private masks for the 'ChannelProperties' field, a caller is not supposed to
@@ -68,7 +68,7 @@
 
 /*------------------------------------------------------------------------------
 ** Perform some basic sanity checks on the PROFINET-specific values that goes
-** int a ChannelDiagnosis of ExtChannelDiagnosis structure.
+** into a ChannelDiagnosis of ExtChannelDiagnosis structure.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    iChannelNumber, iChannelProperties, iChannelErrorType,
@@ -109,7 +109,7 @@ static BOOL di_prt_ValidateChannelDiagArgs( UINT16 iChannelNumber, UINT16 iChann
       return( FALSE );
    }
 
-   if( ( ( iChannelProperties & ~(DI_PRT_CHAN_PROP_TYPE_MASK) ) != DI_PRT_CHAN_PROP_TYPE_UNDEF ) &&
+   if( ( ( iChannelProperties & DI_PRT_CHAN_PROP_TYPE_MASK ) != DI_PRT_CHAN_PROP_TYPE_UNDEF ) &&
        ( iChannelNumber == DI_PRT_CHAN_NUM_ENTIRE_SUBMODULE ) )
    {
       /*
@@ -133,7 +133,7 @@ static BOOL di_prt_ValidateChannelDiagArgs( UINT16 iChannelNumber, UINT16 iChann
    {
       /*
       ** The caller can not select the ChannelProperties.Specifier value.
-      ** It must be locked to Appears, and the ABCC generated the Disappears
+      ** It must be locked to Appears, and the ABCC generates the Disappears
       ** when the associated DI instance is deleted.
       */
       return( FALSE );
@@ -284,7 +284,7 @@ ABCC_ErrorCodeType DI_BuildCmdCreateDiag( ABP_MsgType* psMsg, ABP_DiEventSeverit
    return( ABCC_EC_NO_ERROR );
 }
 
-ABCC_ErrorCodeType DI_BuildCmdAddExtDiag( ABP_MsgType* psMsg, UINT16 iSlot, UINT16 iAdi, UINT8 bElement, UINT8 bBitInElement )
+ABCC_ErrorCodeType DI_BuildCmdAddExtDiag( ABP_MsgType* psMsg, UINT16 iSlot, UINT16 iAdi, UINT8 bElement, UINT8 bBit )
 {
    UINT8  bTemp;
    UINT16 iOffset;
@@ -298,7 +298,7 @@ ABCC_ErrorCodeType DI_BuildCmdAddExtDiag( ABP_MsgType* psMsg, UINT16 iSlot, UINT
 
    /*
    ** DI_BuildCmdAddExtDiag() is supposed to be called after
-   ** DI_BuildCmdCreateDiag() as written its data to the message buffer.
+   ** DI_BuildCmdCreateDiag() has written its data to the message buffer.
    ** Check that the buffer has the expected values in place.
    */
    if( ( iOffset != 0 ) ||
@@ -327,7 +327,7 @@ ABCC_ErrorCodeType DI_BuildCmdAddExtDiag( ABP_MsgType* psMsg, UINT16 iSlot, UINT
    ABCC_SetMsgData8( psMsg, bElement, iOffset );
    iOffset += ABP_UINT8_SIZEOF;
 
-   ABCC_SetMsgData8( psMsg, bBitInElement, iOffset );
+   ABCC_SetMsgData8( psMsg, bBit, iOffset );
    iOffset += ABP_UINT8_SIZEOF;
 
    ABCC_SetMsgData16( psMsg, 0, iOffset ); /* "Reserved, set to zero." */
@@ -509,7 +509,7 @@ ABCC_ErrorCodeType DI_PRT_BuildCmdAddQualChannelDiag( ABP_MsgType* psMsg, UINT8 
    iTemp = ( iTemp & ~( DI_PRT_CHAN_PROP_MAINT_MASK ) ) | DI_PRT_CHAN_PROP_MAINT_QUALIFIED;
    ABCC_SetMsgData16( psMsg, iTOiBe( iTemp ), ( iOffset - ( DI_PRT_CHAN_DIAG_LEN + DI_PRT_EXT_CHAN_DIAG_LEN ) ) + ABP_UINT16_SIZEOF + ABP_UINT16_SIZEOF );
 
-   lTemp = 1 << bChannelQualifier;
+   lTemp = 1U << bChannelQualifier;
    ABCC_SetMsgData32( psMsg, lTOlBe( lTemp ), iOffset );
    iOffset += ABP_UINT32_SIZEOF;
 

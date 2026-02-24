@@ -488,7 +488,6 @@ ABCC_ErrorCodeType DI_PRT_BuildCmdAddQualChannelDiag( ABP_MsgType* psMsg, UINT8 
        ( ABCC_GetMsgCmdField( psMsg ) != ( ABP_MSG_HEADER_C_BIT | ABP_CMD_CREATE ) ) ||
        ( ABCC_GetMsgCmdExt1( psMsg ) != ABP_DI_EVENT_NW_SPECIFIC ) ||
        ( !( ABCC_GetMsgCmdExt0( psMsg ) & ABP_DI_CREATE_CMDEXT0_EXT_DIAG_BIT ) ) )
-
    {
       return( ABCC_EC_INCORRECT_STATE );
    }

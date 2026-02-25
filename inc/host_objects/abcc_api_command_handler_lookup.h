@@ -545,29 +545,67 @@
 
 #if DPV1_OBJ_ENABLE
 /* Attribute 1: PNO Ident Number (default = 1815h) */
-#define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
-#define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                             .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjPNOIdentNumber_Get }
+#define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_PNO_IDENT_NR_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IDENT_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjPNOIdentNumber_Get }
+
+/* Attribute 2: Parametrization Data (max. length: 244 bytes) */
+#define ABCC_PROFIBUS_OBJ_PRM_DATA_SET_CBFUNC { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_PRM_DATA, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_PRM_DATA_MAX_DS, .uCbx.pnSetArrAttr = ABCC_CbfProfibusObjPrmData_Set }
+
+/* Attribute 3: Expected Configuration (max. length: 244 bytes) */
+#define ABCC_PROFIBUS_OBJ_EXPECTED_CFG_DATA_GET_CBFUNC  { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_EXPECTED_CFG_DATA, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjExpectedCfgData_Get }
+#define ABCC_PROFIBUS_OBJ_EXPECTED_CFG_DATA_SET_CBFUNC  { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_EXPECTED_CFG_DATA, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS, .uCbx.pnSetArrAttr = ABCC_CbfProfibusObjExpectedCfgData_Set }
+
+/* Attribute 4: SSA Enabled */
+#define ABCC_PROFIBUS_OBJ_SSA_ENABLED_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SSA_ENABLED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uData.fBool8      = (x) }
+#define ABCC_PROFIBUS_OBJ_SSA_ENABLED_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SSA_ENABLED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfProfibusObjSsaEnabled_Get }
+
+/* Attribute 7: Alarm Settings (format: Supported alarm types(UINT8) Required alarm types(UINT8) Sequence mode enabled(BOOL8)) */
+#define ABCC_PROFIBUS_OBJ_ALARM_SETTINGS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ALARM_SETTINGS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_DPV1_IA_ALARM_SETTINGS_DS, .uData.pacStringBuffer = (x), }
+#define ABCC_PROFIBUS_OBJ_ALARM_SETTINGS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ALARM_SETTINGS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_DPV1_IA_ALARM_SETTINGS_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjAlarmSettings_Get }
 
 /* Attribute 8: Manufacturer ID */
-#define ABCC_PROFIBUS_OBJ_MANUFACTURER_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_MANUFACTURER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
-#define ABCC_PROFIBUS_OBJ_MANUFACTURER_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_MANUFACTURER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfbusObjManufacturerId_Get }
+#define ABCC_PROFIBUS_OBJ_MANUFACTURER_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_MANUFACTURER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_MANUFACTURER_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_MANUFACTURER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjManufacturerId_Get }
 
 /* Attribute 9: Order ID (max. length: 20 bytes) */
-#define ABCC_PROFIBUS_OBJ_ORDER_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ORDER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
-#define ABCC_PROFIBUS_OBJ_ORDER_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ORDER_ID,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uAttrLength.iMaxDataSize = ABP_DPV1_IA_ORDER_ID_DS,                .uCbx.pnGetStrAttr = ABCC_CbfProfibusObjOrderId_Get }
+#define ABCC_PROFIBUS_OBJ_ORDER_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ORDER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
+#define ABCC_PROFIBUS_OBJ_ORDER_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_ORDER_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_ORDER_ID_DS, .uCbx.pnGetStrAttr = ABCC_CbfProfibusObjOrderId_Get }
 
 /* Attribute 10: Serial Number (max. length: 16 bytes) */
-#define ABCC_PROFIBUS_OBJ_SERIAL_NO_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SERIAL_NO,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,   .uData.pacString      = (x) }
-#define ABCC_PROFIBUS_OBJ_SERIAL_NO_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SERIAL_NO,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,  .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SERIAL_NO_DS,               .uCbx.pnGetStrAttr = ABCC_CbfProfibusObjSerialNo_Get }
+#define ABCC_PROFIBUS_OBJ_SERIAL_NO_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SERIAL_NO, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
+#define ABCC_PROFIBUS_OBJ_SERIAL_NO_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SERIAL_NO, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SERIAL_NO_DS, .uCbx.pnGetStrAttr = ABCC_CbfProfibusObjSerialNo_Get }
 
 /* Attribute 11: Hardware Revision */
-#define ABCC_PROFIBUS_OBJ_HW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
-#define ABCC_PROFIBUS_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                                         .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjHardwareRev_Get }
+#define ABCC_PROFIBUS_OBJ_HW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjHardwareRev_Get }
 
 /* Attribute 12: Software Revision (format: Type(CHAR) Major(UINT8) Minor(UINT8) Build(UINT8)) Example V03.04.01 = ("\x56\x03\x04\x01") */
-#define ABCC_PROFIBUS_OBJ_SW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer      = (x), .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS }
-#define ABCC_PROFIBUS_OBJ_SW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SW_REV_DS,                         .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
+#define ABCC_PROFIBUS_OBJ_SW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS }
+#define ABCC_PROFIBUS_OBJ_SW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_SW_REV_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
 
+/* Attribute 13: Revision Counter */
+#define ABCC_PROFIBUS_OBJ_REV_COUNTER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_REV_COUNTER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_REV_COUNTER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_REV_COUNTER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjRevCounter_Get }
+
+/* Attribute 14: Profile ID */
+#define ABCC_PROFIBUS_OBJ_PROFILE_ID_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_PROFILE_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_PROFILE_ID_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_PROFILE_ID, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjProfileID_Get }
+
+/* Attribute 15: Profile Specific Type */
+#define ABCC_PROFIBUS_OBJ_PROFILE_SPEC_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_PROFILE_SPEC_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_PROFILE_SPEC_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_PROFILE_SPEC_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjProfileSpecType_Get }
+
+/* Attribute 16: IM Version (format: Major(UINT8) Minor(UINT8)) */
+#define ABCC_PROFIBUS_OBJ_IM_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_DPV1_IA_IM_VERSION_DS, .uData.pacStringBuffer = (x),  }
+#define ABCC_PROFIBUS_OBJ_IM_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_DPV1_IA_IM_VERSION_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjImVersion_Get }
+
+/* Attribute 17: IM Supported */
+#define ABCC_PROFIBUS_OBJ_IM_SUPPORTED_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_SUPPORTED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_PROFIBUS_OBJ_IM_SUPPORTED_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_SUPPORTED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjImSupported_Get }
+
+/* Attribute 18: IM Header (max. length: 10 bytes) */
+#define ABCC_PROFIBUS_OBJ_IM_HEADER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_HEADER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS, .uData.pacStringBuffer = (x) }
+#define ABCC_PROFIBUS_OBJ_IM_HEADER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_HEADER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjImHeader_Get }
 #endif
 
 /*------------------------------------------------------------------------------
@@ -1651,6 +1689,78 @@ BOOL8 ABCC_CbfEthernetObjDhcpClientEnabled_Get( void );
 UINT16 ABCC_CbfProfibusObjPNOIdentNumber_Get( void );
 
 /*------------------------------------------------------------------------------
+** Callback function to provide the PROFIBUS Parametrization Data to the
+** host application.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrSrc - Pointer to buffer containing the data
+**                       as a packed array of UINT8.
+**       iSizeBytes    - Size of the buffer in bytes, up to 244 bytes.
+**
+** Returns:
+**       None.
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfProfibusObjPrmData_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Expected Configuration Data to the
+** CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as a packed array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 244 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjExpectedCfgData_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide the PLC Actual Configuration Data to the
+** host application for evaluation.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrSrc - Pointer to buffer containing the data
+**                       as a packed array of UINT8.
+**       iSizeBytes    - Size of the buffer in bytes, up to 244 bytes.
+**
+** Returns:
+**       None.
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfProfibusObjExpectedCfgData_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve whether CompactCom will support SSA or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True: SSA is enabled.
+**       False: SSA is disabled.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfProfibusObjSsaEnabled_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Alarm Settings to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing a packed struct of
+**                        2 x UINT8, 1 x BOOL8.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes, always 3 in this case.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjAlarmSettings_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
 ** Callback function to retrieve the Manufacturer ID.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -1660,7 +1770,7 @@ UINT16 ABCC_CbfProfibusObjPNOIdentNumber_Get( void );
 **       PROFIBUS Manufacturer ID of the device.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfbusObjManufacturerId_Get( void );
+UINT16 ABCC_CbfProfibusObjManufacturerId_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Order ID.
@@ -1668,7 +1778,7 @@ UINT16 ABCC_CbfProfbusObjManufacturerId_Get( void );
 ** Arguments:
 **       pPackedStrDest - Pointer to buffer where string shall be written.
 **       iBuffSizeBytes - Size of the buffer in bytes.
-**
+** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
@@ -1714,6 +1824,83 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Revision Counter to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Revision Counter of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjRevCounter_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Profile ID to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Profile ID of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjProfileID_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Profile Specific Type to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Profile Specific Type of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjProfileSpecType_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the IM Version to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing a packed struct of
+**                        2 x UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes, always 2 in this case.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjImVersion_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the IM Supported bit field to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       IM Supported bit field of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjImSupported_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the IM Header Data to the
+** CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing the data 
+**                        as an array of UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, up to 10 bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfibusObjImHeader_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** DeviceNet Host Object (0xFC)

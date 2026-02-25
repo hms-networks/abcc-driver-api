@@ -604,7 +604,7 @@
 #define ABCC_PROFIBUS_OBJ_IM_SUPPORTED_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_SUPPORTED, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjImSupported_Get }
 
 /* Attribute 18: IM Header (max. length: 10 bytes) */
-#define ABCC_PROFIBUS_OBJ_IM_HEADER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_HEADER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS  .uData.pacStringBuffer = (x) }
+#define ABCC_PROFIBUS_OBJ_IM_HEADER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_HEADER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS, .uData.pacStringBuffer = (x) }
 #define ABCC_PROFIBUS_OBJ_IM_HEADER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_IM_HEADER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_DPV1_IA_CFG_DATA_MAX_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjImHeader_Get }
 #endif
 
@@ -1719,8 +1719,8 @@ void ABCC_CbfProfibusObjPrmData_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
 UINT16 ABCC_CbfProfibusObjExpectedCfgData_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
-** Callback function to provide the Actual Configuration Data to the
-** host application.
+** Callback function to provide the PLC Actual Configuration Data to the
+** host application for evaluation.
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pPackedArrSrc - Pointer to buffer containing the data

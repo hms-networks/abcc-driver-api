@@ -14,6 +14,7 @@
 #include "abp.h"
 #include "abp_bac.h"
 #include "abp_cop.h"
+#include "abp_ccl.h"
 #include "abp_cfn.h"
 #include "abp_ect.h"
 #include "abp_eip.h"
@@ -185,6 +186,46 @@
 
 /* Attribute 10: Device type */
 #define ABCC_CANOPEN_OBJ_DEVICE_TYPE_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_COP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_COP_IA_DEVICE_TYPE,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
+#endif
+
+/*------------------------------------------------------------------------------
+** CC-Link Host Object (0xF7)
+**------------------------------------------------------------------------------
+*/
+/* Object attributes (These are registered into the list automatically when the object is enabled.) */
+#if CCL_OBJ_ENABLE
+#define CCL_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_CCL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "CC-Link" }, \
+                               { .bObject = ABP_OBJ_NUM_CCL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x01 }, \
+                               { .bObject = ABP_OBJ_NUM_CCL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                               { .bObject = ABP_OBJ_NUM_CCL, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#else
+#define CCL_OBJ_OBJ_ATTRIBUTES
+#endif
+
+#if CCL_OBJ_ENABLE
+/* Attribute 1: Vendor Code (default = 0x0212) */
+#define ABCC_CCLINK_OBJ_VENDOR_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_CCLINK_OBJ_VENDOR_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkObjVendorCode_Get } 
+
+/* Attribute 2: SW Version */
+#define ABCC_CCLINK_OBJ_SW_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_SOFTWARE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+#define ABCC_CCLINK_OBJ_SW_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_SOFTWARE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkObjSwVersion_Get } 
+
+/* Attribute 3: Model Code (default = 0x7F)*/
+#define ABCC_CCLINK_OBJ_MODEL_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+#define ABCC_CCLINK_OBJ_MODEL_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkObjModelCode_Get } 
+
+/* Attribute 4: Network Settings (format: "CC-Link Version"(UINT8) "Number of occupied stations"(UINT8) "Number of extension cycles"(UINT8)) */
+#define ABCC_CCLINK_OBJ_NETWORK_SETTINGS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_NETWORK_SETTINGS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CCL_IA_NETWORK_SETTINGS_DS, .uData.pacStringBuffer = (x), }
+#define ABCC_CCLINK_OBJ_NETWORK_SETTINGS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_NETWORK_SETTINGS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CCL_IA_NETWORK_SETTINGS_DS, .uCbx.pnGetArrAttr = ABCC_CbfCCLinkObjNetworkSettings_Get }
+
+/* Attribute 5: System Area Handler */
+#define ABCC_CCLINK_OBJ_SYS_AREA_HANDLER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_SYS_AREA_HANDLER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_INT16, .uData.iSigned16 = (x) }
+#define ABCC_CCLINK_OBJ_SYS_AREA_HANDLER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_SYS_AREA_HANDLER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_INT16, .uCbx.pnGetInt16Attr = ABCC_CbfCCLinkObjSysAreaHandler_Get } 
+
+/* Attribute 6: Output Hold/Clear */
+#define ABCC_CCLINK_OBJ_HOLD_CLEAR_SETTING_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_HOLD_CLEAR_SETTING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+#define ABCC_CCLINK_OBJ_HOLD_CLEAR_SETTING_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CCL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CCL_IA_HOLD_CLEAR_SETTING, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkObjOutputHoldClear_Get } 
 #endif
 
 /*------------------------------------------------------------------------------
@@ -820,6 +861,7 @@
         APP_OBJ_OBJ_ATTRIBUTES \
         BAC_OBJ_OBJ_ATTRIBUTES \
         COP_OBJ_OBJ_ATTRIBUTES \
+	CCL_OBJ_OBJ_ATTRIBUTES \
         CFN_OBJ_OBJ_ATTRIBUTES \
         ECT_OBJ_OBJ_ATTRIBUTES \
         EIP_OBJ_OBJ_ATTRIBUTES \
@@ -1065,6 +1107,84 @@ UINT16 ABCC_CbfApplicationObjHWVersion_Get( void );
 **------------------------------------------------------------------------------
 */
 UINT32 ABCC_CbfCANopenObjSerialNumber_Get( void );
+
+/*------------------------------------------------------------------------------
+** CC-Link Host Object (0xF7)
+**------------------------------------------------------------------------------
+*/
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Vendor Code to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Vendor Code of the device.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfCCLinkObjVendorCode_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the SW Version to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       SW Version of the device.
+**------------------------------------------------------------------------------
+*/
+UINT8 ABCC_CbfCCLinkObjSwVersion_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Model Code to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Model Code of the device.
+**------------------------------------------------------------------------------
+*/
+UINT8 ABCC_CbfCCLinkObjModelCode_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Network Settings to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedArrDest - Pointer to buffer containing a packed struct of
+**                        3 x UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes, always 3 in this case.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfCCLinkObjNetworkSettings_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the System Area Handler to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       System Area Handler of the device.
+**------------------------------------------------------------------------------
+*/
+INT16 ABCC_CbfCCLinkObjSysAreaHandler_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Output Hold/Clear Action to the CompactCom.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       Output Hold/Clear Action of the device.
+**------------------------------------------------------------------------------
+*/
+UINT8 ABCC_CbfCCLinkObjOutputHoldClear_Get( void );
 
 /*------------------------------------------------------------------------------
 ** EtherCAT Object (0xF5)
@@ -2302,7 +2422,6 @@ void ABCC_CbfPowerlinkObjAppSwDateTime_Set( void* pPackedArrSrc, UINT16 iSizeByt
 ** Sync Object (0xEE)
 **------------------------------------------------------------------------------
 */
-
 /*------------------------------------------------------------------------------
 ** Callback function to return the application cycle time in nanoseconds from
 ** the host application side.

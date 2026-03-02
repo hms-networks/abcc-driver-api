@@ -319,7 +319,7 @@
 #define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_SERIAL_NUMBER_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjSerialNumber_Get } 
 
 /* Attribute 11: Clock Offset */
-#define ABCC_CIET_OBJ_CLOCK_OFFSET_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_CLOCK_OFFSET, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CIET_IA_CLOCK_OFFSET_DS, .uCbx.pnSetArrAttr = ABCC_CbfCCLinkIETObjClockOffset_Set } 
+#define ABCC_CIET_OBJ_CLOCK_OFFSET_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_CLOCK_OFFSET, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CIET_IA_CLOCK_OFFSET_DS, .uCbx.pnSetArrAttr = ABCC_CbfCCLinkIETObjClockOffset_Set } 
 #endif
 
 /*------------------------------------------------------------------------------

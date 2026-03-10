@@ -824,7 +824,7 @@
 #define ABCC_POWERLINK_OBJ_MINOR_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MINOR_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
 #define ABCC_POWERLINK_OBJ_MINOR_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_MINOR_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfPowerlinkObjMinorRev_Get } 
 
-/* Attribute 5: Serial Number (default = 0x00000028) */
+/* Attribute 5: Serial Number */
 #define ABCC_POWERLINK_OBJ_SERIAL_NUMBER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
 #define ABCC_POWERLINK_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_EPL, .bInstance = 0x01, .uCmdExt.bAttr = ABP_EPL_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfPowerlinkObjSerialNumber_Get }  
 

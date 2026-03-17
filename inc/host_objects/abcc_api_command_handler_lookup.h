@@ -546,10 +546,15 @@
 #define ABCC_MODBUS_OBJ_MODEL_NAME_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_MODEL_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
 /* Attribute 7: User application name (max. length: 244 bytes) */
-#define ABCC_MODBUS_OBJ_SER_APP_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_USER_APP_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
+#define ABCC_MODBUS_OBJ_USER_APP_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_USER_APP_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
-/* Attribute 8: No. of ADI indexing bits */
-#define ABCC_APPLICATION_OBJ_ADI_INDEXING_BITS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_ADI_INDEXING_BITS,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+/* Attribute 8: Not used */
+
+/* Attribute 9: No. of ADI indexing bits */
+#define ABCC_MODBUS_OBJ_ADI_INDEXING_BITS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_ADI_INDEXING_BITS,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+
+/* Attribute 10: Enable Modbus message forwardings */
+#define ABCC_MODBUS_OBJ_MESSAGE_FORWARDING_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_MESSAGE_FORWARDING, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 
 /* Attribute 11: Modbus read/write offset, value format: _VALUE("\xRD\xWR") */
 #define ABCC_MODBUS_OBJ_RW_OFFSET_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_RW_OFFSET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x),                                                                                  .uAttrLength.iDataSize = ABP_MOD_IA_RW_OFFSET_DS }

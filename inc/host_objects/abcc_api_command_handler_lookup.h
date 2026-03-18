@@ -132,7 +132,7 @@
 /* Attribute 3: Vendor identifier */
 #define ABCC_BACNET_OBJ_VENDOR_ID_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_VENDOR_IDENTIFIER,    .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16    = (x) }
 
-/* Attribute 4: Model name (max length: ?) */
+/* Attribute 4: Model name (max length: 64 bytes) */
 #define ABCC_BACNET_OBJ_MODEL_NAME_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_BAC, .bInstance = 0x01, .uCmdExt.bAttr = ABP_BAC_IA_MODEL_NAME,           .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
 /* Attribute 5: Firmware revision (max. length: 16 bytes) */

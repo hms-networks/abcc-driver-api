@@ -112,6 +112,27 @@ EXTFUNC void ABCC_API_Shutdown( void );
 */
 EXTFUNC void ABCC_API_Restart( void );
 
+#if ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
+/*------------------------------------------------------------------------------
+** This function is used for SPI mode, only. (enabling and calling the function
+** for other operating modes has no effect.) It sets the new message frament
+** size for the SPI frame.
+** If the size is changed, it's used for the next SPI transaction and until
+** changed again.
+** Valid range for the fragment size is ABCC_CFG_SPI_MIN_MSG_FRAG_LEN to
+** ABCC_CFG_SPI_MAX_MSG_FRAG_LEN.
+** Default at system startup is ABCC_CFG_SPI_DEFAULT_MSG_FRAG_LEN.
+**------------------------------------------------------------------------------
+** Arguments:
+**       iReqMsgFragSize:   requested Size of message fragment (bytes)
+**
+** Returns:
+**       ABCC_ErrorCodeType
+**------------------------------------------------------------------------------
+*/
+EXTFUNC ABCC_ErrorCodeType ABCC_API_NewMsgFragSize( const UINT16 iReqMsgFragSize );
+#endif // ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
+
 /*------------------------------------------------------------------------------
 ** Polls the current Anybus state of the CompactCom. The Anybus state is useful
 ** to determine how to act in certain situations, since it reflects the state

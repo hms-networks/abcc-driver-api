@@ -1026,6 +1026,13 @@ void ABCC_API_Restart( void )
    appl_eAbccHandlerState = ABCC_API_RESTART;
 }
 
+#if ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
+ABCC_ErrorCodeType ABCC_API_NewMsgFragSize( const UINT16 iReqMsgFragSize )
+{
+   return( ABCC_NewMsgFragSize( iReqMsgFragSize ) );
+}
+#endif // ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
+
 ABP_AnbStateType ABCC_API_AnbState( void )
 {
    return( (ABP_AnbStateType)ABCC_AnbState() );

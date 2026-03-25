@@ -546,7 +546,7 @@
 #define ABCC_MODBUS_OBJ_MODEL_NAME_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_MODEL_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
 /* Attribute 7: User application name (max. length: 244 bytes) */
-#define ABCC_MODBUS_OBJ_USER_APP_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_USER_APP_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
+#define ABCC_MODBUS_OBJ_USER_APP_NAME_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_USER_APP_NAME,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
 
 /* Attribute 8: Not used */
 

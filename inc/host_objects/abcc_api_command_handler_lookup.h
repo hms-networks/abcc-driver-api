@@ -553,7 +553,7 @@
 /* Attribute 9: No. of ADI indexing bits */
 #define ABCC_MODBUS_OBJ_ADI_INDEXING_BITS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_ADI_INDEXING_BITS,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
 
-/* Attribute 10: Enable Modbus message forwardings */
+/* Attribute 10: Enable Modbus message forwarding */
 #define ABCC_MODBUS_OBJ_MESSAGE_FORWARDING_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_MOD, .bInstance = 0x01, .uCmdExt.bAttr = ABP_MOD_IA_MESSAGE_FORWARDING, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 
 /* Attribute 11: Modbus read/write offset, value format: _VALUE("\xRD\xWR") */

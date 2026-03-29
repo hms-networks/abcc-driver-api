@@ -376,6 +376,14 @@
 /* Attribute 19: Set Device ID as configured station alias */
 #define ABCC_ETHERCAT_OBJ_DEV_ID_AS_CSA_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SET_DEV_ID_AS_CSA, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,  .uData.fBool8              = (x) }
 #define ABCC_ETHERCAT_OBJ_DEV_ID_AS_CSA_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SET_DEV_ID_AS_CSA, .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr    = ABCC_CbfEtherCATObjDeviceIDAsAlias_Get }
+
+/* Attribute 31: Enable error register object 0x1001 */
+#define ABCC_ETHERCAT_OBJ_ERR_REG_OBJ_ENABLE_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ERR_REG_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uData.fBool8 = (x) }
+#define ABCC_ETHERCAT_OBJ_ERR_REG_OBJ_ENABLE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ERR_REG_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfEtherCATObjErrRegObjEnable_Get }
+
+/* Attribute 32: Enable reserved objects 0x1003 and 0x1011 */
+#define ABCC_ETHERCAT_OBJ_RESERVED_OBJ_ENABLE_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_RESERVED_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uData.fBool8 = (x) }
+#define ABCC_ETHERCAT_OBJ_RESERVED_OBJ_ENABLE_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_RESERVED_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfEtherCATObjReservedObjEnable_Get }
 #endif
 
 /*------------------------------------------------------------------------------
@@ -1445,6 +1453,34 @@ BOOL8 ABCC_CbfEtherCATObjEnableEoE_Get( void );
 **------------------------------------------------------------------------------
 */
 BOOL8 ABCC_CbfEtherCATObjDeviceIDAsAlias_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to enable/disable the
+** optional CoE Error Register object 0x1001.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  Enable Error Register object 0x1001.
+**       False: Disable Error Register object 0x1001.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfEtherCATObjErrRegObjEnable_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to enable/disable the reserved CoE
+** Pre-defined Error Field object 0x1003 and Restore Parameters object 0x1011.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       True:  Enable objects 0x1003 and 0x1011.
+**       False: Disable objects 0x1003 and 0x1011.
+**------------------------------------------------------------------------------
+*/
+BOOL8 ABCC_CbfEtherCATObjReservedObjEnable_Get( void );
 
 /*------------------------------------------------------------------------------
 ** EtherNet/IP Host Object (0xF8)

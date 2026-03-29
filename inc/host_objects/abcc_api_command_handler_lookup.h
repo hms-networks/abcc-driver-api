@@ -381,9 +381,9 @@
 #define ABCC_ETHERCAT_OBJ_ERR_REG_OBJ_ENABLE_GET_VALUE(x)    { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ERR_REG_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uData.fBool8 = (x) }
 #define ABCC_ETHERCAT_OBJ_ERR_REG_OBJ_ENABLE_GET_CBFUNC      { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_ERR_REG_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfEtherCATObjErrRegObjEnable_Get }
 
-/* Attribute 32: Enable reserved objects */
+/* Attribute 32: Enable reserved objects 0x1003 and 0x1011 */
 #define ABCC_ETHERCAT_OBJ_RESERVED_OBJ_ENABLE_GET_VALUE(x)   { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_RESERVED_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uData.fBool8 = (x) }
-#define ABCC_ETHERCAT_OBJ_RESERVED_OBJ_ENABLE_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_RESERVED_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfEtherCATObjResObjEnable_Get }
+#define ABCC_ETHERCAT_OBJ_RESERVED_OBJ_ENABLE_GET_CBFUNC     { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_RESERVED_OBJ_ENABLE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8, .uCbx.pnGetBool8Attr = ABCC_CbfEtherCATObjReservedObjEnable_Get }
 #endif
 
 /*------------------------------------------------------------------------------
@@ -1476,11 +1476,11 @@ BOOL8 ABCC_CbfEtherCATObjErrRegObjEnable_Get( void );
 **       None.
 **
 ** Returns:
-**       True:  Enable registers 0x1003 and 0x1011.
-**       False: Disable registers 0x1003 and 0x1011.
+**       True:  Enable objects 0x1003 and 0x1011.
+**       False: Disable objects 0x1003 and 0x1011.
 **------------------------------------------------------------------------------
 */
-BOOL8 ABCC_CbfEtherCATObjResObjEnable_Get( void );
+BOOL8 ABCC_CbfEtherCATObjReservedObjEnable_Get( void );
 
 /*------------------------------------------------------------------------------
 ** EtherNet/IP Host Object (0xF8)

@@ -114,17 +114,21 @@ EXTFUNC void ABCC_API_Restart( void );
 
 #if ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
 /*------------------------------------------------------------------------------
-** This function is used for SPI mode, only. (enabling and calling the function
-** for other operating modes has no effect.) It sets the new message frament
+** This function is used for SPI mode, only. It sets the new message fragment
 ** size for the SPI frame.
-** If the size is changed, it's used for the next SPI transaction and until
-** changed again.
+**
+** If the size is changed, the new size is used for the next SPI transaction
+** until changed again.
+**
 ** Valid range for the fragment size is ABCC_CFG_SPI_MIN_MSG_FRAG_LEN to
 ** ABCC_CFG_SPI_MAX_MSG_FRAG_LEN.
 ** Default at system startup is ABCC_CFG_SPI_DEFAULT_MSG_FRAG_LEN.
+**
+** Enabling and calling the function for other operating modes than SPI has no
+** effect.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       iReqMsgFragSize:   requested Size of message fragment (bytes)
+**       iReqMsgFragSize:   requested size of message fragment (bytes)
 **
 ** Returns:
 **       ABCC_ErrorCodeType

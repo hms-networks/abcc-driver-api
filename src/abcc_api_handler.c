@@ -1027,7 +1027,7 @@ void ABCC_API_Restart( void )
 }
 
 #if ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
-ABCC_ErrorCodeType ABCC_API_NewMsgFragSize( const UINT16 iReqMsgFragSize )
+ABCC_ErrorCodeType ABCC_API_SetMsgFragSize( const UINT16 iReqMsgFragSize )
 {
    return( ABCC_NewMsgFragSize( iReqMsgFragSize ) );
 }

@@ -134,7 +134,7 @@ EXTFUNC void ABCC_API_Restart( void );
 **       ABCC_ErrorCodeType
 **------------------------------------------------------------------------------
 */
-EXTFUNC ABCC_ErrorCodeType ABCC_API_NewMsgFragSize( const UINT16 iReqMsgFragSize );
+EXTFUNC ABCC_ErrorCodeType ABCC_API_SetMsgFragSize( const UINT16 iReqMsgFragSize );
 #endif // ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
 
 /*------------------------------------------------------------------------------

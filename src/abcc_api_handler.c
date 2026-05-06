@@ -759,7 +759,6 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
             eErrorCode = ABCC_EC_INTERNAL_ERROR;
          }
 #if ASM_OBJ_ENABLE
-#error "Assembly Mapping Object is not supported in this version of the ABCC API"
          /*
          ** Init Assembly mapping object
          */

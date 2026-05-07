@@ -124,8 +124,8 @@ EXTFUNC void ABCC_API_Restart( void );
 ** ABCC_CFG_SPI_MAX_MSG_FRAG_LEN.
 ** Default at system startup is ABCC_CFG_SPI_DEFAULT_MSG_FRAG_LEN.
 **
-** Enabling and calling the function for other operating modes than SPI has no
-** effect.
+** Calling the function for other operating modes than SPI has no effect on
+** communication to the CompactCom and will always return ABCC_EC_NO_ERROR.
 **------------------------------------------------------------------------------
 ** Arguments:
 **       iReqMsgFragSize:   requested size of message fragment (bytes)

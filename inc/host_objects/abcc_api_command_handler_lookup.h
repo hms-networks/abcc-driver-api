@@ -491,6 +491,10 @@
 #define ABCC_PROFINET_OBJ_HW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_HW_REV,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjHwRevision_Get }
 
+/* Attribute 11: Software Revision (format: Type(CHAR) Major(UINT8) Minor(UINT8) Build(UINT8)) Example V03.04.01 = ("\x56\x03\x04\x01") */
+#define ABCC_PROFINET_OBJ_SW_REVISION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iDataSize = ABP_PNIO_IA_IM_SW_REV_DS }
+#define ABCC_PROFINET_OBJ_SW_REVISION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_PNIO_IA_IM_SW_REV_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfinetIoObjSwRevision_Get }
+
 /* Attribute 12: Revision counter */
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16      = (x) }
 #define ABCC_PROFINET_OBJ_REV_COUNTER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_PNIO, .bInstance = 0x01, .uCmdExt.bAttr = ABP_PNIO_IA_IM_REV_CNT,   .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16,                                                       .uCbx.pnGetUint16Attr = ABCC_CbfProfinetIoObjRevisionCounter_Get }
@@ -694,8 +698,8 @@
 #define ABCC_PROFIBUS_OBJ_HW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_HW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfProfibusObjHardwareRev_Get }
 
 /* Attribute 12: Software Revision (format: Type(CHAR) Major(UINT8) Minor(UINT8) Build(UINT8)) Example V03.04.01 = ("\x56\x03\x04\x01") */
-#define ABCC_PROFIBUS_OBJ_SW_REV_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS }
-#define ABCC_PROFIBUS_OBJ_SW_REV_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
+#define ABCC_PROFIBUS_OBJ_SW_REVISION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS }
+#define ABCC_PROFIBUS_OBJ_SW_REVISION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_SW_REV, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_DPV1_IA_SW_REV_DS, .uCbx.pnGetArrAttr = ABCC_CbfProfibusObjSoftwareRev_Get }
 
 /* Attribute 13: Revision Counter */
 #define ABCC_PROFIBUS_OBJ_REV_COUNTER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_DPV1, .bInstance = 0x01, .uCmdExt.bAttr = ABP_DPV1_IA_REV_COUNTER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
@@ -1720,6 +1724,21 @@ UINT16 ABCC_CbfProfinetIoObjSerialNumber_Get( char* pPackedStrDest, UINT16 iBuff
 **------------------------------------------------------------------------------
 */
 UINT16 ABCC_CbfProfinetIoObjHwRevision_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the PROFINET software revision.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pPackedStrDest - Pointer to buffer where a packed struct of
+**                        1 x CHAR, 3 x UINT8 shall be written.
+**                        Example V03.04.01 = ("\x56\x03\x04\x01").
+**       iBuffSizeBytes - Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes, always 4 in this case.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfProfinetIoObjSwRevision_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET revision counter.

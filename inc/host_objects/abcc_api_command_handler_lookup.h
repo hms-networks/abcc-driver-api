@@ -1738,7 +1738,7 @@ UINT16 ABCC_CbfProfinetIoObjHwRevision_Get( void );
 **       Size of the inserted array in bytes, always 4 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjSwRevision_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjSwRevision_Get( void* pvPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET revision counter.

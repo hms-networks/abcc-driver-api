@@ -101,7 +101,7 @@
 
 /* Attribute 10: Firmware version */
 #define ABCC_APPLICATION_OBJ_FW_VERSION_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = ABP_APP_IA_FW_VERSION_DS }
-#define ABCC_APPLICATION_OBJ_FW_VERSION_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_APP_IA_FW_VERSION_DS,       .uCbx.pnGetArrAttr     = ABCC_CbfApplicationObjFWVersion_Get }
+#define ABCC_APPLICATION_OBJ_FW_VERSION_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_FW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_APP_IA_FW_VERSION_DS,       .uCbx.pnGetArrAttr     = ABCC_CbfApplicationObjFWVersion_Get }
 
 /* Attribute 11: Hardware version */
 #define ABCC_APPLICATION_OBJ_HW_VERSION_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_HW_VERSION,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16        = (x) }
@@ -632,7 +632,7 @@
 #define ABCC_ETHERNET_OBJ_HICP_RESET_ENABLED_GET_CBFUNC    { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_ENABLE_HICP_RESET, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BOOL8,                                                                .uCbx.pnGetBool8Attr = ABCC_CbfEthernetObjHicpResetEnabled_Get }
 
 /* Attribute 16: IP configuration */
-#define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
+#define ABCC_ETHERNET_OBJ_IP_CONFIGURATION_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_IP_CONFIGURATION, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_ETN_IA_IP_CONFIGURATION_DS, .uCbx.pnSetArrAttr = ABCC_CbfEthernetObjIpConfiguration_Set }
 
 /* Attribute 20: SNMP read-only community string */
 #define ABCC_ETHERNET_OBJ_SNMP_READ_ONLY_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_ETN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ETN_IA_SNMP_READ_ONLY, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
@@ -1014,30 +1014,30 @@ BOOL8 ABCC_CbfApplicationObjConfigured_Get( void );
 ** CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed ENUM array with
-**                        little-endian byte order shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer where a packed ENUM array with
+**                         little-endian byte order shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfApplicationObjSupportedLang_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfApplicationObjSupportedLang_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the language strings supported by the device.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       bEnumValue     - The enum value of the requested string.
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       bEnumValue      - The enum value of the requested string.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes  - Size of the buffer in bytes.
 **
 ** Returns:
 **       True:  Enumeration value is in range (supported).
 **       False: Enumeration value is out of range (not supported).
 **------------------------------------------------------------------------------
 */
-BOOL8 ABCC_CbfApplicationObjSupportedLang_GetEnumString( UINT8 bEnumValue, char* pPackedStrDest, UINT16 iBuffSizeBytes );
+BOOL8 ABCC_CbfApplicationObjSupportedLang_GetEnumString( UINT8 bEnumValue, char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the device's serial number to the CompactCom.
@@ -1056,44 +1056,44 @@ UINT32 ABCC_CbfApplicationObjSerialNum_Get( void );
 ** sum can help improving startup time on some network protocols.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed UINT8 array of
-**                        maximum length 16 (size 16 in bytes) and little-endian
-**                        byte order shallbe written.
-**       iBuffSizeBytes - Size of the buffer in bytes. Expect this to be 16.
+**       pvPackedArrDest - Pointer to buffer where a packed UINT8 array of
+**                         maximum length 16 (size 16 in bytes) and little-endian
+**                         byte order shallbe written.
+**       iBuffSizeBytes -  Size of the buffer in bytes. Expect this to be 16.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfApplicationObjParamControlSum_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfApplicationObjParamControlSum_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the network-independent vendor name to the
 ** CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfApplicationObjVendorName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfApplicationObjVendorName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the network-independent product name to the
 ** CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfApplicationObjProductName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfApplicationObjProductName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the Firmware Available flag that is stored in
@@ -1143,20 +1143,20 @@ BOOL8 ABCC_CbfApplicationObjHWConfAddress_Get( void );
 ** Callback function to provide the firmware version of the device.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed UINT8 array of length
-**                        3 (size 3 in bytes) and little-endian byte order shall
-**                        be written. The most significant byte is the major
-**                        version, the middle is the minor version, and the
-**                        least significant is the build version. Use
-**                        APPL_FwVersionType as assistance.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer where a packed UINT8 array of length
+**                         3 (size 3 in bytes) and little-endian byte order shall
+**                         be written. The most significant byte is the major
+**                         version, the middle is the minor version, and the
+**                         least significant is the build version. Use
+**                         APPL_FwVersionType as assistance.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the array in bytes, always 3 in this case. Needed for internal
 **       logic of the driver.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfApplicationObjFWVersion_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfApplicationObjFWVersion_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the hardware version of the device.
@@ -1230,15 +1230,15 @@ UINT8 ABCC_CbfCCLinkObjModelCode_Get( void );
 ** Callback function to retrieve the Network Settings to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing a packed struct of
-**                        3 x UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer containing a packed struct of
+**                         3 x UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes, always 3 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfCCLinkObjNetworkSettings_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfCCLinkObjNetworkSettings_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the System Area Handler to the CompactCom.
@@ -1284,14 +1284,14 @@ UINT16 ABCC_CbfCCLinkIETObjVendorCode_Get( void );
 ** Callback function to retrieve the Vendor Name to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfCCLinkIETObjVendorName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfCCLinkIETObjVendorName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Model Code to the CompactCom.
@@ -1321,14 +1321,14 @@ UINT16 ABCC_CbfCCLinkIETObjExpansionModelCode_Get( void );
 ** Callback function to retrieve the Model Name to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfCCLinkIETObjModelName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfCCLinkIETObjModelName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Device Type to the CompactCom.
@@ -1382,20 +1382,20 @@ UINT8 ABCC_CbfCCLinkIETObjHWVersion_Get( void );
 ** Callback function to retrieve the Serial Number to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfCCLinkIETObjSerialNumber_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfCCLinkIETObjSerialNumber_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the Clock Offset to the host application.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrSrc  - Pointer to buffer containing a packed struct of
+**       pvPackedArrSrc  - Pointer to buffer containing a packed struct of
 **                        1 x SINT64, 1 x SINT32, 1 x SINT16, 1 x SINT16
 **       iSizeBytes - Size of the buffer in bytes, 16 in this case.
 **
@@ -1403,7 +1403,7 @@ UINT16 ABCC_CbfCCLinkIETObjSerialNumber_Get( char* pPackedStrDest, UINT16 iBuffS
 **       None.
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pnPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** EtherCAT Object (0xF5)
@@ -1663,14 +1663,14 @@ UINT16 ABCC_CbfProfinetIoObjVendorId_Get( void );
 ** Callback function to retrieve the PROFINET Station Type to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
 **       iBuffSizeBytes - Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the maximum number of simultaneous application
@@ -1691,27 +1691,27 @@ UINT16 ABCC_CbfProfinetIoObjMaxAr_Get( void );
 ** Callback function to retrieve the PROFINET Order ID to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjOrderId_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjOrderId_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET Serial Number to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjSerialNumber_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjSerialNumber_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET hardware revision.
@@ -1729,16 +1729,16 @@ UINT16 ABCC_CbfProfinetIoObjHwRevision_Get( void );
 ** Callback function to retrieve the PROFINET software revision.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where a packed struct of
-**                        1 x CHAR, 3 x UINT8 shall be written.
-**                        Example V03.04.01 = ("\x56\x03\x04\x01").
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer where a packed struct of
+**                         1 x CHAR, 3 x UINT8 shall be written.
+**                         Example V03.04.01 = ("\x56\x03\x04\x01").
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes, always 4 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjSwRevision_Get( void* pvPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjSwRevision_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET revision counter.
@@ -1757,30 +1757,30 @@ UINT16 ABCC_CbfProfinetIoObjRevisionCounter_Get( void );
 ** to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes (6 bytes).
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes (6 bytes).
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjPort1MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjPort1MacAddress_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET Port 2 MAC address 
 ** to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes (6 bytes).
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes (6 bytes).
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjPort2MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfinetIoObjPort2MacAddress_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve whether CompactCom will support PROFINET S2
@@ -1820,17 +1820,17 @@ void ABCC_CbfProfinetIoObjS2PrimaryArHandle_Set( UINT16 iPrimaryAR );
 ** before forwarded internally.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed SINT16 array of
-**                        length 2 (size 4 in bytes) and little-endian byte
-**                        order shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer where a packed SINT16 array of
+**                         length 2 (size 4 in bytes) and little-endian byte
+**                         order shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the array in bytes, always 4 in this case. Needed for internal
 **       logic of the driver.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfModbusObjReadWriteOffset_Get( UINT16* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfModbusObjReadWriteOffset_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Ethernet Host Object (0xF9)
@@ -1840,15 +1840,15 @@ UINT16 ABCC_CbfModbusObjReadWriteOffset_Get( UINT16* pPackedArrDest, UINT16 iBuf
 ** Callback function to retrieve the MAC address to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes (6 bytes).
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes (6 bytes).
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfEthernetObjMacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfEthernetObjMacAddress_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve whether CompactCom will support HICP or not.
@@ -1943,29 +1943,29 @@ void ABCC_CbfEthernetObjNetworkStatus_Set( UINT16 iNwStatus );
 ** Callback function to retrieve the Port 1 MAC address to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes (6 bytes).
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes (6 bytes).
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfEthernetObjPort1MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfEthernetObjPort1MacAddress_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Port 2 MAC address to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes (6 bytes).
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes (6 bytes).
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfEthernetObjPort2MacAddress_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfEthernetObjPort2MacAddress_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve whether Address Conflict Detection (ACD) is
@@ -1999,46 +1999,46 @@ BOOL8 ABCC_CbfEthernetObjHicpResetEnabled_Get( void );
 ** host application.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrSrc  - Pointer to buffer where a packed UINT32 array of
-**                        length 3 (size 12 in bytes) is available.
-**                           Element 1 (IP address)
-**                           Element 2 (Subnet mask)
-**                           Element 3 (Default gateway)
-**       iSizeBytes     - Size of the buffer in bytes, 12 in this case.
+**       pvPackedArrSrc  - Pointer to buffer where a packed UINT32 array of
+**                         length 3 (size 12 in bytes) is available.
+**                            Element 1 (IP address)
+**                            Element 2 (Subnet mask)
+**                            Element 3 (Default gateway)
+**       iSizeBytes     -  Size of the buffer in bytes, 12 in this case.
 **
 ** Returns:
 **       None.
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfEthernetObjIpConfiguration_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+void ABCC_CbfEthernetObjIpConfiguration_Set( void* pvPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the SNMP read-only community string.
 ** Note: consider storing the string in non-volatile memory.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the written SNMP read-only community string
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfEthernetObjSnmpReadOnlyString_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfEthernetObjSnmpReadOnlyString_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the SNMP read-write community string.
 ** Note: consider storing the string in non-volatile memory.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the written SNMP read-write community string
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfEthernetObjSnmpReadWriteString_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfEthernetObjSnmpReadWriteString_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve wheter DHCP client is enabled or not.
@@ -2075,45 +2075,45 @@ UINT16 ABCC_CbfProfibusObjPNOIdentNumber_Get( void );
 ** host application.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrSrc - Pointer to buffer containing the data
-**                       as a packed array of UINT8.
-**       iSizeBytes    - Size of the buffer in bytes, up to 244 bytes.
+**       pvPackedArrSrc - Pointer to buffer containing the data
+**                        as a packed array of UINT8.
+**       iSizeBytes    -  Size of the buffer in bytes, up to 244 bytes.
 **
 ** Returns:
 **       None.
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfProfibusObjPrmData_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+void ABCC_CbfProfibusObjPrmData_Set( void* pvPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Expected Configuration Data to the
 ** CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes, up to 244 bytes.
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes, up to 244 bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjExpectedCfgData_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjExpectedCfgData_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the PLC Actual Configuration Data to the
 ** host application for evaluation.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrSrc - Pointer to buffer containing the data
-**                       as a packed array of UINT8.
-**       iSizeBytes    - Size of the buffer in bytes, up to 244 bytes.
+**       pvPackedArrSrc - Pointer to buffer containing the data
+**                        as a packed array of UINT8.
+**       iSizeBytes    -  Size of the buffer in bytes, up to 244 bytes.
 **
 ** Returns:
 **       None.
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfProfibusObjExpectedCfgData_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+void ABCC_CbfProfibusObjExpectedCfgData_Set( void* pvPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve whether CompactCom will support SSA or not.
@@ -2132,15 +2132,15 @@ BOOL8 ABCC_CbfProfibusObjSsaEnabled_Get( void );
 ** Callback function to retrieve the Alarm Settings to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing a packed struct of
-**                        2 x UINT8, 1 x BOOL8.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer containing a packed struct of
+**                         2 x UINT8, 1 x BOOL8.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes, always 3 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjAlarmSettings_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjAlarmSettings_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Manufacturer ID.
@@ -2158,27 +2158,27 @@ UINT16 ABCC_CbfProfibusObjManufacturerId_Get( void );
 ** Callback function to retrieve the Order ID.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjOrderId_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjOrderId_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Serial Number.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjSerialNo_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjSerialNo_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Hardware Revision.
@@ -2196,16 +2196,16 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 ** Callback function to retrieve the Software Revision.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where a packed struct of
-**                        1 x CHAR, 3 x UINT8 shall be written.
-**                        Example V03.04.01 = ("\x56\x03\x04\x01").
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedStrDest - Pointer to buffer where a packed struct of
+**                         1 x CHAR, 3 x UINT8 shall be written.
+**                         Example V03.04.01 = ("\x56\x03\x04\x01").
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes, always 4 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( UINT8* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( void* pvPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Revision Counter to the CompactCom.
@@ -2247,15 +2247,15 @@ UINT16 ABCC_CbfProfibusObjProfileSpecType_Get( void );
 ** Callback function to retrieve the IM Version to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing a packed struct of
-**                        2 x UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pvPackedArrDest - Pointer to buffer containing a packed struct of
+**                         2 x UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes, always 2 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjImVersion_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjImVersion_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the IM Supported bit field to the CompactCom.
@@ -2274,15 +2274,15 @@ UINT16 ABCC_CbfProfibusObjImSupported_Get( void );
 ** CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as an array of UINT8.
-**       iBuffSizeBytes - Size of the buffer in bytes, up to 10 bytes.
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as an array of UINT8.
+**       iBuffSizeBytes -  Size of the buffer in bytes, up to 10 bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjImHeader_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjImHeader_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** DeviceNet Host Object (0xFC)
@@ -2328,19 +2328,19 @@ UINT16 ABCC_CbfDeviceNetObjProductCode_Get( void );
 ** Callback function to provide the software revision of the device.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer where a packed UINT8 array of length
-**                        2 (size 2 in bytes) and little-endian byte order shall
-**                        be written. The most significant byte is the major
-**                        version and the least significant is the minor
-**                        version.
-**       iBuffSizeBytes - Size of the buffer in bytes. Always 2 in this case.
+**       pvPackedArrDest - Pointer to buffer where a packed UINT8 array of length
+**                         2 (size 2 in bytes) and little-endian byte order shall
+**                         be written. The most significant byte is the major
+**                         version and the least significant is the minor
+**                         version.
+**       iBuffSizeBytes -  Size of the buffer in bytes. Always 2 in this case.
 **
 ** Returns:
 **       Size of the array in bytes, always 2 in this case. Needed for internal
 **       logic of the driver.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfDeviceNetObjRevision_Get( UINT8* pPackedArrDest, UINT16 iBuffSizeBytes);
+UINT16 ABCC_CbfDeviceNetObjRevision_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes);
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the device's serial number to the CompactCom.
@@ -2358,14 +2358,14 @@ UINT32 ABCC_CbfDeviceNetObjSerialNumber_Get( void );
 ** Callback function to provide the product name to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 **
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfDeviceNetObjProductName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfDeviceNetObjProductName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to set the Producing Instance Number.
@@ -2564,40 +2564,40 @@ UINT32 ABCC_CbfPowerlinkObjSerialNumber_Get( void );
 ** Callback function to retrieve the Manufacturer Device Name.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfPowerlinkObjManfDevName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfPowerlinkObjManfDevName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Manufacturer Hardware Version.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfPowerlinkObjManfHwVer_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfPowerlinkObjManfHwVer_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Manufacturer Software Version.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfPowerlinkObjManfSwVer_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfPowerlinkObjManfSwVer_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Device Type to the CompactCom.
@@ -2615,14 +2615,14 @@ UINT32 ABCC_CbfPowerlinkObjDeviceType_Get( void );
 ** Callback function to retrieve the Manufacturer Software Version.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedStrDest - Pointer to buffer where string shall be written.
-**       iBuffSizeBytes - Size of the buffer in bytes.
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfPowerlinkObjManfName_Get( char* pPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfPowerlinkObjManfName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve whether CompactCom will support 
@@ -2655,22 +2655,22 @@ UINT8 ABCC_CbfPowerlinkObjSdoItFrameRatio_Get( void );
 ** to the CompactCom.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrDest - Pointer to buffer containing the data 
-**                        as a packed array of UINT32.
-**       iBuffSizeBytes - Size of the buffer in bytes, 8 bytes.
+**       pvPackedArrDest - Pointer to buffer containing the data 
+**                         as a packed array of UINT32.
+**       iBuffSizeBytes -  Size of the buffer in bytes, 8 bytes.
 ** 
 ** Returns:
 **       Size of the inserted array in bytes.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfPowerlinkObjAppSwDateTime_Get( void* pPackedArrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfPowerlinkObjAppSwDateTime_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to provide the Application Software Date and Time
 ** to the host application.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pPackedArrSrc - Pointer to buffer containing the data
+**       pvPackedArrSrc - Pointer to buffer containing the data
 **                       as a packed array of UINT32.
 **       iSizeBytes    - Size of the buffer in bytes, 8 bytes.
 **
@@ -2678,7 +2678,7 @@ UINT16 ABCC_CbfPowerlinkObjAppSwDateTime_Get( void* pPackedArrDest, UINT16 iBuff
 **       None.
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfPowerlinkObjAppSwDateTime_Set( void* pPackedArrSrc, UINT16 iSizeBytes );
+void ABCC_CbfPowerlinkObjAppSwDateTime_Set( void* pvPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Sync Object (0xEE)

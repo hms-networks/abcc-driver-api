@@ -38,8 +38,8 @@ typedef UINT16(*ABCC_UINT16_Get_AttrFuncType)(void);
 typedef INT16 (*ABCC_INT16_Get_AttrFuncType) (void);
 typedef UINT32(*ABCC_UINT32_Get_AttrFuncType)(void);
 typedef INT32 (*ABCC_INT32_Get_AttrFuncType) (void);
-typedef UINT16(*ABCC_STR_Get_AttrFuncType)   (char* pPackedStrDest, UINT16 iBuffSizeBytes);
-typedef UINT16(*ABCC_ARR_Get_AttrFuncType)   (void* pPackedArrDest, UINT16 iBuffSizeBytes);
+typedef UINT16(*ABCC_STR_Get_AttrFuncType)   (char* pcPackedStrDest, UINT16 iBuffSizeBytes);
+typedef UINT16(*ABCC_ARR_Get_AttrFuncType)   (void* pvPackedArrDest, UINT16 iBuffSizeBytes);
 
 typedef void (*ABCC_BOOL8_Set_AttrFuncType) (BOOL8);
 typedef void (*ABCC_UINT8_Set_AttrFuncType) (UINT8);
@@ -48,12 +48,12 @@ typedef void (*ABCC_UINT16_Set_AttrFuncType)(UINT16);
 typedef void (*ABCC_INT16_Set_AttrFuncType) (INT16);
 typedef void (*ABCC_UINT32_Set_AttrFuncType)(UINT32);
 typedef void (*ABCC_INT32_Set_AttrFuncType) (INT32);
-typedef void (*ABCC_STR_Set_AttrFuncType)   (char* pPackedStrSrc, UINT16 iBuffSizeBytes);
-typedef void (*ABCC_ARR_Set_AttrFuncType)   (void* pPackedArrSrc, UINT16 iSizeBytes);
+typedef void (*ABCC_STR_Set_AttrFuncType)   (char* pcPackedStrSrc, UINT16 iBuffSizeBytes);
+typedef void (*ABCC_ARR_Set_AttrFuncType)   (void* pvPackedArrSrc, UINT16 iSizeBytes);
 
 typedef void (*ABCC_Reset_ObjFuncType)(ABP_ResetType);
 
-typedef BOOL8(*ABCC_Get_Enum_String_AttrFuncType)(UINT8 bEnumValue, char* pPackedStrDest, UINT16 iBuffSizeBytes);
+typedef BOOL8(*ABCC_Get_Enum_String_AttrFuncType)(UINT8 bEnumValue, char* pcPackedStrDest, UINT16 iBuffSizeBytes);
 
 #if APP_OBJ_ENABLE
 typedef BOOL8(*ABCC_APP_ResetReq_ObjFuncType)(ABP_ResetType);
@@ -92,7 +92,7 @@ typedef struct
       ABCC_Reset_ObjFuncType            pnResetObj;
       ABCC_Get_Enum_String_AttrFuncType pnGetEnumStrAttr;
 #if APP_OBJ_ENABLE
-      ABCC_APP_ResetReq_ObjFuncType pnResetReqObj;
+      ABCC_APP_ResetReq_ObjFuncType     pnResetReqObj;
 #endif
       void* pxUnknownFuncPtr; // Do not use.
    }uCbx;

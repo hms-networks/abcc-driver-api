@@ -1403,7 +1403,7 @@ UINT16 ABCC_CbfCCLinkIETObjSerialNumber_Get( char* pcPackedStrDest, UINT16 iBuff
 **       None.
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pnPackedArrSrc, UINT16 iSizeBytes );
+void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pvPackedArrSrc, UINT16 iSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** EtherCAT Object (0xF5)
@@ -2196,7 +2196,7 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 ** Callback function to retrieve the Software Revision.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pvPackedStrDest - Pointer to buffer where a packed struct of
+**       pvPackedArrDest - Pointer to buffer where a packed struct of
 **                         1 x CHAR, 3 x UINT8 shall be written.
 **                         Example V03.04.01 = ("\x56\x03\x04\x01").
 **       iBuffSizeBytes -  Size of the buffer in bytes.
@@ -2205,7 +2205,7 @@ UINT16 ABCC_CbfProfibusObjHardwareRev_Get( void );
 **       Size of the inserted array in bytes, always 4 in this case.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( void* pvPackedStrDest, UINT16 iBuffSizeBytes );
+UINT16 ABCC_CbfProfibusObjSoftwareRev_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Revision Counter to the CompactCom.

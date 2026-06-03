@@ -15,6 +15,7 @@
 */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include "abcc_types.h"
 #include "abcc_api_config.h"
 #include "abcc_api_network_settings.h"
@@ -704,7 +705,7 @@ static void UserInitPrepDone( const ABCC_CmdSeqResultType eSeqResult, void* pxUs
       break;
    }
 }
-void ABCC_API_UserInitComplete()
+void ABCC_API_UserInitComplete( void )
 {
       appl_fUserInitPrepDone = TRUE;
       ABCC_UserInitComplete();
@@ -825,7 +826,7 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
       {
          appl_eAbccHandlerState = ABCC_API_WAIT_FW_UPDATE;
          ABCC_LOG_INFO( "ABCC did not start within the expected time. Assume firmware update is ongoing. \n" \
-                           "Now waiting an additional %lu ms\n", ABCC_API_FW_UPGRADE_STARTUP_TIME_MS );
+                           "Now waiting an additional %" PRIu32 " ms\n", ABCC_API_FW_UPGRADE_STARTUP_TIME_MS );
          ABCC_WaitForFwUpdate( ABCC_API_FW_UPGRADE_STARTUP_TIME_MS );
       }
 #endif
@@ -982,8 +983,8 @@ BOOL ABCC_API_SetBaudrate( UINT8 bSwitchValue )
       appl_bNwBaudRate = bSwitchValue;
       ABCC_CmdSeqAdd( appl_asBaudRateChangedCmdSeq, UpdateBaudRateDone, NULL, NULL );
    }
-   return TRUE;
    appl_fSetBaudRate = TRUE;
+   return TRUE;
 }
 
 void ABCC_API_SetCommSettings( ABCC_API_CommSettingType eCommSettings1,
@@ -1101,7 +1102,7 @@ void ABCC_CbfWdTimeout( void )
       {
          appl_eAbccHandlerState = ABCC_API_WAIT_FW_UPDATE;
          ABCC_LOG_INFO( "Failed to establish communication within the expected time. Assume firmware" \
-                        "update is ongoing. Now waiting an additional %lu ms\n", ABCC_API_FW_UPGRADE_STARTUP_TIME_MS );
+                        "update is ongoing. Now waiting an additional %" PRIu32 " ms\n", ABCC_API_FW_UPGRADE_STARTUP_TIME_MS );
       }
    }
 #endif

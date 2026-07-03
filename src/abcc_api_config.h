@@ -227,9 +227,9 @@
 ** In some use cases, configurable swapping is needed. In these cases, the
 ** defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 ** and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL can be used to disable value byte
-** swapping within the API code according to application's needs.When swapping
+** swapping within the API code according to application's needs. When swapping
 ** is disabled, values are copied without endian conversion; ensure that stored
-** ADI values/properties match the expected on-wire byte order, wich can be
+** ADI values/properties match the expected on-wire byte order, which can be
 ** determined by using ABCC_NetFormat().
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_PD

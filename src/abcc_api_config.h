@@ -221,9 +221,9 @@
 /*
 ** Swapping of data values
 **
-** When ADI values are read, they are swapped from application byte order to
-** network byte order, and when they are written, they are swapped from network
-** to application byte order by the application data object handler.
+** When ADI values are read/written, they are normally swapped between
+** application byte order and network byte order by the application data object
+** handler.
 ** In some use cases, configurable swapping is needed. In these cases, the
 ** defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 ** and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL can be used to disable value byte
@@ -235,7 +235,7 @@
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 ** This define disables byte swapping for messages accessing the ADI values.
-** These messages are typically triggered by acyclic access command from the
+** These messages are typically triggered by an acyclic access command from the
 ** supervising PLC.
 ** This define will also disable byte swapping for min, max and default values
 ** of the ADIs.

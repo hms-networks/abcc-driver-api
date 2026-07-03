@@ -875,7 +875,8 @@ static UINT16 CopyBitData( void* pxDest,
 /*------------------------------------------------------------------------------
 **  Copy value (single element or parts of an array) of a specific type
 **  from a specified source to a destination. If the host platform endian
-**  differs from network endian a swap will be done.
+**  differs from network endian a swap will be done (depending on
+**  configuration).
 **
 **  NOTE 1 !! For all non-bit data types the source and destination must be
 **  octet aligned.

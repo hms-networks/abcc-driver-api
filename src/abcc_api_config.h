@@ -237,9 +237,13 @@
 ** This define disables byte swapping for messages accessing the ADI values.
 ** These messages are typically triggered by acyclic access command from the
 ** supervising PLC.
+** This define will also disable byte swapping for min, max and default values
+** of the the ADIs.
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 ** This define disables byte swapping for both access channels.
+** To make code struct easier, this define will override the other two defines
+** if set to 1.
 */ 
 #ifndef AD_CFG_DIABLE_BYTE_SWAP_PD
    #define AD_CFG_DIABLE_BYTE_SWAP_PD         0

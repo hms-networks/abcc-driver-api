@@ -223,14 +223,14 @@
 **
 ** When ADI values are read, they are swapped from application byte order to
 ** network byte order, and when they are written, they are swapped from network
-** to application byte orderby the application data object handler.
-** In some use cases, a configurable swapping is needed. In this cases, the
-** defines AD_CFG_DIABLE_BYTE_SWAP_PD, AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and
-** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL can be used to disable value byte swapping
-** within API code according to applications needs.
+** to application byte order by the application data object handler.
+** In some use cases, configurable swapping is needed. In these cases, the
+** defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+** and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL can be used to disable value byte
+** swapping within API code according to applications needs.
 ** ABCC_NetFormat() can be used to determine the byte order used by the network.
 **
-** AD_CFG_DIABLE_BYTE_SWAP_PD
+** AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
 ** This define disables byte swapping for the mapped process data blocks.
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
@@ -238,30 +238,30 @@
 ** These messages are typically triggered by acyclic access command from the
 ** supervising PLC.
 ** This define will also disable byte swapping for min, max and default values
-** of the the ADIs.
+** of the ADIs.
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 ** This define disables byte swapping for both access channels.
 ** To make code struct easier, this define will override the other two defines
 ** if set to 1.
 */ 
-#ifndef AD_CFG_DIABLE_BYTE_SWAP_PD
-   #define AD_CFG_DIABLE_BYTE_SWAP_PD         0
-#endif // !AD_CFG_DIABLE_BYTE_SWAP_PD
+#ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
 
-#ifndef AD_CFG_DIABLE_BYTE_SWAP_MESSAGE
-   #define AD_CFG_DIABLE_BYTE_SWAP_MESSAGE    0
-#endif // !AD_CFG_DIABLE_BYTE_SWAP_MESSAGE
+#ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 
-#ifndef AD_CFG_DIABLE_BYTE_SWAP_TOTAL
-   #define AD_CFG_DIABLE_BYTE_SWAP_TOTAL      0
-#endif // !AD_CFG_DIABLE_BYTE_SWAP_TOTAL
+#ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL      0
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
-#if AD_CFG_DIABLE_BYTE_SWAP_TOTAL
-   #undef AD_CFG_DIABLE_BYTE_SWAP_PD
-   #define AD_CFG_DIABLE_BYTE_SWAP_PD         0
-   #undef AD_CFG_DIABLE_BYTE_SWAP_MESSAGE
-   #define AD_CFG_DIABLE_BYTE_SWAP_MESSAGE    0
-#endif // AD_CFG_DIABLE_BYTE_SWAP_TOTAL
+#if AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+   #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
+   #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
+#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
 #endif

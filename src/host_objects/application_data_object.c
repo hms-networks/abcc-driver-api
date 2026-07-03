@@ -1604,7 +1604,7 @@ static UINT8 GetMinMaxDefault( const AD_AdiEntryType* psAdiEntry,
 
 /*------------------------------------------------------------------------------
 **  Set ADI of any data type. The provided data must have network endian format.
-**  Dy default it is swapped to application byte order. This swap can be
+**  By default it is swapped to application byte order. This swap can be
 **  disabled by configuration.
 **------------------------------------------------------------------------------
 ** Arguments:

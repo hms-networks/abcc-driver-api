@@ -1115,7 +1115,7 @@ const ad_AllPropertiesType* GetDefaultProperties( UINT8 bDataType )
 
 /*------------------------------------------------------------------------------
 **  Get min, max or default value of a single ADI element.
-**  The value is converted to network endian.
+**  The value is converted to network endian (based on configuration).
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Entry of ADI
@@ -1604,6 +1604,8 @@ static UINT8 GetMinMaxDefault( const AD_AdiEntryType* psAdiEntry,
 
 /*------------------------------------------------------------------------------
 **  Set ADI of any data type. The provided data must have network endian format.
+**  Dy default it is swapped to application byte order. This swap can be
+**  disabled by configuration.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Pointer to ADI entry.

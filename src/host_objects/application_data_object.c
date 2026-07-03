@@ -125,7 +125,7 @@ ad_MapInfoType;
 
 #if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static BOOL ad_fDoNetworkEndianSwap = FALSE;
-#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static const AD_MapType* ad_asDefaultMap = NULL;
 static const AD_AdiEntryType* ad_asADIEntryList = NULL;
 static UINT16  ad_iNumOfADIs;
@@ -2879,9 +2879,9 @@ void AD_WritePdMapFromBuffer( const AD_MapType* pasMap,
 UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
                          const AD_MapType** ppsDefaultMap )
 {
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
    ABCC_NetFormatType eNetFormat;
    eNetFormat = ABCC_NetFormat();
-#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 #ifdef ABCC_SYS_BIG_ENDIAN
    ad_fDoNetworkEndianSwap = ( eNetFormat == NET_LITTLEENDIAN ) ? TRUE : FALSE;
 #else

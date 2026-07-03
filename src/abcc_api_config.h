@@ -246,7 +246,7 @@
 ** This define disables byte swapping for both access channels.
 ** To make the code structure simpler, this define will override the other two
 ** defines if set to 1.
-*/ 
+*/
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
 #endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_PD

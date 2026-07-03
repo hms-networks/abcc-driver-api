@@ -900,7 +900,7 @@ static UINT16 CopyBitData( void* pxDest,
 **    bDataType         - Data type according to ABP_<X> types in abp.h
 **    iNumElem          - Number of elements to copy
 **
-**    fExplicit         - only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or 
+**    fExplicit         - only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or
 **                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is set to 1;
 **                        TRUE:  copy is triggered by a message
 **                        FALSE: copy is triggered by process data

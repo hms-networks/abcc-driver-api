@@ -876,8 +876,15 @@ static UINT16 CopyBitData( void* pxDest,
 **  Copy value (single element or parts of an array) of a specific type
 **  from a specified source to a destination. If the host platform endian
 **  differs from network endian a swap will be done.
-**  NOTE!! For all non-bit data types the source and destination must be octet
-**  aligned.
+**
+**  NOTE 1 !! For all non-bit data types the source and destination must be
+**  octet aligned.
+**
+**  NOTE 2 !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, 
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is defined
+**  the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    pxDst             - Destination base pointer.
@@ -1142,7 +1149,7 @@ static UINT16 GetSingleMinMaxDefault( const ad_AllPropertiesType* puProps,
                          bDataType,
                          1
               #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
-                       , TRUE // range check is done for message based access, only
+                       , TRUE // min/max/default are read by message based access, only
               #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
                        );
 

@@ -123,7 +123,9 @@ typedef struct ad_MapInfo
 }
 ad_MapInfoType;
 
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static BOOL ad_fDoNetworkEndianSwap = FALSE;
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 static const AD_MapType* ad_asDefaultMap = NULL;
 static const AD_AdiEntryType* ad_asADIEntryList = NULL;
 static UINT16  ad_iNumOfADIs;
@@ -199,6 +201,7 @@ while( 0 )
 */
 #define BitToOctetOffset( bitOffset ) ( (bitOffset) >> 3 )
 
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 /*------------------------------------------------------------------------------
 ** Copies a 16 bit values from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
@@ -294,6 +297,8 @@ static void Copy64WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
    }
 }
 #endif
+
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
 /*------------------------------------------------------------------------------
 ** Calculates the size of a part of or a complete ADI, in bits.
@@ -2876,11 +2881,13 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
 {
    ABCC_NetFormatType eNetFormat;
    eNetFormat = ABCC_NetFormat();
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 #ifdef ABCC_SYS_BIG_ENDIAN
    ad_fDoNetworkEndianSwap = ( eNetFormat == NET_LITTLEENDIAN ) ? TRUE : FALSE;
 #else
    ad_fDoNetworkEndianSwap = ( eNetFormat == NET_LITTLEENDIAN ) ? FALSE : TRUE;
 #endif
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
    *ppsAdiEntry = ad_asADIEntryList;
    *ppsDefaultMap = ad_asDefaultMap;

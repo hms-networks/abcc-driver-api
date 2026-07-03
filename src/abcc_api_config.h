@@ -227,7 +227,7 @@
 ** In some use cases, configurable swapping is needed. In these cases, the
 ** defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 ** and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL can be used to disable value byte
-** swapping within API code according to applications needs.
+** swapping within the API code according to application's needs.
 ** ABCC_NetFormat() can be used to determine the byte order used by the network.
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
@@ -242,8 +242,8 @@
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 ** This define disables byte swapping for both access channels.
-** To make code struct easier, this define will override the other two defines
-** if set to 1.
+** To make the code structure simpler, this define will override the other two
+** defines if set to 1.
 */ 
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0

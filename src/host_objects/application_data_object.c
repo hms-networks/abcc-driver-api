@@ -880,11 +880,11 @@ static UINT16 CopyBitData( void* pxDest,
 **  NOTE 1 !! For all non-bit data types the source and destination must be
 **  octet aligned.
 **
-**  NOTE 2 !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, 
+**  NOTE 2 !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
 **  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 **  can be used to disable the byte swap functionality for process data, message
-**  data or both respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is defined
-**  the other two defines are ignored.
+**  data or both respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    pxDst             - Destination base pointer.
@@ -895,7 +895,7 @@ static UINT16 CopyBitData( void* pxDest,
 **    iNumElem          - Number of elements to copy
 **
 **    fExplicit         - only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or 
-**                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is defined;
+**                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is set to 1;
 **                        TRUE:  copy is triggered by a message
 **                        FALSE: copy is triggered by process data
 **

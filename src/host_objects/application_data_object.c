@@ -28,9 +28,6 @@
 #endif
 
 /*
-* test-Kommentar
-*/
-/*
 ** Value used in ad_MapType as ADI index when ADI 0 is mapped.
 */
 #define AD_MAP_PAD_INDEX                     ( 0xfffe )

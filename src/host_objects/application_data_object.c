@@ -888,21 +888,45 @@ static UINT16 CopyBitData( void* pxDest,
 **    pxSrc             - Source base pointer.
 **    iSrcBitOffset     - Bit offset relative source pointer.
 **    bDataType         - Data type according to ABP_<X> types in abp.h
-**    iNumElem          - Number of elements to copy.
+**    iNumElem          - Number of elements to copy
+**
+**    fExplicit         - only present if AD_CFG_DIABLE_BYTE_SWAP_PD or 
+**                        AD_CFG_DIABLE_BYTE_SWAP_MESSAGE is defined;
+**                        TRUE:  copy is triggered by a message
+**                        FALSE: copy is triggered by process data
 **
 ** Returns:
 **    Size of copied data in bits.
 **------------------------------------------------------------------------------
 */
-static UINT16 CopyValue( void* pxDst,
-                         UINT16 iDestBitOffset,
-                         const void* pxSrc,
-                         UINT16 iSrcBitOffset,
-                         UINT8 bDataType,
-                         UINT16 iNumElem )
+#if AD_CFG_DIABLE_BYTE_SWAP_PD || AD_CFG_DIABLE_BYTE_SWAP_MESSAGE
+   static UINT16 CopyValue( void* pxDst,
+                            UINT16 iDestBitOffset,
+                            const void* pxSrc,
+                            UINT16 iSrcBitOffset,
+                            UINT8 bDataType,
+                            UINT16 iNumElem,
+                            BOOL fExplicit )
+#else
+   static UINT16 CopyValue( void* pxDst,
+                            UINT16 iDestBitOffset,
+                            const void* pxSrc,
+                            UINT16 iSrcBitOffset,
+                            UINT8 bDataType,
+                            UINT16 iNumElem )
+#endif // AD_CFG_DIABLE_BYTE_SWAP_PD || AD_CFG_DIABLE_BYTE_SWAP_MESSAGE
 {
    UINT8 bDataTypeSizeInOctets;
    UINT16 iBitSetSize;
+   BOOL fDoNetworkEndianSwap = ad_fDoNetworkEndianSwap;
+#if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+   if( ( fExplicit && AD_CFG_DIABLE_BYTE_SWAP_MESSAGE ) ||
+       ( !fExplicit && AD_CFG_DIABLE_BYTE_SWAP_PD ) )
+   {
+      fDoNetworkEndianSwap = FALSE;
+   }
+#endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+
 
    if( Is_BITx_Or_PADx( bDataType ) || ( bDataType == ABP_BOOL1 ) )
    {
@@ -917,7 +941,8 @@ static UINT16 CopyValue( void* pxDst,
    {
       bDataTypeSizeInOctets = ABCC_GetDataTypeSize( bDataType );
 
-      if( ad_fDoNetworkEndianSwap )
+   #if !AD_CFG_DIABLE_BYTE_SWAP_TOTAL
+      if( fDoNetworkEndianSwap )
       {
          switch( bDataTypeSizeInOctets )
          {
@@ -951,6 +976,7 @@ static UINT16 CopyValue( void* pxDst,
          }
       }
       else
+   #endif // AD_CFG_DIABLE_BYTE_SWAP_TOTAL
       {
          ABCC_PORT_CopyOctets( pxDst, BitToOctetOffset( iDestBitOffset ),
                                pxSrc, BitToOctetOffset( iSrcBitOffset ),
@@ -1114,7 +1140,11 @@ static UINT16 GetSingleMinMaxDefault( const ad_AllPropertiesType* puProps,
                          puProps,
                          iSrcOctetOffset * 8,
                          bDataType,
-                         1 );
+                         1
+              #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                       , TRUE // range check is done for message based access, only
+              #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                       );
 
    return( iBitSize );
 }
@@ -1383,7 +1413,11 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                            pxSrc,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           1 );
+                                           1
+                                #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                         , TRUE // range check is done for message based access, only
+                                #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                         );
 
                bErrCode = checkMinMax( &uValue,
                                        psAdiEntry->psStruct[ i ].uData.sVOID.pxValueProps,
@@ -1418,7 +1452,11 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                         pxSrc,
                                         iSrcBitOffset,
                                         psAdiEntry->bDataType,
-                                        1 );
+                                        1
+                             #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                      , TRUE // range check is done for message based access, only
+                             #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                      );
 
             bErrCode = checkMinMax( &uValue,
                                     psAdiEntry->uData.sVOID.pxValueProps,
@@ -1603,11 +1641,15 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                        pxData,
                                        *piSrcBitOffset,
                                        psAdiEntry->psStruct[ i ].bDataType,
-                                       psAdiEntry->psStruct[ i ].iNumSubElem );
+                                       psAdiEntry->psStruct[ i ].iNumSubElem
+                            #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                     , fExplicit
+                            #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                      );
       }
    }
    else
-#else
+#elif !(AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD)
    (void)fExplicit;
 #endif
    {
@@ -1617,7 +1659,11 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                     pxData,
                                     *piSrcBitOffset,
                                     psAdiEntry->bDataType,
-                                    bNumElements );
+                                    bNumElements
+                         #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                  , fExplicit
+                         #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                  );
    }
 #if( ABCC_CFG_ADI_GET_SET_CALLBACK_ENABLED )
    if( psAdiEntry->pnSetAdiValue != NULL )
@@ -2904,7 +2950,11 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                            psAdiEntry->psStruct[ i ].uData.sVOID.pxValuePtr,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           psAdiEntry->psStruct[ i ].iNumSubElem );
+                                           psAdiEntry->psStruct[ i ].iNumSubElem
+                                #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                         , fExplicit
+                                #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                         );
          }
       }
       else
@@ -2917,12 +2967,16 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                            psAdiEntry->psStruct[ i ].uData.sVOID.pxValuePtr,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           psAdiEntry->psStruct[ i ].iNumSubElem );
+                                           psAdiEntry->psStruct[ i ].iNumSubElem
+                                #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                         , fExplicit
+                                #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                         );
          }
       }
    }
    else
-#else
+#elif !(AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD)
    (void)fExplicit;
 #endif
    {
@@ -2932,7 +2986,11 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                      psAdiEntry->uData.sVOID.pxValuePtr,
                                      iSrcBitOffset,
                                      psAdiEntry->bDataType,
-                                     bNumElements );
+                                     bNumElements
+                          #if AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                   , fExplicit
+                          #endif // AD_CFG_DIABLE_BYTE_SWAP_MESSAGE || AD_CFG_DIABLE_BYTE_SWAP_PD
+                                   );
    }
 }
 

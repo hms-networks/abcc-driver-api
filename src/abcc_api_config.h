@@ -219,7 +219,7 @@
 #endif
 
 /*
-** Swapping of data values
+** ADI Data Value Swapping
 **
 ** By default, ADI values are byte-swapped between application and network byte
 ** order by the application data object handler. However, some use cases require

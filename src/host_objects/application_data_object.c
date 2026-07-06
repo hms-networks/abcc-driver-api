@@ -1161,7 +1161,7 @@ static UINT16 GetSingleMinMaxDefault( const ad_AllPropertiesType* puProps,
                          bDataType,
                          1
               #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
-                       , TRUE // min/max/default are read by message-based access, only
+                       , TRUE // min/max/default values of ADIs are read by message-based access, only
               #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
                        );
 
@@ -1434,7 +1434,7 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                            psAdiEntry->psStruct[ i ].bDataType,
                                            1
                                 #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
-                                         , TRUE // range check is done for message based access, only
+                                         , TRUE // range check is done for message based ADI access, only
                                 #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
                                          );
 
@@ -1473,7 +1473,7 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                         psAdiEntry->bDataType,
                                         1
                              #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
-                                      , TRUE // range check is done for message based access, only
+                                      , TRUE // range check is done for message based ADI access, only
                              #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
                                       );
 

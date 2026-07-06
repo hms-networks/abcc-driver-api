@@ -221,31 +221,26 @@
 /*
 ** Swapping of data values
 **
-** When ADI values are read/written, they are normally swapped between
-** application byte order and network byte order by the application data object
-** handler.
-** In some use cases, configurable swapping is needed. In these cases, the
-** defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD, AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
-** and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL can be used to disable value byte
-** swapping within the API code according to application's needs. When swapping
-** is disabled, values are copied without endian conversion; ensure that stored
-** ADI values/properties match the expected on-wire byte order, which can be
-** determined by using ABCC_NetFormat().
+** By default, ADI values are byte-swapped between application and network byte
+** order by the application data object handler. However, some use cases require
+** swapping to be configurable.
+**
+** The following defines allow disabling this swap for specific access channels.
+** When disabled, values are copied as-is (no endian conversion);
+** stored ADI values must then already match the desired on-wire byte order.
+** The default byte order can be determined by using ABCC_NetFormat().
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
-** This define disables byte swapping for the mapped process data blocks.
-**
+**   Disables swapping for mapped process data blocks.
+** 
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
-** This define disables byte swapping for messages accessing the ADI values.
-** These messages are typically triggered by an acyclic access command from the
-** supervising PLC.
-** This define will also disable byte swapping for min, max and default values
-** of the ADIs.
-**
+**   Disables swapping for message-based ADI access (typically triggered by an
+**   acyclic command from the supervising PLC). Also covers min, max, and
+**   default values of the ADIs.
+** 
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
-** This define disables byte swapping for both access channels.
-** To make the code structure simpler, this define will override the other two
-** defines if set to 1.
+**   Disables swapping for both channels at once. Overrides the other two
+**   defines when set (simplifies configuration & reduces code size).
 */
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0

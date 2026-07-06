@@ -880,8 +880,8 @@ static UINT16 CopyBitData( void* pxDest,
 /*------------------------------------------------------------------------------
 **  Copy value (single element or parts of an array) of a specific type
 **  from a specified source to a destination. If the host platform endian
-**  differs from network endian a swap will be done (depending on
-**  configuration).
+**  differs from network endian a swap will be done if not disabled (see note 2
+**  below).
 **
 **  NOTE 1 !! For all non-bit data types the source and destination must be
 **  octet aligned.
@@ -889,7 +889,7 @@ static UINT16 CopyBitData( void* pxDest,
 **  NOTE 2 !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
 **  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 **  can be used to disable the byte swap functionality for process data, message
-**  data or both respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
 **  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -898,12 +898,12 @@ static UINT16 CopyBitData( void* pxDest,
 **    pxSrc             - Source base pointer.
 **    iSrcBitOffset     - Bit offset relative source pointer.
 **    bDataType         - Data type according to ABP_<X> types in abp.h
-**    iNumElem          - Number of elements to copy
+**    iNumElem          - Number of elements to copy.
 **
-**    fExplicit         - only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or
-**                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is set to 1;
-**                        TRUE:  copy is triggered by a message
-**                        FALSE: copy is triggered by process data
+**    fExplicit         - Only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or
+**                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is set to 1.
+**                        TRUE:  Copy is triggered by a message
+**                        FALSE: Copy is triggered by process data
 **
 ** Returns:
 **    Size of copied data in bits.
@@ -1115,7 +1115,13 @@ const ad_AllPropertiesType* GetDefaultProperties( UINT8 bDataType )
 
 /*------------------------------------------------------------------------------
 **  Get min, max or default value of a single ADI element.
-**  The value is converted to network endian (based on configuration).
+**  The value is converted to network endian if not disabled (see note below).
+**
+**  NOTE !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Entry of ADI
@@ -1155,7 +1161,7 @@ static UINT16 GetSingleMinMaxDefault( const ad_AllPropertiesType* puProps,
                          bDataType,
                          1
               #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
-                       , TRUE // min/max/default are read by message based access, only
+                       , TRUE // min/max/default are read by message-based access, only
               #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
                        );
 
@@ -1605,7 +1611,13 @@ static UINT8 GetMinMaxDefault( const AD_AdiEntryType* psAdiEntry,
 /*------------------------------------------------------------------------------
 **  Set ADI of any data type. The provided data must have network endian format.
 **  By default it is swapped to application byte order. This swap can be
-**  disabled by configuration.
+**  disabled by configuration (see note below).
+**
+**  NOTE !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Pointer to ADI entry.

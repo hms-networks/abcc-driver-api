@@ -2480,8 +2480,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                break;
             }
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
+   #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+
             bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                                     AD_ALL_ADI_INDEX );
+
+   #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
 
             if( bErrCode == ABP_ERR_NO_ERROR )
@@ -2674,8 +2678,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                   }
 
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
+   #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+
                   bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                                           ABCC_GetMsgCmdExt1( psMsgBuffer ) );
+
+   #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
                   if( bErrCode == ABP_ERR_NO_ERROR )
                   {

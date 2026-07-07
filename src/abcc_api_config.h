@@ -241,6 +241,18 @@
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 **   Disables swapping for both channels at once. Overrides the other two
 **   defines when set (simplifies configuration & reduces code size).
+**
+** note: Disabling swapping for message-based access will also disable min/max
+**       range checks for Set operations targeting ADI elements, since the
+**       application data object handler will no longer be able to determine the
+**       correct min/max values for the ADI elements (their byte order may
+**       differ from application byte order).
+**       To handle the range check within application, transparent set callbacks
+**       (enabled by ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED) can be used.
+**       The corresponding warning will be reported as plattform-independant
+**       compiler error but can be suppressed by defining
+**       AD_CFG_OVERRIDE_WARNING_RANGE_CHECK.
+** 
 */
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
@@ -260,5 +272,21 @@
    #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
 #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+
+#ifndef AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+   #define AD_CFG_OVERRIDE_WARNING_RANGE_CHECK 0
+#endif // !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+
+#if( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+   #if AD_IA_MIN_MAX_DEFAULT_ENABLE
+      #if !ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED
+         #if !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+         
+            #error "WARNING: Range check (for message-based set accesses) does not work if ADI byte swap is disabled for message-based access. This warning can be overridden using the `AD_CFG_OVERRIDE_WARNING_RANGE_CHECK` define."
+         
+         #endif // !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+      #endif // !ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED
+   #endif // AD_IA_MIN_MAX_DEFAULT_ENABLE
+#endif
 
 #endif

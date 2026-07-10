@@ -1126,7 +1126,7 @@ const ad_AllPropertiesType* GetDefaultProperties( UINT8 bDataType )
 ** Arguments:
 **    psAdiEntry        - Entry of ADI
 **    pxDest            - Pointer to destination
-**    pxDest            - Destination bit offset
+**    iDestBitOffset    - Destination bit offset
 **    eMinMaxDefault    - Get min, max or default value described by
 **                        AD_MinMaxDefaultIndexType
 **    bDataType         - Data type

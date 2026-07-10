@@ -249,7 +249,7 @@
 **       differ from application byte order).
 **       To handle the range check within application, transparent set callbacks
 **       (enabled by ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED) can be used.
-**       The corresponding warning will be reported as plattform-independant
+**       The corresponding warning will be reported as platform-independant
 **       compiler error but can be suppressed by defining
 **       AD_CFG_OVERRIDE_WARNING_RANGE_CHECK.
 ** 

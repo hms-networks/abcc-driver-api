@@ -1101,7 +1101,7 @@ void ABCC_CbfWdTimeout( void )
       if( ABCC_WaitForFwUpdate( ABCC_API_FW_UPGRADE_STARTUP_TIME_MS ) )
       {
          appl_eAbccHandlerState = ABCC_API_WAIT_FW_UPDATE;
-         ABCC_LOG_INFO( "Failed to establish communication within the expected time. Assume firmware" \
+         ABCC_LOG_INFO( "Failed to establish communication within the expected time. Assume firmware " \
                         "update is ongoing. Now waiting an additional %" PRIu32 " ms\n", ABCC_API_FW_UPGRADE_STARTUP_TIME_MS );
       }
    }

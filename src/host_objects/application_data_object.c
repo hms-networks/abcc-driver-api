@@ -123,7 +123,9 @@ typedef struct ad_MapInfo
 }
 ad_MapInfoType;
 
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static BOOL ad_fDoNetworkEndianSwap = FALSE;
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static const AD_MapType* ad_asDefaultMap = NULL;
 static const AD_AdiEntryType* ad_asADIEntryList = NULL;
 static UINT16  ad_iNumOfADIs;
@@ -199,6 +201,7 @@ while( 0 )
 */
 #define BitToOctetOffset( bitOffset ) ( (bitOffset) >> 3 )
 
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 /*------------------------------------------------------------------------------
 ** Copies a 16 bit values from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
@@ -294,6 +297,8 @@ static void Copy64WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
    }
 }
 #endif
+
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
 /*------------------------------------------------------------------------------
 ** Calculates the size of a part of or a complete ADI, in bits.
@@ -875,9 +880,17 @@ static UINT16 CopyBitData( void* pxDest,
 /*------------------------------------------------------------------------------
 **  Copy value (single element or parts of an array) of a specific type
 **  from a specified source to a destination. If the host platform endian
-**  differs from network endian a swap will be done.
-**  NOTE!! For all non-bit data types the source and destination must be octet
-**  aligned.
+**  differs from network endian a swap will be done if not disabled (see note 2
+**  below).
+**
+**  NOTE 1 !! For all non-bit data types the source and destination must be
+**  octet aligned.
+**
+**  NOTE 2 !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    pxDst             - Destination base pointer.
@@ -887,19 +900,46 @@ static UINT16 CopyBitData( void* pxDest,
 **    bDataType         - Data type according to ABP_<X> types in abp.h
 **    iNumElem          - Number of elements to copy.
 **
+**    fExplicit         - Only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or
+**                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is set to 1.
+**                        TRUE:  Copy is triggered by a message
+**                        FALSE: Copy is triggered by process data
+**
 ** Returns:
 **    Size of copied data in bits.
 **------------------------------------------------------------------------------
 */
-static UINT16 CopyValue( void* pxDst,
-                         UINT16 iDestBitOffset,
-                         const void* pxSrc,
-                         UINT16 iSrcBitOffset,
-                         UINT8 bDataType,
-                         UINT16 iNumElem )
+#if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD || AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+   static UINT16 CopyValue( void* pxDst,
+                            UINT16 iDestBitOffset,
+                            const void* pxSrc,
+                            UINT16 iSrcBitOffset,
+                            UINT8 bDataType,
+                            UINT16 iNumElem,
+                            BOOL fExplicit )
+#else
+   static UINT16 CopyValue( void* pxDst,
+                            UINT16 iDestBitOffset,
+                            const void* pxSrc,
+                            UINT16 iSrcBitOffset,
+                            UINT8 bDataType,
+                            UINT16 iNumElem )
+#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_PD || AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 {
    UINT8 bDataTypeSizeInOctets;
    UINT16 iBitSetSize;
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+   BOOL fDoNetworkEndianSwap = ad_fDoNetworkEndianSwap;
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+
+#if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+   if( ( fExplicit && AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE ) ||
+       ( !fExplicit && AD_CFG_DISABLE_ADI_BYTE_SWAP_PD ) )
+   {
+      fDoNetworkEndianSwap = FALSE;
+   }
+#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+
 
    if( Is_BITx_Or_PADx( bDataType ) || ( bDataType == ABP_BOOL1 ) )
    {
@@ -914,7 +954,8 @@ static UINT16 CopyValue( void* pxDst,
    {
       bDataTypeSizeInOctets = ABCC_GetDataTypeSize( bDataType );
 
-      if( ad_fDoNetworkEndianSwap )
+   #if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+      if( fDoNetworkEndianSwap )
       {
          switch( bDataTypeSizeInOctets )
          {
@@ -948,6 +989,7 @@ static UINT16 CopyValue( void* pxDst,
          }
       }
       else
+   #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
       {
          ABCC_PORT_CopyOctets( pxDst, BitToOctetOffset( iDestBitOffset ),
                                pxSrc, BitToOctetOffset( iSrcBitOffset ),
@@ -1073,12 +1115,18 @@ const ad_AllPropertiesType* GetDefaultProperties( UINT8 bDataType )
 
 /*------------------------------------------------------------------------------
 **  Get min, max or default value of a single ADI element.
-**  The value is converted to network endian.
+**  The value is converted to network endian if not disabled (see note below).
+**
+**  NOTE !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Entry of ADI
 **    pxDest            - Pointer to destination
-**    pxDest            - Destination bit offset
+**    iDestBitOffset    - Destination bit offset
 **    eMinMaxDefault    - Get min, max or default value described by
 **                        AD_MinMaxDefaultIndexType
 **    bDataType         - Data type
@@ -1111,7 +1159,11 @@ static UINT16 GetSingleMinMaxDefault( const ad_AllPropertiesType* puProps,
                          puProps,
                          iSrcOctetOffset * 8,
                          bDataType,
-                         1 );
+                         1
+              #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                       , TRUE // min/max/default values of ADIs are read by message-based access, only
+              #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                       );
 
    return( iBitSize );
 }
@@ -1380,7 +1432,11 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                            pxSrc,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           1 );
+                                           1
+                                #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         , TRUE // range check is done for message based ADI access, only
+                                #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         );
 
                bErrCode = checkMinMax( &uValue,
                                        psAdiEntry->psStruct[ i ].uData.sVOID.pxValueProps,
@@ -1415,7 +1471,11 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                         pxSrc,
                                         iSrcBitOffset,
                                         psAdiEntry->bDataType,
-                                        1 );
+                                        1
+                             #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                      , TRUE // range check is done for message based ADI access, only
+                             #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                      );
 
             bErrCode = checkMinMax( &uValue,
                                     psAdiEntry->uData.sVOID.pxValueProps,
@@ -1550,6 +1610,14 @@ static UINT8 GetMinMaxDefault( const AD_AdiEntryType* psAdiEntry,
 
 /*------------------------------------------------------------------------------
 **  Set ADI of any data type. The provided data must have network endian format.
+**  By default it is swapped to application byte order. This swap can be
+**  disabled by configuration (see note below).
+**
+**  NOTE !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Pointer to ADI entry.
@@ -1600,11 +1668,15 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                        pxData,
                                        *piSrcBitOffset,
                                        psAdiEntry->psStruct[ i ].bDataType,
-                                       psAdiEntry->psStruct[ i ].iNumSubElem );
+                                       psAdiEntry->psStruct[ i ].iNumSubElem
+                            #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                     , fExplicit
+                            #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                      );
       }
    }
    else
-#else
+#elif !(AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD)
    (void)fExplicit;
 #endif
    {
@@ -1614,7 +1686,11 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                     pxData,
                                     *piSrcBitOffset,
                                     psAdiEntry->bDataType,
-                                    bNumElements );
+                                    bNumElements
+                         #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                  , fExplicit
+                         #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                  );
    }
 #if( ABCC_CFG_ADI_GET_SET_CALLBACK_ENABLED )
    if( psAdiEntry->pnSetAdiValue != NULL )
@@ -2404,8 +2480,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                break;
             }
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
+   #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+
             bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                                     AD_ALL_ADI_INDEX );
+
+   #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
 
             if( bErrCode == ABP_ERR_NO_ERROR )
@@ -2598,8 +2678,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                   }
 
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
+   #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+
                   bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                                           ABCC_GetMsgCmdExt1( psMsgBuffer ) );
+
+   #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
                   if( bErrCode == ABP_ERR_NO_ERROR )
                   {
@@ -2817,6 +2901,7 @@ void AD_WritePdMapFromBuffer( const AD_MapType* pasMap,
 UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
                          const AD_MapType** ppsDefaultMap )
 {
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
    ABCC_NetFormatType eNetFormat;
    eNetFormat = ABCC_NetFormat();
 #ifdef ABCC_SYS_BIG_ENDIAN
@@ -2824,6 +2909,7 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
 #else
    ad_fDoNetworkEndianSwap = ( eNetFormat == NET_LITTLEENDIAN ) ? FALSE : TRUE;
 #endif
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
    *ppsAdiEntry = ad_asADIEntryList;
    *ppsDefaultMap = ad_asDefaultMap;
@@ -2901,7 +2987,11 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                            psAdiEntry->psStruct[ i ].uData.sVOID.pxValuePtr,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           psAdiEntry->psStruct[ i ].iNumSubElem );
+                                           psAdiEntry->psStruct[ i ].iNumSubElem
+                                #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         , fExplicit
+                                #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         );
          }
       }
       else
@@ -2914,12 +3004,16 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                            psAdiEntry->psStruct[ i ].uData.sVOID.pxValuePtr,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           psAdiEntry->psStruct[ i ].iNumSubElem );
+                                           psAdiEntry->psStruct[ i ].iNumSubElem
+                                #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         , fExplicit
+                                #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         );
          }
       }
    }
    else
-#else
+#elif !(AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD)
    (void)fExplicit;
 #endif
    {
@@ -2929,7 +3023,11 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                      psAdiEntry->uData.sVOID.pxValuePtr,
                                      iSrcBitOffset,
                                      psAdiEntry->bDataType,
-                                     bNumElements );
+                                     bNumElements
+                          #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                   , fExplicit
+                          #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                   );
    }
 }
 

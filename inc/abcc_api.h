@@ -322,6 +322,68 @@ EXTFUNC UINT16 ABCC_API_CbfGetNumAdi( void );
 EXTFUNC void ABCC_API_CbfSyncIsr( void );
 #endif
 
+/*------------------------------------------------------------------------------
+** Returns the DHCP configuration value from aplication. The value is used to configure the ABCC module.
+**------------------------------------------------------------------------------
+** Arguments:
+**    None
+**
+** Returns:
+**    BOOL - DHCP configuration value
+**------------------------------------------------------------------------------
+*/
+EXTFUNC BOOL ABCC_API_CbfGetNetworkDhcpValue(void);
+
+
+/*------------------------------------------------------------------------------
+** Fetching IP address configuration from the application.
+**------------------------------------------------------------------------------
+** Arguments:
+**    firstOctet - Pointer to first octet of IP address.
+**    secondOctet - Pointer to second octet of IP address.
+**    thirdOctet - Pointer to third octet of IP address.
+**    fourthOctet - Pointer to fourth octet of IP address.
+**
+** Returns:
+**    None - The IP address is returned through the pointer arguments.
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_CbfGetNetworkIpAddress(UINT8 * firstOctet, UINT8 * secondOctet, UINT8 * thirdOctet,
+                                             UINT8 * fourthOctet);
+
+/*------------------------------------------------------------------------------
+** Fetching subnet mask configuration from the application.
+**------------------------------------------------------------------------------
+** Arguments:
+**    firstOctet - Pointer to first octet of IP address.
+**    secondOctet - Pointer to second octet of IP address.
+**    thirdOctet - Pointer to third octet of IP address.
+**    fourthOctet - Pointer to fourth octet of IP address.
+**
+** Returns:
+**    None - The subnet mask is returned through the pointer arguments.
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_CbfGetNetworkSubnetmask(UINT8 * firstOctet, UINT8 * secondOctet, UINT8 * thirdOctet,
+                                              UINT8 * fourthOctet);
+
+/*------------------------------------------------------------------------------
+** Fetching IP address of the default gateway configuration from the application.
+**------------------------------------------------------------------------------
+** Arguments:
+**    firstOctet - Pointer to first octet of IP address.
+**    secondOctet - Pointer to second octet of IP address.
+**    thirdOctet - Pointer to third octet of IP address.
+**    fourthOctet - Pointer to fourth octet of IP address.
+**
+** Returns:
+**    None - The default gateway IP address is returned through the pointer arguments.
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_CbfGetDefaultGateway(UINT8 * firstOctet, UINT8 * secondOctet, UINT8 * thirdOctet,
+                                           UINT8 * fourthOctet);
+
+
 /*******************************************************************************
 ** Anybus CompactCom Driver API global variables
 ********************************************************************************

@@ -203,7 +203,7 @@ while( 0 )
 
 #if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 /*------------------------------------------------------------------------------
-** Copies a 16 bit values from a source to a destination. Each value will be
+** Copies a 16 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -234,7 +234,7 @@ static void Copy16WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
 }
 
 /*------------------------------------------------------------------------------
-** Copies a 32 bit values from a source to a destination. Each value will be
+** Copies a 32 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -266,7 +266,7 @@ static void Copy32WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
 
 
 /*------------------------------------------------------------------------------
-** Copies a 64 bit values from a source to a destination. Each value will be
+** Copies a 64 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:

@@ -2265,7 +2265,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                break;
             }
 #endif
-            ABCC_GetMsgDataPtr( psMsgBuffer )[0] = 0;
+            ABCC_GetMsgDataPtr( psMsgBuffer )[ 0 ] = 0;
 
             AD_GetAdiValue( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                             psAdiEntry->bNumOfElements, 0,

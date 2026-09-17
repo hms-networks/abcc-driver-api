@@ -2544,22 +2544,22 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
             else
             {
-               UINT8 bStringIndex;
+               UINT16 iStringIndex;
 
-               for( bStringIndex = 0; bStringIndex < psAdiEntry->uData.sENUM.psValueProps->bNumOfEnumStrings; bStringIndex++ )
+               for( iStringIndex = 0; iStringIndex < psAdiEntry->uData.sENUM.psValueProps->iNumOfEnumStrings; iStringIndex++ )
                {
-                  if( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].eValue ==
+                  if( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].bValue ==
                       ABCC_GetMsgCmdExt1( psMsgBuffer ) )
                   {
                      break;
                   }
                }
 
-               if( bStringIndex < psAdiEntry->uData.sENUM.psValueProps->bNumOfEnumStrings )
+               if( iStringIndex < psAdiEntry->uData.sENUM.psValueProps->iNumOfEnumStrings )
                {
-                  iDataSize = (UINT16)strlen( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].acEnumStr );
+                  iDataSize = (UINT16)strlen( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].acEnumStr );
                   ABCC_SetMsgString( psMsgBuffer,
-                                     psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].acEnumStr,
+                                     psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].acEnumStr,
                                      iDataSize, 0 );
                }
                else

@@ -1244,6 +1244,7 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 
    case ABP_UINT16:

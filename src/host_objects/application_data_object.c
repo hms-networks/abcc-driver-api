@@ -2693,18 +2693,11 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             else if( ( psAdiEntry->psStruct != NULL ) &&
                      ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
             {
-               if( ABCC_GetMsgCmdExt1( psMsgBuffer ) < psAdiEntry->bNumOfElements )
-               {
-                  ABCC_SetMsgString( psMsgBuffer,
-                                     psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
-                                     (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
-                                     0 );
-                  iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
-               }
-               else
-               {
-                  bErrCode = ABP_ERR_INV_CMD_EXT_1;
-               }
+               ABCC_SetMsgString( psMsgBuffer,
+                                  psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
+                                  (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
+                                  0 );
+               iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
             }
             else
             {

@@ -451,7 +451,19 @@ void ABCC_API_SelectFirmware(
 
    appl_eTargetFirmware = eFirmware;
    appl_pnResultCallback = pnResultCallback;
-   CreateInstance();
+
+   eError = CreateInstance();
+
+   if( eError != ABCC_EC_NO_ERROR )
+   {
+      /*
+      ** No FSI transaction was started, so there is nothing to
+      ** clean up on the module. Restore the idle state and report
+      ** the failure so the caller may retry.
+      */
+      SetState( SELECT_FW_STATE_NOT_STARTED );
+      NotifyResult( eError );
+   }
 }
 
 #endif

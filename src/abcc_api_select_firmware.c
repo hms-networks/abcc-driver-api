@@ -429,6 +429,8 @@ void ABCC_API_SelectFirmware(
    ABCC_API_CommonEtnFirmwareType eFirmware,
    ABCC_API_pnSelectFwResultCallback pnResultCallback )
 {
+   ABCC_ErrorCodeType eError;
+
    if( eFirmware < 0 || eFirmware >= ABCC_API_NW_TYPE_LAST )
    {
       if( pnResultCallback )

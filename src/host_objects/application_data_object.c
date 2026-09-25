@@ -2646,6 +2646,17 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                break;
             }
+            else if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( psAdiEntry->bDataType == ABP_CHAR )
+            {
+               /* This command cannot be used for CHAR arrays. */
+               bErrCode = ABP_ERR_GENERAL_ERROR;
+               break;
+            }
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             else if( ( psAdiEntry->psStruct != NULL ) &&
                        !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
@@ -2674,21 +2685,19 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
          case ABP_APPD_IA_ELEM_NAME:
          {
-            if( ( psAdiEntry->psStruct != NULL ) &&
-                ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
+            if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
             {
-               if( ABCC_GetMsgCmdExt1( psMsgBuffer ) < psAdiEntry->bNumOfElements )
-               {
-                  ABCC_SetMsgString( psMsgBuffer,
-                                     psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
-                                     (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
-                                     0 );
-                  iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
-               }
-               else
-               {
-                  bErrCode = ABP_ERR_INV_CMD_EXT_1;
-               }
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                     ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
+            {
+               ABCC_SetMsgString( psMsgBuffer,
+                                  psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
+                                  (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
+                                  0 );
+               iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
             }
             else
             {
@@ -2714,6 +2723,17 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+               break;
+            }
+            else if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( psAdiEntry->bDataType == ABP_CHAR )
+            {
+               /* This command cannot be used for CHAR arrays. */
+               bErrCode = ABP_ERR_GENERAL_ERROR; 
                break;
             }
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )

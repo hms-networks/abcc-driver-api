@@ -131,24 +131,47 @@ static BOOL IsInstanceCreated( BOOL fInResponseCallback )
 
 static void CleanUp( UINT16 iInstance, BOOL fInResponseCallback )
 {
-   if( IsDirectoryOpen( fInResponseCallback ) )
+   if ( IsDirectoryOpen( fInResponseCallback ) )
    {
-      if( DirectoryClose( iInstance ) != ABCC_EC_NO_ERROR )
+      if ( DirectoryClose( iInstance ) == ABCC_EC_NO_ERROR )
       {
-         SetState( SELECT_FW_STATE_NOT_STARTED );
+         /*
+         ** Close command sent. DeleteInstance() will be issued from
+         ** RunStateMachine() when the close response arrives.
+         */
+         return;
       }
+
+      /*
+      ** The close command could not be sent. Fall through and try
+      ** deleting the instance instead; the module discards open
+      ** directory handles when the owning instance is deleted.
+      */
+      ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
+         "Cleanup: failed to send directory close, attempting instance delete\n" );
    }
-   else if( IsInstanceCreated( fInResponseCallback ) )
+
+   if ( IsInstanceCreated( fInResponseCallback ) )
    {
-      if( DeleteInstance( iInstance ) != ABCC_EC_NO_ERROR )
+      if ( DeleteInstance( iInstance ) == ABCC_EC_NO_ERROR )
       {
-         SetState( SELECT_FW_STATE_NOT_STARTED );
+         /*
+         ** Delete command sent; RunStateMachine() finishes the cleanup
+         ** when the response arrives.
+         */
+         return;
       }
+
+      /*
+      ** The instance could not be deleted. It remains allocated on the
+      ** module side; it will not be reclaimed by this host. Local
+      ** state is recovered so the feature stays usable.
+      */
+      ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
+         "Cleanup: failed to send instance delete, module-side FSI instance leaked\n" );
    }
-   else
-   {
-      SetState( SELECT_FW_STATE_NOT_STARTED );
-   }
+
+   SetState( SELECT_FW_STATE_NOT_STARTED );
 }
 
 static void SetState( appl_SelectFwState eState )

@@ -131,9 +131,9 @@ static BOOL IsInstanceCreated( BOOL fInResponseCallback )
 
 static void CleanUp( UINT16 iInstance, BOOL fInResponseCallback )
 {
-   if ( IsDirectoryOpen( fInResponseCallback ) )
+   if( IsDirectoryOpen( fInResponseCallback ) )
    {
-      if ( DirectoryClose( iInstance ) == ABCC_EC_NO_ERROR )
+      if( DirectoryClose( iInstance ) == ABCC_EC_NO_ERROR )
       {
          /*
          ** Close command sent. DeleteInstance() will be issued from
@@ -151,9 +151,9 @@ static void CleanUp( UINT16 iInstance, BOOL fInResponseCallback )
          "Cleanup: failed to send directory close, attempting instance delete\n" );
    }
 
-   if ( IsInstanceCreated( fInResponseCallback ) )
+   if( IsInstanceCreated( fInResponseCallback ) )
    {
-      if ( DeleteInstance( iInstance ) == ABCC_EC_NO_ERROR )
+      if( DeleteInstance( iInstance ) == ABCC_EC_NO_ERROR )
       {
          /*
          ** Delete command sent; RunStateMachine() finishes the cleanup
@@ -168,7 +168,20 @@ static void CleanUp( UINT16 iInstance, BOOL fInResponseCallback )
       ** state is recovered so the feature stays usable.
       */
       ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
-         "Cleanup: failed to send instance delete, module-side FSI instance leaked\n" );
+         "Cleanup: failed to send instance delete, instance remains allocated on module side\n" );
+   }
+
+   if( fInResponseCallback &&
+        ( appl_eSelectFwState == SELECT_FW_STATE_DELETE_INSTANCE_WAIT_RSP ) )
+   {
+      /*
+      ** The delete command was sent but the module answered with an
+      ** error, so the FSI instance remains allocated on the module
+      ** side and will not be reclaimed by this host. Nothing further
+      ** can be done from here; report the loss.
+      */
+      ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
+         "Cleanup: module rejected instance delete, instance remains allocated on module side\n" );
    }
 
    SetState( SELECT_FW_STATE_NOT_STARTED );
@@ -421,7 +434,7 @@ static void NotifyResult( ABCC_ErrorCodeType eResult )
    */
    appl_pnResultCallback = NULL;
 
-   if ( pnCallback )
+   if( pnCallback )
    {
       pnCallback( eResult );
    }

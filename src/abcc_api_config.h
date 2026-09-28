@@ -289,4 +289,24 @@
    #endif // AD_IA_MIN_MAX_DEFAULT_ENABLE
 #endif
 
+/*
+** Enable ADI and PD map sanity check functions in the AD object.
+**
+** When enabled "AD_SCHK_TestAdiList()" and "AD_SCHK_TestPdMapList()" will be
+** available, which executes a series of basic sanity checks on a supplied ADI
+** list or PD map list. See the function definitions in
+**  "application_data_object.h" for more information.
+**
+** NOTE:
+**  - Those checks are intended for implementation-stage validation of the ADIs
+**    and PD map lists, not for inclusion in an official release.
+**  - The loopback message support ("ABCC_DRV_CFG_MSG_LOOPBACK") is required
+**    by some network-specific tests, as network-specific configuration
+**    settings need to be fetched from the corresponding host application
+**    object.
+*/
+#ifndef AD_CFG_ADI_SANITY_CHECK_ENABLE
+   #define AD_CFG_ADI_SANITY_CHECK_ENABLE 0
+#endif
+
 #endif

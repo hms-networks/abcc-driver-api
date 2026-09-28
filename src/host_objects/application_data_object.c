@@ -16,6 +16,13 @@
 #include "abcc_api.h"
 #include "abcc_hardware_abstraction.h"
 #include "application_data_object.h"
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+#include "abp_bac.h"
+#include "abp_ccl.h"
+#include "abp_dev.h"
+#include "abp_eip.h"
+#include "abp_mod.h"
+#endif
 
 #define AD_OA_REV_VALUE                        3
 
@@ -41,6 +48,13 @@
 ** All ADI indexes.
 */
 #define AD_ALL_ADI_INDEX                     ( 0xffff )
+
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+/*
+** All valid/defined ADI descriptor bits.
+*/
+#define AD_ADI_DESC_BIT_ALL      ( ABP_APPD_DESCR_GET_ACCESS | ABP_APPD_DESCR_SET_ACCESS | ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_MAPPABLE_READ_PD | ABP_APPD_DESCR_NVS_PARAMETER )
+#endif
 
 /*------------------------------------------------------------------------------
 ** Union for all different property types.
@@ -123,6 +137,18 @@ typedef struct ad_MapInfo
 }
 ad_MapInfoType;
 
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+/*------------------------------------------------------------------------------
+** Network ID / Network name list for the ADI sanity check printouts.
+**------------------------------------------------------------------------------
+*/
+typedef struct
+{
+   const UINT16      iValue;
+   const char* const pacName;
+} ad_schk_NetworkNamesEntryType;
+#endif
+
 #if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static BOOL ad_fDoNetworkEndianSwap = FALSE;
 #endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
@@ -134,6 +160,38 @@ static ad_MapType ad_PdReadMapping[ AD_MAX_NUM_READ_MAP_ENTRIES ];
 static ad_MapType ad_PdWriteMapping[ AD_MAX_NUM_WRITE_MAP_ENTRIES ];
 static ad_MapInfoType ad_ReadMapInfo;
 static ad_MapInfoType ad_WriteMapInfo;
+
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+static ad_schk_NetworkNamesEntryType ad_schk_NetworkNamesList[] =
+{
+   { ABP_NW_TYPE_PDPV1,          "PROFIBUS DP-V1"       },
+   { ABP_NW_TYPE_COP,            "CANopen"              },
+   { ABP_NW_TYPE_DEV,            "DeviceNet"            },
+   { ABP_NW_TYPE_ETN_2P,         "Modbus TCP"           },
+   { ABP_NW_TYPE_PIR,            "PROFINET"             },
+   { ABP_NW_TYPE_PIR_FO,         "PROFINET"             },
+   { ABP_NW_TYPE_PIR_IIOT,       "PROFINET"             },
+   { ABP_NW_TYPE_PIR_FO_IIOT,    "PROFINET"             },
+   { ABP_NW_TYPE_EIP_2P_BB,      "EtherNet/IP"          },
+   { ABP_NW_TYPE_EIP_2P_BB_IIOT, "EtherNet/IP"          },
+   { ABP_NW_TYPE_ECT,            "EtherCAT"             },
+   { ABP_NW_TYPE_CCL,            "CC-Link"              },
+   { ABP_NW_TYPE_BIP,            "BACnet/IP"            },
+   { ABP_NW_TYPE_EPL,            "POWERLINK"            },
+   { ABP_NW_TYPE_CFN,            "CC-Link IE Field"     },
+   { ABP_NW_TYPE_CIET,           "CC-Link IE Field TSN" },
+   { 0, NULL }
+};
+
+static UINT16 ad_schk_iErrorCount;
+static UINT16 ad_schk_iWarningCount;
+
+static BOOL  ad_schk_fBacAdvMapping;
+static UINT8 ad_schk_abCclNetworkSettings[ 3 ];
+static BOOL  ad_schk_fDevParameterObject;
+static BOOL  ad_schk_fEipParameterObject;
+static UINT8 ad_schk_bModIndexingBits;
+#endif
 
 /*------------------------------------------------------------------------------
 ** Converts number of octet offset to byte offset.
@@ -1836,6 +1894,1179 @@ static void WritePdMapFromBuffer( const ad_MapInfoType* pasPdMap,
       }
    }
 }
+
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+/*------------------------------------------------------------------------------
+** Print error or warning headers to the terminal.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    -
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_BeginErrorMessage( void )
+{
+   ad_schk_iErrorCount++;
+   ABCC_PORT_printf( "ERROR: " );
+}
+static void ad_schk_BeginWarningMessage( void )
+{
+   ad_schk_iWarningCount++;
+   ABCC_PORT_printf( "WARNING: " );
+}
+
+/*------------------------------------------------------------------------------
+** Print ADI number in hex + dec.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    psAdi - Pointer to ADI entry.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_PrintAdiHeader( const AD_AdiEntryType* const psAdi )
+{
+   if( psAdi == NULL )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   ABCC_PORT_printf( "ADI 0x%04"PRIx16"/%"PRIu16, psAdi->iInstance, psAdi->iInstance );
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Print PD map entry number in hex + dec.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iIndex - Index value.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_PrintPdEntryHeader( const UINT16 iIndex )
+{
+   ABCC_PORT_printf( "PD map index 0x%04"PRIx16"/%"PRIu16, iIndex, iIndex );
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Search for ADI 'x' in the given ADI list.
+** Used by the ADI + PD map sanity check functions.
+** The ADI sanity check parts can't use the existing "GetAdiIndex()" as that
+** operates on a global variable set by "AD_Init()" rather than the ADI list
+** supplied to the check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    pasAdiList - ADI list to search.
+**    iNumOfAdis - Number of ADIs in the list.
+**    iInstance - Instance number to search for.
+** Returns:
+**    List index for requested ADI, or AD_INVALID_ADI_INDEX.
+**------------------------------------------------------------------------------
+*/
+static UINT16 ad_schk_GetAdiIndex( const AD_AdiEntryType* pasAdiList, const UINT16 iNumOfAdis, const UINT16 iInstance )
+{
+   UINT16 iIndex;
+
+   for( iIndex = 0; iIndex < iNumOfAdis; iIndex++ )
+   {
+      if( pasAdiList[ iIndex ].iInstance == iInstance )
+      {
+         return( iIndex );
+      }
+   }
+
+   return( AD_INVALID_ADI_INDEX );
+}
+
+/*------------------------------------------------------------------------------
+** Fetch relevant network-specific settings from the host application object
+** space.
+**------------------------------------------------------------------------------
+** Arguments:
+**    -
+** Returns:
+**    ABCC_EC_NO_ERROR on success.
+**    ABCC_EC_OUT_OF_MSG_BUFFERS if message buffer allocation failed.
+**------------------------------------------------------------------------------
+*/
+static ABCC_ErrorCodeType ad_schk_GetNwSpecSettings( void )
+{
+   ABP_MsgType*       psMsg;
+   ABCC_ErrorCodeType eStatus;
+   UINT8              bTemp;
+
+   ad_schk_fBacAdvMapping = FALSE;
+   ad_schk_abCclNetworkSettings[ 0 ] = 0x01;
+   ad_schk_abCclNetworkSettings[ 1 ] = 0x00;
+   ad_schk_abCclNetworkSettings[ 2 ] = 0x01;
+   ad_schk_fDevParameterObject = TRUE;
+   ad_schk_fEipParameterObject = TRUE;
+   ad_schk_bModIndexingBits = 4; /* 4 bits -> 16 registers -> 32 bytes */
+
+   psMsg = ABCC_GetCmdMsgBuffer();
+   if( psMsg == NULL )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "Message buffer allocation failed.\n" );
+      return( ABCC_EC_OUT_OF_MSG_BUFFERS );
+   }
+
+   ABCC_SetMsgDataSize( psMsg, 0 );
+   ABCC_SetMsgSourceId( psMsg, 0 );
+   ABCC_SetMsgDestObj( psMsg, ABP_OBJ_NUM_BAC );
+   ABCC_SetMsgInstance( psMsg, 1 );
+   ABCC_SetMsgCmdField( psMsg, ABP_MSG_HEADER_C_BIT | ABP_CMD_GET_ATTR );
+   ABCC_SetMsgCmdExt0( psMsg, ABP_BAC_IA_SUPPORT_ADV_MAPPING );
+   ABCC_SetMsgCmdExt1( psMsg, 0 );
+   eStatus = ABCC_SendLoopbackCmdMsg( psMsg );
+   if( ( eStatus == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_VerifyMessage( psMsg ) == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_GetMsgDataSize( psMsg ) == ABP_BAC_IA_SUPPORT_ADV_MAPPING_DS ) )
+   {
+      ABCC_GetMsgData8( psMsg, &bTemp, 0 );
+      if( bTemp == 0 )
+      {
+         ad_schk_fBacAdvMapping = FALSE;
+      }
+      else
+      {
+         ad_schk_fBacAdvMapping = TRUE;
+      }
+   }
+
+   ABCC_SetMsgDataSize( psMsg, 0 );
+   ABCC_SetMsgSourceId( psMsg, 0 );
+   ABCC_SetMsgDestObj( psMsg, ABP_OBJ_NUM_CCL );
+   ABCC_SetMsgInstance( psMsg, 1 );
+   ABCC_SetMsgCmdField( psMsg, ABP_MSG_HEADER_C_BIT | ABP_CMD_GET_ATTR );
+   ABCC_SetMsgCmdExt0( psMsg, ABP_CCL_IA_NETWORK_SETTINGS );
+   ABCC_SetMsgCmdExt1( psMsg, 0 );
+   eStatus = ABCC_SendLoopbackCmdMsg( psMsg );
+   if( ( eStatus == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_VerifyMessage( psMsg ) == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_GetMsgDataSize( psMsg ) == ABP_CCL_IA_NETWORK_SETTINGS_DS ) )
+   {
+      ABCC_GetMsgData8( psMsg, &ad_schk_abCclNetworkSettings[ 0 ], 0 );
+      ABCC_GetMsgData8( psMsg, &ad_schk_abCclNetworkSettings[ 1 ], 1 );
+      ABCC_GetMsgData8( psMsg, &ad_schk_abCclNetworkSettings[ 2 ], 2 );
+   }
+
+   ABCC_SetMsgDataSize( psMsg, 0 );
+   ABCC_SetMsgSourceId( psMsg, 0 );
+   ABCC_SetMsgDestObj( psMsg, ABP_OBJ_NUM_DEV );
+   ABCC_SetMsgInstance( psMsg, 1 );
+   ABCC_SetMsgCmdField( psMsg, ABP_MSG_HEADER_C_BIT | ABP_CMD_GET_ATTR );
+   ABCC_SetMsgCmdExt0( psMsg, ABP_DEV_IA_ENABLE_PARAM_OBJECT );
+   ABCC_SetMsgCmdExt1( psMsg, 0 );
+   eStatus = ABCC_SendLoopbackCmdMsg( psMsg );
+   if( ( eStatus == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_VerifyMessage( psMsg ) == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_GetMsgDataSize( psMsg ) == ABP_DEV_IA_ENABLE_PARAM_OBJECT_DS ) )
+   {
+      ABCC_GetMsgData8( psMsg, &bTemp, 0 );
+      if( bTemp == 0 )
+      {
+         ad_schk_fDevParameterObject = FALSE;
+      }
+      else
+      {
+         ad_schk_fDevParameterObject = TRUE;
+      }
+   }
+
+   ABCC_SetMsgDataSize( psMsg, 0 );
+   ABCC_SetMsgSourceId( psMsg, 0 );
+   ABCC_SetMsgDestObj( psMsg, ABP_OBJ_NUM_EIP );
+   ABCC_SetMsgInstance( psMsg, 1 );
+   ABCC_SetMsgCmdField( psMsg, ABP_MSG_HEADER_C_BIT | ABP_CMD_GET_ATTR );
+   ABCC_SetMsgCmdExt0( psMsg, ABP_EIP_IA_ENABLE_PARAM_OBJECT );
+   ABCC_SetMsgCmdExt1( psMsg, 0 );
+   eStatus = ABCC_SendLoopbackCmdMsg( psMsg );
+   if( ( eStatus == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_VerifyMessage( psMsg ) == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_GetMsgDataSize( psMsg ) == ABP_EIP_IA_ENABLE_PARAM_OBJECT_DS ) )
+   {
+      ABCC_GetMsgData8( psMsg, &bTemp, 0 );
+      if( bTemp == 0 )
+      {
+         ad_schk_fEipParameterObject = FALSE;
+      }
+      else
+      {
+         ad_schk_fEipParameterObject = TRUE;
+      }
+   }
+
+   ABCC_SetMsgDataSize( psMsg, 0 );
+   ABCC_SetMsgSourceId( psMsg, 0 );
+   ABCC_SetMsgDestObj( psMsg, ABP_OBJ_NUM_MOD );
+   ABCC_SetMsgInstance( psMsg, 1 );
+   ABCC_SetMsgCmdField( psMsg, ABP_MSG_HEADER_C_BIT | ABP_CMD_GET_ATTR );
+   ABCC_SetMsgCmdExt0( psMsg, ABP_MOD_IA_ADI_INDEXING_BITS );
+   ABCC_SetMsgCmdExt1( psMsg, 0 );
+   eStatus = ABCC_SendLoopbackCmdMsg( psMsg );
+   if( ( eStatus == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_VerifyMessage( psMsg ) == ABCC_EC_NO_ERROR ) &&
+       ( ABCC_GetMsgDataSize( psMsg ) == ABP_MOD_IA_ADI_INDEXING_BITS_DS ) )
+   {
+      ABCC_GetMsgData8( psMsg, &ad_schk_bModIndexingBits, 0 );
+      if( ad_schk_bModIndexingBits > 7 )
+      {
+         /*
+         ** On out-of-range the ABCC will set this to the default value,
+         ** i.e. 4.
+         */
+         ad_schk_bModIndexingBits = 4;
+      }
+   }
+
+   ABCC_ReturnMsgBuffer( &psMsg );
+
+   return( ABCC_EC_NO_ERROR );
+}
+
+/*------------------------------------------------------------------------------
+** Get the name string for a network type.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iNetworkType - ABCC40 network type value.
+** Returns:
+**    Pointer to string for the network in question, if supported.
+**    NULL if the network is not supported by any ABCC40.
+**------------------------------------------------------------------------------
+*/
+static const char* ad_schk_GetNetworkName( const UINT16 iNetworkType )
+{
+   UINT8 bIndex;
+
+   bIndex = 0;
+   while( ad_schk_NetworkNamesList[ bIndex ].pacName != NULL )
+   {
+      if( ad_schk_NetworkNamesList[ bIndex ].iValue == iNetworkType )
+      {
+         return( ad_schk_NetworkNamesList[ bIndex ].pacName );
+      }
+      bIndex++;
+   }
+
+   return( NULL );
+}
+
+/*------------------------------------------------------------------------------
+** Check if a string conforms to the ISO 8859-1 character table.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    pacString - Pointer to string.
+** Returns:
+**    TRUE on success, FALSE on failure.
+**------------------------------------------------------------------------------
+*/
+static BOOL ad_schk_IsNameStringIso88591( const char* pacString )
+{
+   UINT8* pbValue;
+
+   if( pacString == NULL )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return( FALSE );
+   }
+
+   pbValue = (UINT8*)pacString;
+   while( *pbValue != 0 )
+   {
+      /*
+      ** ISO 8859-1 uses values 32..126 and 160..255.
+      */
+      if( ( *pbValue < 32U ) || ( ( *pbValue > 126U ) && ( *pbValue < 160U ) ) )
+      {
+         return( FALSE );
+      }
+      pbValue++;
+   }
+
+   return( TRUE );
+}
+
+/*------------------------------------------------------------------------------
+** Check if a listed ABP data type is valid or not.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iAdiNum - ADI number.
+**    bElement - Element in ADI.
+**    bDataType - Element APB data type.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_TestAdiDataType( const AD_AdiEntryType* const psAdi, const UINT8 bElement, const UINT16 iNetworkType )
+{
+   UINT8 bDataType;
+
+   if( psAdi == NULL )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+   if( psAdi->psStruct != NULL )
+   {
+      bDataType = psAdi->psStruct[ bElement ].bDataType;
+   }
+   else
+#endif
+   {
+      bDataType = psAdi->bDataType;
+   }
+
+   switch( bDataType )
+   {
+   case ABP_BOOL:
+   case ABP_SINT8:
+   case ABP_SINT16:
+   case ABP_SINT32:
+   case ABP_UINT8:
+   case ABP_UINT16:
+   case ABP_UINT32:
+   case ABP_CHAR:
+   case ABP_ENUM:
+   case ABP_BITS8:
+   case ABP_BITS16:
+   case ABP_BITS32:
+   case ABP_OCTET:
+   case ABP_SINT64:
+   case ABP_UINT64:
+   case ABP_FLOAT:
+   case ABP_DOUBLE:
+   case ABP_PAD0:
+   case ABP_PAD1:
+   case ABP_PAD2:
+   case ABP_PAD3:
+   case ABP_PAD4:
+   case ABP_PAD5:
+   case ABP_PAD6:
+   case ABP_PAD7:
+   case ABP_PAD8:
+   case ABP_PAD9:
+   case ABP_PAD10:
+   case ABP_PAD11:
+   case ABP_PAD12:
+   case ABP_PAD13:
+   case ABP_PAD14:
+   case ABP_PAD15:
+   case ABP_PAD16:
+   case ABP_BOOL1:
+   case ABP_BIT1:
+   case ABP_BIT2:
+   case ABP_BIT3:
+   case ABP_BIT4:
+   case ABP_BIT5:
+   case ABP_BIT6:
+   case ABP_BIT7:
+      break;
+
+   default:
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( " element %"PRIu8": 'Data type' value (0x%02"PRIx8") is invalid.\n", bElement, bDataType );
+      break;
+   }
+
+   if( iNetworkType == ABP_NW_TYPE_BIP )
+   {
+      if( ( bDataType == ABP_UINT64 ) || ( bDataType == ABP_SINT64 ) ||
+          ( ( bDataType >= ABP_BIT2 ) && ( bDataType <= ABP_BIT7 ) ) ||
+          ( ( bDataType >= ABP_BITS8 ) && ( bDataType <= ABP_BITS32 ) ) ||
+          ( bDataType == ABP_OCTET ) ||
+          ( bDataType >= ABP_PAD0 ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( " element %"PRIu8": 'Data type' value (0x%02"PRIx8") is not supported by BACnet.\n", bElement, bDataType );
+      }
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Check if any invalid descriptor bit combinations exists.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iAdiNum - ADI number.
+**    bElement - Element in ADI.
+**    bDesc - ADI descriptor field.
+**    bDataType - Element APB data type.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_TestDescComb( const AD_AdiEntryType* const psAdi, const UINT8 bElement, const UINT16 iNetworkType )
+{
+   UINT8 bDesc;
+   UINT8 bDataType;
+
+   if( psAdi == NULL )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+   if( psAdi->psStruct != NULL )
+   {
+      bDesc = psAdi->psStruct[ bElement ].bDesc;
+      bDataType = psAdi->psStruct[ bElement ].bDataType;
+   }
+   else
+#endif
+   {
+      bDesc = psAdi->bDesc;
+      bDataType = psAdi->bDataType;
+   }
+
+   if( bDesc & (UINT8)~( AD_ADI_DESC_BIT_ALL ) )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' has reserved bits set.\n", bElement );
+   }
+
+   if( ( ( bDataType == ABP_CHAR ) || ( bDataType == ABP_OCTET ) ) &&
+       ( ( bDesc & ( ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_MAPPABLE_READ_PD ) ) != 0 ) )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' can not include 'PD mappable' for data types APB_CHAR or ABP_OCTET.\n", bElement );
+   }
+
+   if( ( bDataType == ABP_PAD0 ) && ( bDesc != 0 ) )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' must be '0' with data type APB_PAD0.\n", bElement );
+   }
+
+   /*
+   ** Network-specific tests.
+   */
+
+   if( ( iNetworkType == ABP_NW_TYPE_COP ) ||
+       ( iNetworkType == ABP_NW_TYPE_ECT ) ||
+       ( iNetworkType == ABP_NW_TYPE_EPL ) )
+   {
+      if( ( bDataType != ABP_PAD0 ) &&
+          ( bDesc & ( ABP_APPD_DESCR_GET_ACCESS | ABP_APPD_DESCR_SET_ACCESS ) ) == 0 )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' supports neither 'Get' nor 'Set'. This is incompatible with CANopen, EtherCAT and POWERLINK.\n", bElement );
+      }
+
+      if( ( bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD ) && !( bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' indicates 'RDPD mappable' without 'Set'. This is incompatible with CANopen, EtherCAT and POWERLINK.\n", bElement );
+      }
+
+      if( ( bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD ) && !( bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' indicates 'WRPD mappable' without 'Get'. This is incompatible with CANopen, EtherCAT and POWERLINK.\n", bElement );
+      }
+   }
+
+   if( iNetworkType == ABP_NW_TYPE_BIP )
+   {
+      if( bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD )
+      {
+         ad_schk_BeginWarningMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( " element %"PRIu8": 'RDPD mappable' is not supported by BACnet.\n", bElement );
+      }
+
+      if( ( bDesc & ( ABP_APPD_DESCR_GET_ACCESS | ABP_APPD_DESCR_SET_ACCESS ) ) == 0 )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( " element %"PRIu8": 'Descriptor' supports neither 'Get' nor 'Set'. This is incompatible with BACnet.\n", bElement );
+      }
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Check the value and properties for an ABP_ENUM.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iAdiNum - ADI number.
+**    puAdiData - Pointer to value/properties union.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_TestAbpEnum( const AD_AdiEntryType* const psAdi )
+{
+   UINT16 iEnumValue;
+   UINT16 iElementIndex;
+   UINT16 iCount;
+
+   if( psAdi == NULL )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+   if( psAdi->bDataType != ABP_ENUM )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   if( psAdi->uData.sENUM.psValueProps == NULL  )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( ": ADI is ABP_ENUM but has no properties.\n" );
+      return;
+   }
+
+   if( psAdi->uData.sENUM.psValueProps->pasEnumStrings == NULL  )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( ": ADI is ABP_ENUM but has no strings defined.\n" );
+      return;
+   }
+
+   /*
+   ** The values for an APB_ENUM must be in the 0..N range, check that the
+   ** Min/Max/Default properties matches this.
+   */
+   if( psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_MIN_VALUE_INDEX ] != 0 )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( ": ABP_ENUM 'Min' is not '0'.\n" );
+   }
+   if( psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_DEFAULT_VALUE_INDEX ] >
+       psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_MAX_VALUE_INDEX ] )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( ": ABP_ENUM 'Default' is larger than 'Max'.\n" );
+   }
+
+   /*
+   ** There must be at least as many strings as there are possible enum
+   ** values.
+   */
+   if( psAdi->uData.sENUM.psValueProps->iNumOfEnumStrings <
+     ( psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_MAX_VALUE_INDEX ] + 1 ) )
+   {
+      ad_schk_BeginErrorMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( ": The number of ABP_ENUM strings does not match the 'Max'.\n" );
+   }
+
+   /*
+   ** There must be one, and only one, string for each possible enum value.
+   */
+   for( iEnumValue = 0; iEnumValue < psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_MAX_VALUE_INDEX ]; iEnumValue++ )
+   {
+      iCount = 0;
+      for( iElementIndex = 0; iElementIndex < psAdi->uData.sENUM.psValueProps->iNumOfEnumStrings; iElementIndex++ )
+      {
+         if( psAdi->uData.sENUM.psValueProps->pasEnumStrings[ iElementIndex ].bValue == iEnumValue )
+         {
+            iCount++;
+         }
+      }
+      if( iCount == 0 )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( ": No ABP_ENUM strings for value '%"PRIu16"'.\n", iEnumValue );
+      }
+      if( iCount > 1 )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( ": Multiple ABP_ENUM strings for value '%"PRIu16"'.\n", iEnumValue );
+      }
+   }
+
+   /*
+   ** There must be a string for each enum value, and that string must be
+   ** ISO 8859-1 compliant.
+   */
+   for( iElementIndex = 0; iElementIndex < psAdi->uData.sENUM.psValueProps->iNumOfEnumStrings; iElementIndex++ )
+   {
+      if( psAdi->uData.sENUM.psValueProps->pasEnumStrings[ iElementIndex ].acEnumStr != NULL )
+      {
+         if( !ad_schk_IsNameStringIso88591( psAdi->uData.sENUM.psValueProps->pasEnumStrings[ iElementIndex ].acEnumStr ) )
+         {
+            ad_schk_BeginErrorMessage();
+            ad_schk_PrintAdiHeader( psAdi );
+            ABCC_PORT_printf( ": ABP_ENUM string at index %"PRIu16" is not compliant with the ISO 8859-1 character set.\n", iElementIndex );
+         }
+      }
+      else
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( psAdi );
+         ABCC_PORT_printf( ": ABP_ENUM string at index %"PRIu16" is not defined.\n", iElementIndex );
+      }
+   }
+
+   /*
+   ** The 'Value' must be inside the given Min/Max.
+   */
+   if( ( *(psAdi->uData.sENUM.pbValuePtr) < psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_MIN_VALUE_INDEX ] ) ||
+       ( *(psAdi->uData.sENUM.pbValuePtr) > psAdi->uData.sENUM.psValueProps->bMinMaxDefault[ AD_MAX_VALUE_INDEX ] ) )
+   {
+      ad_schk_BeginWarningMessage();
+      ad_schk_PrintAdiHeader( psAdi );
+      ABCC_PORT_printf( ": Present value is out-of-range.\n" );
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Check the value and properties for an ADI.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    psAdi - Pointer to ADI entry.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_TestValueAndProps( const AD_AdiEntryType* const psAdi )
+{
+   if( psAdi == NULL )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   /*
+   ** At the moment only ABP_ENUMs are checked since they pointless without
+   ** valid properties.
+   */
+
+   switch( psAdi->bDataType )
+   {
+   case ABP_ENUM:
+      ad_schk_TestAbpEnum( psAdi );
+      break;
+
+   case ABP_BOOL:
+   case ABP_SINT8:
+   case ABP_SINT16:
+   case ABP_SINT32:
+   case ABP_UINT8:
+   case ABP_UINT16:
+   case ABP_UINT32:
+   case ABP_CHAR:
+   case ABP_BITS8:
+   case ABP_BITS16:
+   case ABP_BITS32:
+   case ABP_OCTET:
+   case ABP_SINT64:
+   case ABP_UINT64:
+   case ABP_FLOAT:
+   case ABP_DOUBLE:
+   case ABP_PAD0:
+   case ABP_PAD1:
+   case ABP_PAD2:
+   case ABP_PAD3:
+   case ABP_PAD4:
+   case ABP_PAD5:
+   case ABP_PAD6:
+   case ABP_PAD7:
+   case ABP_PAD8:
+   case ABP_PAD9:
+   case ABP_PAD10:
+   case ABP_PAD11:
+   case ABP_PAD12:
+   case ABP_PAD13:
+   case ABP_PAD14:
+   case ABP_PAD15:
+   case ABP_PAD16:
+   case ABP_BOOL1:
+   case ABP_BIT1:
+   case ABP_BIT2:
+   case ABP_BIT3:
+   case ABP_BIT4:
+   case ABP_BIT5:
+   case ABP_BIT6:
+   case ABP_BIT7:
+      break;
+
+   default:
+      break;
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Return the max. 'Number of instances' applicable to a certain network.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iNetworkType - ABP network type value.
+**    piLimit - Limit value, set by this function.
+**    ppacComment - Comment string, set by this function.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_GetNumberOfInstancesLimit( const UINT16 iNetworkType, UINT16* const piLimit, const char ** const ppacComment )
+{
+   if( ( piLimit == NULL ) || ( ppacComment == NULL ) )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   switch( iNetworkType )
+   {
+   case ABP_NW_TYPE_PDPV1:
+      *piLimit = 65025;
+      *ppacComment = "This corresponds to 255 slots with 255 indexes per slot";
+      break;
+
+   case ABP_NW_TYPE_COP:
+      *piLimit = 0xDFFF;
+      *ppacComment = "This corresponds to 0x3FFF vendor-specific objects and 0xA000 profile-specific objects.";
+      break;
+
+   case ABP_NW_TYPE_ETN_2P:
+      /*
+      ** 0xEFF0 corresponds to the number of registers in the 'transparent'
+      ** Modbus Holding Register range, registers 0x1010 - 0xFFFF.
+      */
+      *piLimit = 0xEFF0 / ( 1 << ad_schk_bModIndexingBits );
+      *ppacComment = "See 'Number of indexing bits' in the Host Modbus Object.";
+      break;
+
+   case ABP_NW_TYPE_PIR:
+   case ABP_NW_TYPE_PIR_FO:
+   case ABP_NW_TYPE_PIR_IIOT:
+   case ABP_NW_TYPE_PIR_FO_IIOT:
+      *piLimit = 0x7FFF;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_ECT:
+      *piLimit = 0xDFFF;
+      *ppacComment = "This corresponds to 0x3FFF vendor-specific objects and 0xA000 profile-specific objects.";
+      break;
+
+   case ABP_NW_TYPE_BIP:
+      if( ad_schk_fBacAdvMapping )
+      {
+         *piLimit = 4 * 256;
+         *ppacComment = "256 ADIs of each of the 4 supported BACnet object types are reachable from BACnet when the 'Advanced mapping' in the Host BACnet Object is enabled.";
+      }
+      else
+      {
+         *piLimit = 256;
+         *ppacComment = "256 ADIs (1 - 256) are reachable from BACnet when the 'Advanced mapping' in the Host BACnet Object is disabled.";
+      }
+      break;
+
+   case ABP_NW_TYPE_EPL:
+      *piLimit = 0xDFFF;
+      *ppacComment = "This corresponds to 0x3FFF vendor-specific objects and 0xA000 profile-specific objects.";
+      break;
+
+   default:
+      *piLimit = 0xFFFF;
+      *ppacComment = NULL;
+      break;
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Return the 'Highest instance number' applicable to a certain network.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iNetworkType - ABP network type value.
+**    piLimit - Limit value, set by this function.
+**    ppacComment - Comment string, set by this function.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_GetHighestInstanceNumberLimit( const UINT16 iNetworkType, UINT16* const piLimit, const char ** const ppacComment )
+{
+   if( ( piLimit == NULL ) || ( ppacComment == NULL ) )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   switch( iNetworkType )
+   {
+   case ABP_NW_TYPE_PDPV1:
+      *piLimit = 65025;
+      *ppacComment = "This corresponds to 255 slots with 255 indexes per slot";
+      break;
+
+   case ABP_NW_TYPE_COP:
+      *piLimit = 0xDFFF;
+      *ppacComment = "ADIs 0x0001-0x3FFF corresponds to vendor-specific objects and ADIs 0x4000-0xDFFF corresponds to profile-specific objects.";
+      break;
+
+   case ABP_NW_TYPE_ETN_2P:
+      /*
+      ** 0xEFF0 corresponds to the number of registers in the 'transparent'
+      ** Modbus Holding Register range, registers 0x1010 - 0xFFFF.
+      */
+      *piLimit = 0xEFF0 / ( 1 << ad_schk_bModIndexingBits );
+      *ppacComment = "See 'Number of indexing bits' in the Host Modbus Object.";
+      break;
+
+   case ABP_NW_TYPE_PIR:
+   case ABP_NW_TYPE_PIR_FO:
+   case ABP_NW_TYPE_PIR_IIOT:
+   case ABP_NW_TYPE_PIR_FO_IIOT:
+      *piLimit = 0x7FFF;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_ECT:
+      *piLimit = 0xDFFF;
+      *ppacComment = "ADIs 0x0001-0x3FFF corresponds to vendor-specific objects and ADIs 0x4000-0xDFFF corresponds to profile-specific objects.";
+      break;
+
+   case ABP_NW_TYPE_BIP:
+      if( ad_schk_fBacAdvMapping )
+      {
+         *piLimit = 0xFFFF;
+         *ppacComment = NULL;
+      }
+      else
+      {
+         *piLimit = 256;
+         *ppacComment = "256 ADIs (1 - 256) are reachable from BACnet when the 'Advanced mapping' in the Host BACnet Object is disabled.";
+      }
+      break;
+
+   case ABP_NW_TYPE_EPL:
+      *piLimit = 0xDFFF;
+      *ppacComment = "ADIs 0x0001-0x3FFF corresponds to vendor-specific objects and ADIs 0x4000-0xDFFF corresponds to profile-specific objects.";
+      break;
+
+   default:
+      *piLimit = 0xFFFF;
+      *ppacComment = NULL;
+      break;
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Return the ADI name string limit applicable to a certain network.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iNetworkType - ABP network type value.
+**    piLimit - Limit value, set by this function.
+**    ppacComment - Comment string, set by this function.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_GetNameLengthLimit( const UINT16 iNetworkType, UINT16* const piLimit, const char ** const ppacComment )
+{
+   if( ( piLimit == NULL ) || ( ppacComment == NULL ) )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   switch( iNetworkType )
+   {
+   case ABP_NW_TYPE_DEV:
+      if( ad_schk_fDevParameterObject )
+      {
+         *piLimit = 16;
+         *ppacComment = "The CIP Parameter Object will truncate ADI names to 16 characters. This is according to the CIP specification.";
+      }
+      else
+      {
+         *piLimit = 0;
+         *ppacComment = NULL;
+      }
+      break;
+
+   case ABP_NW_TYPE_EIP_2P_BB:
+   case ABP_NW_TYPE_EIP_2P_BB_IIOT:
+      if( ad_schk_fEipParameterObject )
+      {
+         *piLimit = 16;
+         *ppacComment = "The CIP Parameter Object will truncate ADI names to 16 characters. This is according to the CIP specification.";
+      }
+      else
+      {
+         *piLimit = 0;
+         *ppacComment = NULL;
+      }
+      break;
+
+   case ABP_NW_TYPE_BIP:
+      if( ad_schk_fBacAdvMapping )
+      {
+         *piLimit = 252;
+         *ppacComment = "BACnet object names are limited to 252 characters when the 'Advanced mapping' in the Host BACnet Object is enabled.";
+      }
+      else
+      {
+         *piLimit = 0;
+         *ppacComment = NULL;
+      }
+      break;
+
+   case ABP_NW_TYPE_ECT:
+      *piLimit = 258;
+      *ppacComment = "Note that this limit depends on the EtherCAT mailbox sizes. 258 characters is valid for the default mailbox size of 276 bytes.";
+      break;
+
+   case ABP_NW_TYPE_PDPV1:
+   case ABP_NW_TYPE_COP:
+   case ABP_NW_TYPE_ETN_2P:
+   case ABP_NW_TYPE_PIR:
+   case ABP_NW_TYPE_PIR_FO:
+   case ABP_NW_TYPE_PIR_IIOT:
+   case ABP_NW_TYPE_PIR_FO_IIOT:
+   case ABP_NW_TYPE_CCL:
+   case ABP_NW_TYPE_EPL:
+   case ABP_NW_TYPE_CFN:
+   case ABP_NW_TYPE_CIET:
+   default:
+      /*
+      ** Zero is used as a 'skip size check' signal. The listed networks do
+      ** not have a way to access the ADI name, so we skip the network-
+      ** specific check with them.
+      */
+      *piLimit = 0;
+      *ppacComment = NULL;
+      break;
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Return the ADI size limit applicable to a certain network.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iNetworkType - ABP network type value.
+**    piLimit - Limit value, set by this function.
+**    ppacComment - Comment string, set by this function.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_GetAdiSizeLimit( const UINT16 iNetworkType, UINT16* const piLimit, const char ** const ppacComment )
+{
+   if( ( piLimit == NULL ) || ( ppacComment == NULL ) )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   switch( iNetworkType )
+   {
+   case ABP_NW_TYPE_PDPV1:
+      *piLimit = 240;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_DEV:
+      *piLimit = 512;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_ETN_2P:
+      *piLimit = 1 << ( ad_schk_bModIndexingBits + 1 );
+      *ppacComment = "See 'Number of indexing bits' in the Host Modbus Object.";
+      break;
+
+   case ABP_NW_TYPE_PIR:
+   case ABP_NW_TYPE_PIR_FO:
+   case ABP_NW_TYPE_PIR_IIOT:
+   case ABP_NW_TYPE_PIR_FO_IIOT:
+      *piLimit = 1308;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_CCL:
+      /*
+      ** Zero is used as a 'skip size check' signal. CC-Link does not support
+      ** acyclical accesses.
+      */
+      *piLimit = 0;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_BIP:
+      *piLimit = 4;
+      *ppacComment = NULL;
+      break;
+
+   default:
+      *piLimit = ABP_MAX_MSG_DATA_BYTES;
+      *ppacComment = NULL;
+      break;
+   }
+
+   return;
+}
+
+/*------------------------------------------------------------------------------
+** Return the PD size limit applicable to a certain network.
+** Used by the ADI + PD map sanity check functions.
+**------------------------------------------------------------------------------
+** Arguments:
+**    iNetworkType - ABP network type value.
+**    piLimit - Limit value, set by this function.
+**    ppacComment - Comment string, set by this function.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+static void ad_schk_GetPdSizeLimit( const UINT16 iNetworkType, UINT16* const piPdLimit, const char ** const ppacComment )
+{
+   if( ( piPdLimit == NULL ) || ( ppacComment == NULL ) )
+   {
+      ABCC_LOG_FATAL( ABCC_EC_UNEXPECTED_NULL_PTR, 0, "Unexpected NULL pointer\n" );
+      return;
+   }
+
+   switch( iNetworkType )
+   {
+   case ABP_NW_TYPE_PDPV1:
+      *piPdLimit = 244;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_COP:
+      *piPdLimit = 512;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_DEV:
+      *piPdLimit = 512;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_ETN_2P:
+      *piPdLimit = 1536;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_PIR:
+   case ABP_NW_TYPE_PIR_FO:
+   case ABP_NW_TYPE_PIR_IIOT:
+   case ABP_NW_TYPE_PIR_FO_IIOT:
+      /*
+      ** PROFINET allows up to 1440 bytes of PD, but one must also account for
+      ** the IOPS/IOCS (IO Producer/Consumer Status) bytes for each submodule.
+      ** With the maximum amount of submodules (128) 1308 bytes will remain.
+      ** This is checked with code in the PD map check function.
+      */
+      *piPdLimit = 1440;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_EIP_2P_BB:
+   case ABP_NW_TYPE_EIP_2P_BB_IIOT:
+      *piPdLimit = 1448;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_ECT:
+      *piPdLimit = 1486;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_CCL:
+      if( ad_schk_abCclNetworkSettings[ 0 ] == 2 )
+      {
+         *piPdLimit = 368;
+         *ppacComment = "This size is applicable if CC-Link V2.00 is used, and corresponds to 896 bits & 128 words.";
+      }
+      else
+      {
+         *piPdLimit = 48;
+         *ppacComment = "This size is applicable if CC-Link V1.10 is used, and corresponds to 128 bits & 16 words.";
+      }
+      break;
+
+   case ABP_NW_TYPE_BIP:
+      /*
+      ** BACnet has assymetrical limits and it it is the number of WRPD-mapped
+      ** ADIs that is important rather than the PD size, which is checked with
+      ** code in the PD map check function. The PD size limit is set to the
+      ** maximum number of WRPD-mappable ADIs (64) times the size of the
+      ** largest supported data type (32 bits).
+      */
+      *piPdLimit = 64 * ABP_UINT32_SIZEOF;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_EPL:
+      *piPdLimit = 1490;
+      *ppacComment = NULL;
+      break;
+
+   case ABP_NW_TYPE_CFN:
+      *piPdLimit = 1536;
+      *ppacComment = "This size corresponds to max 2048 bits, max 768 words, or max 1536 bytes.";
+      break;
+
+   case ABP_NW_TYPE_CIET:
+      *piPdLimit = 1420;
+      *ppacComment = NULL;
+      break;
+
+   default:
+      *piPdLimit = 0;
+      *ppacComment = NULL;
+      break;
+   }
+
+   return;
+}
+#endif
+
 EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
                                   UINT16 iNumAdi,
                                   const AD_MapType* psDefaultMap )
@@ -1844,6 +3075,7 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
    UINT16 iAdiIndex = 0;
    UINT8 bNumElem;
    UINT8 bElemStartIndex;
+
    /*
    ** In this context we should initialize the AD object to be prepared for
    ** startup.
@@ -3165,3 +4397,1191 @@ void AD_CopyPresentPdToExtBuffer( PD_DirType eDir, void* pxBuffer )
 
    return;
 }
+
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+/*------------------------------------------------------------------------------
+** ADI sanity checks and PD map sanity checks. See comments in
+** "application_data_object.h" for details.
+**------------------------------------------------------------------------------
+*/
+void AD_SCHK_TestAdiList( const AD_AdiEntryType* const pasAdiList, const UINT16 iNumOfAdis, const UINT16 iNetworkType )
+{
+   BOOL fSkipRemainingChecks;
+
+   const char* pacNetworkName;
+
+   UINT16      iNOILimit;
+   const char* pacNOIComment;
+   UINT16      iHINLimit;
+   const char* pacHINComment;
+   UINT16      iNameLengthLimit;
+   const char* pacNameLengthComment;
+   UINT16      iADISizeLimit;
+   const char* pacADISizeComment;
+
+   UINT16 iAdiIndex;
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+   UINT8  bElementIndex;
+#endif
+
+   UINT16 iTemp;
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+   UINT8  bTemp;
+#endif
+
+   ad_schk_iErrorCount = 0;
+   ad_schk_iWarningCount = 0;
+
+   if( ( pasAdiList == NULL ) || ( iNumOfAdis == 0 ) )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "Invalid ADI list or ADI list size.\n" );
+      goto PRINT_COUNT_AND_EXIT;
+   }
+
+   if( ad_schk_GetNwSpecSettings() != ABCC_EC_NO_ERROR )
+   {
+      goto PRINT_COUNT_AND_EXIT;
+   }
+
+   pacNetworkName = ad_schk_GetNetworkName( iNetworkType );
+   ad_schk_GetNumberOfInstancesLimit( iNetworkType, &iNOILimit, &pacNOIComment );
+   ad_schk_GetHighestInstanceNumberLimit( iNetworkType, &iHINLimit, &pacHINComment );
+   ad_schk_GetNameLengthLimit( iNetworkType, &iNameLengthLimit, &pacNameLengthComment );
+   ad_schk_GetAdiSizeLimit( iNetworkType, &iADISizeLimit, &pacADISizeComment );
+
+   /*----------------------------------------------------------------
+   ** Checks applicable to the ADI list and the ADI numbers.
+   **----------------------------------------------------------------
+   */
+
+   /*
+   ** ADI 0 is reserved for padding purposes.
+   */
+   for( iAdiIndex = 0; iAdiIndex < iNumOfAdis; iAdiIndex++ )
+   {
+      if( pasAdiList[ iAdiIndex ].iInstance == 0 )
+      {
+         ad_schk_BeginErrorMessage();
+         ABCC_PORT_printf( "Relative ADI entry 0x%04"PRIx16"/%"PRIu16": ADI number 0 is reserved.\n", iAdiIndex, iAdiIndex );
+      }
+   }
+
+   if( iNumOfAdis > 1 )
+   {
+      /*
+      ** The list must be sorted in incremental order, other functions in this
+      ** implementation of the AD object will not work correctly otherwise.
+      */
+      for( iAdiIndex = 0; iAdiIndex < ( iNumOfAdis - 1 ); iAdiIndex++ )
+      {
+         if( pasAdiList[ iAdiIndex + 1 ].iInstance < pasAdiList[ iAdiIndex ].iInstance )
+         {
+            ad_schk_BeginErrorMessage();
+            ABCC_PORT_printf( "ADI list is not sorted in incremental order.\n" );
+            ad_schk_BeginWarningMessage();
+            ABCC_PORT_printf( "Skipping all remaining ADI checks.\n" );
+            goto PRINT_COUNT_AND_EXIT;
+         }
+      }
+
+      /*
+      ** Check that there are no duplicates, i.e. that each ADI number only
+      ** appears once.
+      */
+      for( iAdiIndex = 0; iAdiIndex < ( iNumOfAdis - 1 ); iAdiIndex++ )
+      {
+         if( pasAdiList[ iAdiIndex + 1 ].iInstance == pasAdiList[ iAdiIndex ].iInstance )
+         {
+            ad_schk_BeginErrorMessage();
+            ABCC_PORT_printf( "ADI 0x%04"PRIx16"/%"PRIu16" appears more than once.\n", pasAdiList[ iAdiIndex ].iInstance, pasAdiList[ iAdiIndex ].iInstance );
+            ad_schk_BeginWarningMessage();
+            ABCC_PORT_printf( "Skipping all remaining ADI checks.\n" );
+            goto PRINT_COUNT_AND_EXIT;
+         }
+      }
+   }
+
+   /*
+   ** Network-specific check of 'Number of instances' and 'Highest instance
+   ** number'.
+   */
+   if( pacNetworkName != NULL )
+   {
+      if( iNumOfAdis > iNOILimit )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "'Number of ADIs' is larger than what is reachable via %s, the limit is %"PRIu16"/0x%04"PRIx16" ADIs.", pacNetworkName, iNOILimit, iNOILimit );
+         if( pacNOIComment != NULL )
+         {
+            ABCC_PORT_printf( " %s", pacNOIComment );
+         }
+         ABCC_PORT_printf( "\n" );
+      }
+
+      for( iAdiIndex = 0; iAdiIndex < iNumOfAdis; iAdiIndex++ )
+      {
+         if( pasAdiList[ iAdiIndex ].iInstance > iHINLimit )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": This ADI is beyond the range accessible by %s, the limit is ADI 1/0x0001-%"PRIu16"/0x%04"PRIx16".", pacNetworkName, iHINLimit, iHINLimit );
+            if( pacHINComment != NULL )
+            {
+               ABCC_PORT_printf( " %s", pacHINComment );
+            }
+            ABCC_PORT_printf( "\n" );
+         }
+      }
+   }
+
+   /*----------------------------------------------------------------
+   ** Checks applicable to the individual ADI elements/fields.
+   **----------------------------------------------------------------
+   */
+   for( iAdiIndex = 0; iAdiIndex < iNumOfAdis; iAdiIndex++ )
+   {
+      /*----------------------------------------------------------------
+      ** 'Number of elements'
+      **----------------------------------------------------------------
+      */
+
+      /*
+      ** An ADI can only have 1..255 elements, and we skip the remaining checks
+      ** if this fails.
+      **
+      ** NOTE:
+      ** The test against '255' can not be true if bNumOfElements is an UINT8,
+      ** but is present to catch invalid changes to the AD_AdiEntryType
+      ** itself. The bNumOfElements must be an UINT8, and changing it to a
+      ** wider type will still not allow for more than 255 elements in an ADI.
+      */
+      if( ( pasAdiList[ iAdiIndex ].bNumOfElements < 1 ) ||
+          ( pasAdiList[ iAdiIndex ].bNumOfElements > 255 ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+         ABCC_PORT_printf( ": 'Number of elements' is invalid.\n" );
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "ADI is inconsistent, skipping remaining checks on this ADI.\n" );
+         continue;
+      }
+
+      if( iNetworkType == ABP_NW_TYPE_BIP )
+      {
+         if( pasAdiList[ iAdiIndex ].bNumOfElements > 1 )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": ADI has more than 1 element, this is not supported by BACnet.\n" );
+         }
+      }
+
+      /*----------------------------------------------------------------
+      ** 'Name'
+      **----------------------------------------------------------------
+      */
+
+      /*
+      ** All name strings must comply with the ISO 8859-1 character set, correct string
+      ** translation is not guaranteed otherwise.
+      */
+      if( ( pasAdiList[ iAdiIndex ].pacName != NULL ) &&
+          ( !ad_schk_IsNameStringIso88591( pasAdiList[ iAdiIndex ].pacName ) ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+         ABCC_PORT_printf( ": 'Name' is not compliant with the ISO 8859-1 character set.\n" );
+      }
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            if( ( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].pacElementName != NULL ) &&
+                ( !ad_schk_IsNameStringIso88591( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].pacElementName ) ) )
+            {
+               ad_schk_BeginErrorMessage();
+               ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+               ABCC_PORT_printf( " element %"PRIu8": 'Name' is not compliant with the ISO 8859-1 character set.\n", bElementIndex );
+            }
+         }
+      }
+#endif
+
+      /*
+      ** The ADI and element names should not exceed X characters.
+      */
+      if( pasAdiList[ iAdiIndex ].pacName != NULL )
+      {
+         iTemp = (UINT16)strlen( pasAdiList[ iAdiIndex ].pacName );
+         if( iTemp > ABP_MAX_MSG_DATA_BYTES )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": 'Name' is too long (%"PRIu16" characters) to fit in an ABCC40 message (%u characters)\n", iTemp, ABP_MAX_MSG_DATA_BYTES );
+         }
+         if( iTemp > ABCC_CFG_MAX_MSG_SIZE )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": 'Name' is too long (%"PRIu16" characters) to fit in a message buffer ('ABCC_CFG_MAX_MSG_SIZE', %u bytes).\n", iTemp, ABCC_CFG_MAX_MSG_SIZE );
+         }
+         if( ( pacNetworkName != NULL ) && ( iNameLengthLimit > 0 ) )
+         {
+            if( iTemp > iNameLengthLimit )
+            {
+               ad_schk_BeginWarningMessage();
+               ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+               ABCC_PORT_printf( ": 'Name' will be truncated or dropped with %s.", pacNetworkName );
+               if( pacNameLengthComment != NULL )
+               {
+                  ABCC_PORT_printf( " %s", pacNameLengthComment );
+               }
+               ABCC_PORT_printf( "\n" );
+            }
+         }
+      }
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            if( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].pacElementName != NULL )
+            {
+               iTemp = (UINT16)strlen( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].pacElementName );
+               if( iTemp > ABP_MAX_MSG_DATA_BYTES )
+               {
+                  ad_schk_BeginWarningMessage();
+                  ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+                  ABCC_PORT_printf( " element %"PRIu8": 'Name' is too long (%"PRIu16" characters) to fit in an ABCC40 message (%u characters)\n", bElementIndex, iTemp, ABP_MAX_MSG_DATA_BYTES );
+               }
+               if( iTemp > ABCC_CFG_MAX_MSG_SIZE )
+               {
+                  ad_schk_BeginWarningMessage();
+                  ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+                  ABCC_PORT_printf( " element %"PRIu8": 'Name' is too long (%"PRIu16" characters) to fit in a message buffer ('ABCC_CFG_MAX_MSG_SIZE', %u, bytes).\n", bElementIndex, iTemp, ABCC_CFG_MAX_MSG_SIZE );
+               }
+               if( ( pacNetworkName != NULL ) && ( iNameLengthLimit > 0 ) )
+               {
+                  if( iTemp > iNameLengthLimit )
+                  {
+                     ad_schk_BeginWarningMessage();
+                     ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+                     ABCC_PORT_printf( " element %"PRIu8": 'Name' will be truncated or dropped with %s.", bElementIndex, pacNetworkName );
+                     if( pacNameLengthComment != NULL )
+                     {
+                        ABCC_PORT_printf( " %s", pacNameLengthComment );
+                     }
+                     ABCC_PORT_printf( "\n" );
+                  }
+               }
+            }
+         }
+
+         /*
+         ** All element names together must fit in one message since that is
+         ** how they are returned via the ABP_APPD_IA_ELEM_NAME instance
+         ** attribute.
+         */
+         iTemp = 0;
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            if( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].pacElementName != NULL )
+            {
+               iTemp += (UINT16)strlen( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].pacElementName );
+            }
+            iTemp++;
+         }
+         iTemp--;
+         if( iTemp > ABP_MAX_MSG_DATA_BYTES )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": The concatenated element names are too long (%"PRIu16" characters) to fit in an ABCC40 message (%u characters)\n", iTemp, ABP_MAX_MSG_DATA_BYTES );
+         }
+         if( iTemp > ABCC_CFG_MAX_MSG_SIZE )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": The concatenated element names are too long (%"PRIu16" characters) to fit in a message buffer ('ABCC_CFG_MAX_MSG_SIZE', %u characters)\n", iTemp, ABCC_CFG_MAX_MSG_SIZE );
+         }
+      }
+#endif
+
+      /*----------------------------------------------------------------
+      ** 'Data type'
+      **----------------------------------------------------------------
+      */
+
+      /*
+      ** Check that only valid ABP data types are present.
+      */
+      iTemp = ad_schk_iErrorCount;
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            ad_schk_TestAdiDataType( &pasAdiList[ iAdiIndex ], bElementIndex, iNetworkType );
+         }
+      }
+      else
+#endif
+      {
+         ad_schk_TestAdiDataType( &pasAdiList[ iAdiIndex ], 0, iNetworkType );
+      }
+      if( iTemp != ad_schk_iErrorCount )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "Invalid data types found in ADI.\n" );
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "ADI is inconsistent, skipping remaining checks on this ADI.\n" );
+         continue;
+      }
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         /*
+         ** ABP_ENUM can not be used in a struct ADI.
+         */
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            if( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType == ABP_ENUM )
+            {
+               ad_schk_BeginErrorMessage();
+               ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+               ABCC_PORT_printf( " element %"PRIu8": ABP_ENUM is not allowed in a struct ADI.\n", bElementIndex );
+            }
+         }
+      }
+#endif
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      /*----------------------------------------------------------------
+      ** 'Number of subelements'
+      **----------------------------------------------------------------
+      */
+
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         /*
+         ** Bit-aligned types (ABP_BITx/ABP_PADx) can only have 1 subelement.
+         ** Byte-aligned types (INTx, etc.) must have at least 1 subelement.
+         */
+         fSkipRemainingChecks = FALSE;
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            if( ABP_Is_BITx( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType ) ||
+                ABP_Is_PADx( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType ) )
+            {
+               if( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].iNumSubElem != 1 )
+               {
+                  ad_schk_BeginErrorMessage();
+                  ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+                  ABCC_PORT_printf( " element %"PRIu8": ABP_BITx/ABP_PADx types can only have 1 subelement.\n", bElementIndex );
+                  fSkipRemainingChecks = TRUE;
+               }
+            }
+            else
+            {
+               if( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].iNumSubElem == 0 )
+               {
+                  ad_schk_BeginErrorMessage();
+                  ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+                  ABCC_PORT_printf( " element %"PRIu8": Non-ABP_BITx/ABP_PADx types must have at least 1 subelement.\n", bElementIndex );
+                  fSkipRemainingChecks = TRUE;
+               }
+            }
+         }
+         if( fSkipRemainingChecks )
+         {
+            ad_schk_BeginWarningMessage();
+            ABCC_PORT_printf( "ADI is inconsistent, skipping remaining checks on this ADI.\n" );
+            continue;
+         }
+      }
+#endif
+
+      /*----------------------------------------------------------------
+      ** 'Descriptor'
+      **----------------------------------------------------------------
+      */
+
+      /*
+      ** Check for invalid descriptor combinations.
+      */
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            ad_schk_TestDescComb( &pasAdiList[ iAdiIndex ], bElementIndex, iNetworkType );
+         }
+      }
+      else
+#endif
+      {
+         ad_schk_TestDescComb( &pasAdiList[ iAdiIndex ], 0, iNetworkType );
+      }
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         /*
+         ** Check that the main descriptor byte of a struct AD is consistent
+         ** with the descriptor of the elements.
+         **
+         ** I.e. if at least one element in a struct ADI supports 'Get' the
+         ** main descriptor byte shall also indicate 'Get', and so on.
+         */
+         bTemp = 0;
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            bTemp = bTemp | pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDesc;
+         }
+         if( bTemp != pasAdiList[ iAdiIndex ].bDesc )
+         {
+            ad_schk_BeginErrorMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( " Main 'Descriptor' value is not consistent with the 'Descriptor' values of the elements.\n" );
+         }
+      }
+#endif
+
+      /*----------------------------------------------------------------
+      ** 'Value' and 'Properties'
+      **----------------------------------------------------------------
+      */
+
+      /*
+      ** Check that all non-PADx elements has a non-NULL value pointer.
+      */
+      fSkipRemainingChecks = FALSE;
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         for( bElementIndex = 0; bElementIndex < pasAdiList[ iAdiIndex ].bNumOfElements; bElementIndex++ )
+         {
+            if( !ABP_Is_PADx( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType ) &&
+                ( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].uData.sVOID.pxValuePtr == NULL ) )
+            {
+               ad_schk_BeginErrorMessage();
+               ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+               ABCC_PORT_printf( " element %"PRIu8": 'Value' pointer for a non-ABP_PADx element is NULL.\n", bElementIndex );
+               fSkipRemainingChecks = TRUE;
+            }
+            if( ABP_Is_PADx( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType ) &&
+                ( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].uData.sVOID.pxValuePtr != NULL ) )
+            {
+               ad_schk_BeginWarningMessage();
+               ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+               ABCC_PORT_printf( " element %"PRIu8": 'Value' pointer for a ABP_PADx element is not NULL.\n", bElementIndex );
+            }
+         }
+         if( pasAdiList[ iAdiIndex ].uData.sVOID.pxValuePtr != NULL )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": 'Value' pointer for a struct ADI is not NULL.\n" );
+         }
+      }
+      else
+#endif
+      {
+         if( !ABP_Is_PADx( pasAdiList[ iAdiIndex ].bDataType ) &&
+             ( pasAdiList[ iAdiIndex ].uData.sVOID.pxValuePtr == NULL ) )
+         {
+            ad_schk_BeginErrorMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( " element %"PRIu8": 'Value' pointer for a non-ABP_PADx element is NULL.\n", 0 );
+            fSkipRemainingChecks = TRUE;
+         }
+         if( ABP_Is_PADx( pasAdiList[ iAdiIndex ].bDataType ) &&
+             ( pasAdiList[ iAdiIndex ].uData.sVOID.pxValuePtr != NULL ) )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( " element %"PRIu8": 'Value' pointer for a ABP_PADx element is not NULL.\n", 0 );
+         }
+      }
+      if( fSkipRemainingChecks )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "ADI is inconsistent, skipping remaining checks on this ADI.\n" );
+         continue;
+      }
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      /*
+      ** Check alignment for struct ADIs. The non-ABP_BITx/ABP_PADx types must
+      ** be byte-aligned. 'Number of subelements' is ignored here since it
+      ** does not affect alignment, it can only be > 1 for byte-aligned types.
+      */
+      fSkipRemainingChecks = FALSE;
+      if( ( pasAdiList[ iAdiIndex ].psStruct != NULL ) &&
+          ( pasAdiList[ iAdiIndex ].bNumOfElements > 1 ) )
+      {
+         iTemp = 0;
+         for( bElementIndex = 0; bElementIndex < ( pasAdiList[ iAdiIndex ].bNumOfElements ); bElementIndex++ )
+         {
+            if( !ABP_Is_BITx( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType ) &&
+                !ABP_Is_PADx( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType ) )
+            {
+               if( ( iTemp & 0x7 ) != 0 )
+               {
+                  ad_schk_BeginErrorMessage();
+                  ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+                  ABCC_PORT_printf( " element %"PRIu8": Data type must be byte-aligned.\n", bElementIndex );
+                  fSkipRemainingChecks = TRUE;
+               }
+            }
+            iTemp += ABCC_GetDataTypeSizeInBits( pasAdiList[ iAdiIndex ].psStruct[ bElementIndex ].bDataType );
+         }
+      }
+      if( fSkipRemainingChecks )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "ADI is inconsistent, skipping remaining checks on this ADI.\n" );
+         continue;
+      }
+#endif
+
+      /*
+      ** Check that 'Value' is in-range considering the 'Properties', and that
+      ** the 'Properties' are correct.
+      */
+      ad_schk_TestValueAndProps( &pasAdiList[ iAdiIndex ] );
+
+      /*
+      ** Check that the 'Value' will fit in an ABCC message, and if it breaks
+      ** any network-specific size limits.
+      */
+      iTemp = GetAdiSizeInOctets( &pasAdiList[ iAdiIndex ] );
+      if( iTemp > ABP_MAX_MSG_DATA_BYTES )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+         ABCC_PORT_printf( ": 'Value' is too long (%"PRIu16" bytes) to fit an ABCC40 message ('ABP_MAX_MSG_DATA_BYTES', %u bytes).\n", iTemp, ABP_MAX_MSG_DATA_BYTES );
+      }
+      if( iTemp > ABCC_CFG_MAX_MSG_SIZE )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+         ABCC_PORT_printf( ": 'Value' is too long (%"PRIu16" bytes) to fit in a message buffer ('ABCC_CFG_MAX_MSG_SIZE', %u bytes).\n", iTemp, ABCC_CFG_MAX_MSG_SIZE );
+      }
+      if( ( pacNetworkName != NULL ) && ( iADISizeLimit > 0 ) )
+      {
+         if( iTemp > iADISizeLimit )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": 'Value' is too long (%"PRIu16" bytes) for acyclic access with %s (%"PRIu16" bytes).", iTemp, pacNetworkName, iADISizeLimit );
+            if( pacADISizeComment != NULL )
+            {
+               ABCC_PORT_printf( " %s", pacADISizeComment );
+            }
+            ABCC_PORT_printf( "\n" );
+         }
+      }
+
+      /*
+      ** Check if the size of PD-mappable ADIs is a multiple of 8 bits, and
+      ** print a warning otherwise. Some networks can implicitly pad such ADIs
+      ** during the PD map process, but other requires explict padding in the
+      ** PD map for such ADIs.
+      */
+      if( pasAdiList[ iAdiIndex ].bDesc & ( ABP_APPD_DESCR_MAPPABLE_WRITE_PD | ABP_APPD_DESCR_MAPPABLE_READ_PD ) )
+      {
+         iTemp = GetAdiSizeInBits( &pasAdiList[ iAdiIndex ], pasAdiList[ iAdiIndex ].bNumOfElements, 0 );
+         if( ( iTemp & 0x7 ) != 0 )
+         {
+            ad_schk_BeginWarningMessage();
+            ad_schk_PrintAdiHeader( &pasAdiList[ iAdiIndex ] );
+            ABCC_PORT_printf( ": Size of PD-mappable ADI is not a multiple of 8 bits, manual padding in the PD map list will be required with some networks.\n" );
+         }
+      }
+   }
+
+PRINT_COUNT_AND_EXIT:
+
+   ABCC_PORT_printf( "ADI check finished: %"PRIu16" errors, %"PRIu16" warnings.\n", ad_schk_iErrorCount, ad_schk_iWarningCount );
+
+   return;
+}
+
+void AD_SCHK_TestPdMapList( const AD_MapType* pasPdMapList, const AD_AdiEntryType* pasAdiList, const UINT16 iNumOfAdis, const UINT16 iNetworkType )
+{
+   BOOL fSkipRemainingChecks;
+
+   const char* pacNetworkName;
+
+   UINT16 iMapIndex;
+   UINT16 iAdiIndex;
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+   UINT16 iElementIndex;
+#endif
+   UINT16 iReadEntries;
+   UINT16 iWriteEntries;
+
+   UINT16 iSecondMapIndex;
+   UINT8  bFirstStartElement;
+   UINT8  bFirstEndElement;
+   UINT8  bSecondStartElement;
+   UINT8  bSecondEndElement;
+
+   UINT16      iPdSizeLimit;
+   const char* pacPdSizeComment;
+   UINT16      iRdPdSize;
+   UINT16      iWrPdSize;
+   UINT16      iLastMappedAdi;
+   PD_DirType  eLastMappedDir;
+
+   UINT8 bTemp;
+
+   ad_schk_iErrorCount = 0;
+   ad_schk_iWarningCount = 0;
+
+   if( ( pasPdMapList == NULL ) ||
+       ( pasPdMapList[ 0 ].eDir == PD_END_MAP ) )
+   {
+      /*
+      ** No PD map given or PD map is empty, which is legally OK.
+      */
+      goto PRINT_COUNT_AND_EXIT;
+   }
+
+   if( ( pasAdiList == NULL ) || ( iNumOfAdis == 0 ) )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "Invalid ADI list or ADI list size.\n" );
+      goto PRINT_COUNT_AND_EXIT;
+   }
+
+   if( ad_schk_GetNwSpecSettings() != ABCC_EC_NO_ERROR )
+   {
+      goto PRINT_COUNT_AND_EXIT;
+   }
+
+   pacNetworkName = ad_schk_GetNetworkName( iNetworkType );
+
+   /*----------------------------------------------------------------
+   ** Network-independent PD map sanity check. This is to check that the
+   ** PD map list is correct and consistent with the available ADIs.
+   **----------------------------------------------------------------
+   */
+
+   iReadEntries = 0;
+   iWriteEntries = 0;
+
+   for( iMapIndex = 0; pasPdMapList[ iMapIndex ].eDir != PD_END_MAP; iMapIndex++ )
+   {
+      if( ( pasPdMapList[ iMapIndex ].eDir != PD_READ ) && ( pasPdMapList[ iMapIndex ].eDir != PD_WRITE ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintPdEntryHeader( iMapIndex );
+         ABCC_PORT_printf( ": Illegal 'eDir' value (%d).\n", pasPdMapList[ iMapIndex ].eDir );
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "PD map entry is inconsistent, skipping remaining checks on this entry.\n" );
+         continue;
+      }
+
+      if( pasPdMapList[ iMapIndex ].eDir == PD_READ )
+      {
+         iReadEntries++;
+      }
+      if( pasPdMapList[ iMapIndex ].eDir == PD_WRITE )
+      {
+         iWriteEntries++;
+      }
+
+      if( pasPdMapList[ iMapIndex ].iInstance == AD_MAP_PAD_ADI )
+      {
+         /*
+         ** ADI 0 is 255 x ABP_PAD1, no need to check the remaining entry data.
+         */
+         continue;
+      }
+
+      iAdiIndex = ad_schk_GetAdiIndex( pasAdiList, iNumOfAdis, pasPdMapList[ iMapIndex ].iInstance );
+      if( iAdiIndex == AD_INVALID_ADI_INDEX )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintPdEntryHeader( iMapIndex );
+         ABCC_PORT_printf( ": ADI %"PRIu16" does not exist.\n", pasPdMapList[ iMapIndex ].iInstance );
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "PD map entry is inconsistent, skipping remaining checks on this entry.\n" );
+         continue;
+      }
+
+      bTemp = pasPdMapList[ iMapIndex ].bNumElem;
+      if( bTemp == AD_MAP_ALL_ELEM )
+      {
+         bTemp = pasAdiList[ iAdiIndex ].bNumOfElements;
+      }
+
+      fSkipRemainingChecks = FALSE;
+      if( bTemp > pasAdiList[ iAdiIndex ].bNumOfElements )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintPdEntryHeader( iMapIndex );
+         ABCC_PORT_printf( ": 'bNumElem' (%"PRIu8") is larger than 'bNumOfElements' (%"PRIu8") for ADI %"PRIu16".\n", bTemp, pasAdiList[ iAdiIndex ].bNumOfElements, pasAdiList[ iAdiIndex ].iInstance );
+         fSkipRemainingChecks = TRUE;
+      }
+      else if( pasPdMapList[ iMapIndex ].bElemStartIndex > ( pasAdiList[ iAdiIndex ].bNumOfElements - 1 ) )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintPdEntryHeader( iMapIndex );
+         ABCC_PORT_printf( ": 'bElemStartIndex' (%"PRIu8") is after the last element index (%"PRIu8") of ADI %"PRIu16".\n", pasPdMapList[ iMapIndex ].bElemStartIndex, pasAdiList[ iAdiIndex ].bNumOfElements - 1, pasAdiList[ iAdiIndex ].iInstance );
+         fSkipRemainingChecks = TRUE;
+      }
+      else if( ( pasPdMapList[ iMapIndex ].bElemStartIndex + bTemp ) > pasAdiList[ iAdiIndex ].bNumOfElements )
+      {
+         ad_schk_BeginErrorMessage();
+         ad_schk_PrintPdEntryHeader( iMapIndex );
+         ABCC_PORT_printf( ": 'bElemStartIndex' (%"PRIu8") + 'bNumElem' (%"PRIu8") goes beyond the last element index (%"PRIu8") of ADI %"PRIu16".\n", pasPdMapList[ iMapIndex ].bElemStartIndex, bTemp, pasAdiList[ iAdiIndex ].bNumOfElements - 1, pasAdiList[ iAdiIndex ].iInstance );
+         fSkipRemainingChecks = TRUE;
+      }
+      if( fSkipRemainingChecks )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "PD map entry is inconsistent, skipping remaining checks on this entry.\n" );
+         continue;
+      }
+
+#if ABCC_CFG_STRUCT_DATA_TYPE_ENABLED
+      if( pasAdiList[ iAdiIndex ].psStruct != NULL )
+      {
+         for( iElementIndex = pasPdMapList[ iMapIndex ].bElemStartIndex;
+              iElementIndex < ( pasPdMapList[ iMapIndex ].bElemStartIndex + bTemp );
+              iElementIndex++ )
+         {
+            if( ( pasPdMapList[ iMapIndex ].eDir == PD_READ ) &&
+               !( pasAdiList[ iAdiIndex ].psStruct[ iElementIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD ) )
+            {
+               ad_schk_BeginErrorMessage();
+               ad_schk_PrintPdEntryHeader( iMapIndex );
+               ABCC_PORT_printf( ": PD map requests PD_READ but descriptor bit 'RDPD mappable' is not set for ADI %"PRIu16", element %"PRIu8".\n", pasAdiList[ iAdiIndex ].iInstance, iElementIndex );
+            }
+            if( ( pasPdMapList[ iMapIndex ].eDir == PD_WRITE ) &&
+               !( pasAdiList[ iAdiIndex ].psStruct[ iElementIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD ) )
+            {
+               ad_schk_BeginErrorMessage();
+               ad_schk_PrintPdEntryHeader( iMapIndex );
+               ABCC_PORT_printf( ": PD map requests PD_WRITE but descriptor bit 'WRPD mappable' is not set for ADI %"PRIu16", element %"PRIu8".\n", pasAdiList[ iAdiIndex ].iInstance, iElementIndex );
+            }
+         }
+      }
+      else
+#endif
+      {
+         if( ( pasPdMapList[ iMapIndex ].eDir == PD_READ ) &&
+            !( pasAdiList[ iAdiIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD ) )
+         {
+            ad_schk_BeginErrorMessage();
+            ad_schk_PrintPdEntryHeader( iMapIndex );
+            ABCC_PORT_printf( ": PD map requests PD_READ but descriptor bit 'RDPD mappable' is not set for ADI %"PRIu16".\n", pasAdiList[ iAdiIndex ].iInstance );
+         }
+         if( ( pasPdMapList[ iMapIndex ].eDir == PD_WRITE ) &&
+            !( pasAdiList[ iAdiIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD ) )
+         {
+            ad_schk_BeginErrorMessage();
+            ad_schk_PrintPdEntryHeader( iMapIndex );
+            ABCC_PORT_printf( ": PD map requests PD_WRITE but descriptor bit 'WRPD mappable' is not set for ADI %"PRIu16".\n", pasAdiList[ iAdiIndex ].iInstance );
+         }
+      }
+   }
+
+   /*
+   ** Skip all remaining tests if any errors were detected above. The PD map
+   ** list must be consistent with the ADIs for it to be reliable.
+   */
+   if( ad_schk_iErrorCount > 0 )
+   {
+      ad_schk_BeginWarningMessage();
+      ABCC_PORT_printf( "Skipping remaining PD checks due to PD map inconsistencies.\n" );
+      goto PRINT_COUNT_AND_EXIT;
+   }
+
+   if( iReadEntries > AD_MAX_NUM_READ_MAP_ENTRIES )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "Too many PD_READ entries (%"PRIu16") given 'AD_MAX_NUM_READ_MAP_ENTRIES'.\n", iReadEntries );
+   }
+   if( iWriteEntries > AD_MAX_NUM_WRITE_MAP_ENTRIES )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "Too many PD_WRITE entries (%"PRIu16") given 'AD_MAX_NUM_WRITE_MAP_ENTRIES'.\n", iWriteEntries );
+   }
+
+   /*----------------------------------------------------------------
+   ** Network-specific PD map checks.
+   **----------------------------------------------------------------
+   */
+
+   switch( iNetworkType )
+   {
+   case ABP_NW_TYPE_PDPV1:
+
+      /*
+      ** With the default CfgData handling of the ABCC40 PROFIBUS DP-V1 the
+      ** possible number of mapping operations depends on the size of the ADIs
+      ** (larger ADIs requires more than one CfgData identifier), but it is in
+      ** either case not possible to map more than 48 ADIs with the default
+      ** translation model.
+      */
+
+      if( ( iReadEntries + iWriteEntries ) > 48 )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "PROFIBUS DP-V1 is limited to 48 mapping operations.\n" );
+      }
+
+      break;
+
+   case ABP_NW_TYPE_ECT:
+   case ABP_NW_TYPE_EPL:
+
+      /*
+      ** EtherCAT and POWERLINK are limited to 254 mapping entries per PDO,
+      ** and padding elements are also included there.
+      */
+
+      iReadEntries = 0;
+      iWriteEntries = 0;
+      for( iMapIndex = 0; pasPdMapList[ iMapIndex ].eDir != PD_END_MAP; iMapIndex++ )
+      {
+         if( pasPdMapList[ iMapIndex ].iInstance == AD_MAP_PAD_ADI )
+         {
+            bTemp = 1;
+         }
+         else
+         {
+            bTemp = pasPdMapList[ iMapIndex ].bNumElem;
+            if( pasPdMapList[ iMapIndex ].bNumElem == AD_MAP_ALL_ELEM )
+            {
+               iAdiIndex = ad_schk_GetAdiIndex( pasAdiList, iNumOfAdis, pasPdMapList[ iMapIndex ].iInstance );
+               /*
+               ** There is no check for AD_INVALID_ADI_INDEX here, that has
+               ** already been handled and we should not be here if that
+               ** failed.
+               */
+               bTemp = pasAdiList[ iAdiIndex ].bNumOfElements;
+            }
+         }
+
+         if( pasPdMapList[ iMapIndex ].eDir == PD_READ )
+         {
+            iReadEntries += bTemp;
+         }
+         if( pasPdMapList[ iMapIndex ].eDir == PD_WRITE )
+         {
+            iWriteEntries += bTemp;
+         }
+      }
+
+      if( iReadEntries > 254 )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "Too many PD_READ entries (%"PRIu16"). CANopen, EtherCAT and POWERLINK are limited to 254 mapping items.\n", iReadEntries );
+      }
+      if( iWriteEntries > 254 )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "Too many PD_READ entries (%"PRIu16"). CANopen, EtherCAT and POWERLINK are limited to 254 mapping items.\n", iReadEntries );
+      }
+
+      break;
+
+   case ABP_NW_TYPE_BIP:
+
+      /*
+      ** With BACnet the 'number of mapped ADIs' has assymetic limits, RDPD is
+      ** not supported while WRPD mapping is used to allow 'COV notification'
+      ** for an ADI.
+      */
+
+      if( iReadEntries > 0 )
+      {
+         ad_schk_BeginErrorMessage();
+         ABCC_PORT_printf( "BACnet does not support RDPD mapping.\n" );
+      }
+      if( iWriteEntries > 64 )
+      {
+         ad_schk_BeginErrorMessage();
+         ABCC_PORT_printf( "BACnet does not support WRPD mapping (COV notification) for more than 64 ADIs.\n" );
+      }
+
+      break;
+
+   default:
+      break;
+
+   }
+
+   /*----------------------------------------------------------------
+   ** Check for mapping overlap. The ADI / PD map concept itself allows for
+   ** one or more ADI element to be mapped multiple times, but this is not
+   ** guaranteed to be supported by all networks.
+   **----------------------------------------------------------------
+   */
+
+   for( iMapIndex = 0; pasPdMapList[ iMapIndex ].eDir != PD_END_MAP; iMapIndex++ )
+   {
+      for( iSecondMapIndex = iMapIndex + 1; pasPdMapList[ iSecondMapIndex ].eDir != PD_END_MAP; iSecondMapIndex++ )
+      {
+         if( ( pasPdMapList[ iMapIndex ].iInstance == pasPdMapList[ iSecondMapIndex ].iInstance ) &&
+             ( pasPdMapList[ iMapIndex ].iInstance != AD_MAP_PAD_ADI ) )
+         {
+            iAdiIndex = ad_schk_GetAdiIndex( pasAdiList, iNumOfAdis, pasPdMapList[ iMapIndex ].iInstance );
+            /*
+            ** There is no check for AD_INVALID_ADI_INDEX here, that has
+            ** already been handled and we should not be here if that failed.
+            */
+
+            bFirstStartElement  = pasPdMapList[ iMapIndex ].bElemStartIndex;
+            bTemp = pasPdMapList[ iMapIndex ].bNumElem;
+            if( bTemp == AD_MAP_ALL_ELEM )
+            {
+               bTemp = pasAdiList[ iAdiIndex ].bNumOfElements;
+            }
+            bFirstEndElement = bFirstStartElement + bTemp - 1;
+
+            bSecondStartElement = pasPdMapList[ iSecondMapIndex ].bElemStartIndex;
+            bTemp = pasPdMapList[ iSecondMapIndex ].bNumElem;
+            if( bTemp == AD_MAP_ALL_ELEM )
+            {
+               bTemp = pasAdiList[ iAdiIndex ].bNumOfElements;
+            }
+            bSecondEndElement = bSecondStartElement + bTemp - 1;
+
+            if( ( ( bFirstStartElement >= bSecondStartElement ) && ( bFirstStartElement <= bSecondEndElement ) ) ||
+                ( ( bFirstEndElement >= bSecondStartElement ) && ( bFirstEndElement <= bSecondEndElement ) ) )
+            {
+               ad_schk_BeginWarningMessage();
+               ad_schk_PrintPdEntryHeader( iMapIndex );
+               ABCC_PORT_printf( ": PD map overlap. This entry maps ADI elements that also are mapped by entry 0x%04"PRIx16"/%"PRIu16".\n", iSecondMapIndex, iSecondMapIndex );
+            }
+         }
+      }
+   }
+
+   /*----------------------------------------------------------------
+   ** PD size sanity checks.
+   **----------------------------------------------------------------
+   */
+
+   ad_schk_GetPdSizeLimit( iNetworkType, &iPdSizeLimit, &pacPdSizeComment );
+   iRdPdSize = 0;
+   iWrPdSize = 0;
+   iLastMappedAdi = ~pasPdMapList[ 0 ].iInstance;
+   eLastMappedDir = ~pasPdMapList[ 0 ].eDir;
+
+   /*
+   ** Calculate the actual RDPD and WRPD sizes given the PD map and the ADIs.
+   */
+
+   for( iMapIndex = 0; pasPdMapList[ iMapIndex ].eDir != PD_END_MAP; iMapIndex++ )
+   {
+      /*
+      ** Check that we are on a byte boundary every time that the PD map list
+      ** changes ADI or direction. Some networks may implicitly pad to byte
+      ** boundaries, others may require explict padding in the PD map list.
+      */
+      if( ( ( pasPdMapList[ iMapIndex ].iInstance != iLastMappedAdi ) ||
+            ( pasPdMapList[ iMapIndex ].eDir != eLastMappedDir ) ) &&
+          ( pasPdMapList[ iMapIndex ].iInstance != AD_MAP_PAD_ADI ) )
+      {
+         iLastMappedAdi = pasPdMapList[ iMapIndex ].iInstance;
+         eLastMappedDir = pasPdMapList[ iMapIndex ].eDir;
+         if( pasPdMapList[ iMapIndex ].eDir == PD_READ )
+         {
+            if( ( iRdPdSize & 0x7 ) != 0 )
+            {
+               ad_schk_BeginWarningMessage();
+               ad_schk_PrintPdEntryHeader( iMapIndex );
+               ABCC_PORT_printf( ": RDPD map entry does not start on a byte boundry.\n" );
+            }
+         }
+         else
+         {
+            if( ( iWrPdSize & 0x7 ) != 0 )
+            {
+               ad_schk_BeginWarningMessage();
+               ad_schk_PrintPdEntryHeader( iMapIndex );
+               ABCC_PORT_printf( ": WRPD map entry does not start on a byte boundry.\n" );
+            }
+         }
+      }
+
+      if( pasPdMapList[ iMapIndex ].iInstance != AD_MAP_PAD_ADI )
+      {
+         iAdiIndex = ad_schk_GetAdiIndex( pasAdiList, iNumOfAdis, pasPdMapList[ iMapIndex ].iInstance );
+         /*
+         ** There is no check for AD_INVALID_ADI_INDEX here, that has already
+         ** been handled and we should not be here if that failed.
+         */
+
+         bTemp = pasPdMapList[ iMapIndex ].bNumElem;
+         if( bTemp == AD_MAP_ALL_ELEM )
+         {
+            bTemp = pasAdiList[ iAdiIndex ].bNumOfElements;
+         }
+         if( pasPdMapList[ iMapIndex ].eDir == PD_READ )
+         {
+            iRdPdSize += GetAdiSizeInBits( &pasAdiList[ iAdiIndex ], bTemp, pasPdMapList[ iMapIndex ].bElemStartIndex );
+         }
+         else
+         {
+            iWrPdSize += GetAdiSizeInBits( &pasAdiList[ iAdiIndex ], bTemp, pasPdMapList[ iMapIndex ].bElemStartIndex );
+         }
+      }
+      else
+      {
+         /*
+         ** ADI 0 / PAD_ADI is '255 x ABP_PAD1', so just add the number of
+         ** elements to the sum.
+         */
+         if( pasPdMapList[ iMapIndex ].eDir == PD_READ )
+         {
+            iRdPdSize += pasPdMapList[ iMapIndex ].bNumElem;
+         }
+         else
+         {
+            iWrPdSize += pasPdMapList[ iMapIndex ].bNumElem;
+         }
+      }
+   }
+   if( ( iRdPdSize & 0x7 ) != 0 )
+   {
+      ad_schk_BeginWarningMessage();
+      ad_schk_PrintPdEntryHeader( iMapIndex );
+      ABCC_PORT_printf( ": RDPD map does not end on a byte boundry.\n" );
+   }
+   if( ( iWrPdSize & 0x7 ) != 0 )
+   {
+      ad_schk_BeginWarningMessage();
+      ad_schk_PrintPdEntryHeader( iMapIndex );
+      ABCC_PORT_printf( ": WRPD map does not end on a byte boundry.\n" );
+   }
+
+   iRdPdSize = SizeInOctets( 0, iRdPdSize );
+   iWrPdSize = SizeInOctets( 0, iWrPdSize );
+
+   if( iRdPdSize > ABCC_CFG_MAX_PROCESS_DATA_SIZE )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "RDPD size implied by the PD map (%"PRIu16" bytes) is larger than 'ABCC_CFG_MAX_PROCESS_DATA_SIZE' (%"PRIu16" bytes).\n", iRdPdSize, ABCC_CFG_MAX_PROCESS_DATA_SIZE );
+   }
+   if( iWrPdSize > ABCC_CFG_MAX_PROCESS_DATA_SIZE )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "WRPD size implied by the PD map (%"PRIu16" bytes) is larger than 'ABCC_CFG_MAX_PROCESS_DATA_SIZE' (%"PRIu16" bytes).\n", iWrPdSize, ABCC_CFG_MAX_PROCESS_DATA_SIZE );
+   }
+
+#if ABCC_CFG_DRV_SERIAL_ENABLED
+   if( iRdPdSize > ABP_MAX_PROCESS_DATA )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "RDPD size implied by the PD map (%"PRIu16" bytes) is larger than the ABCC30-compatible OpMode supports (256 bytes).\n", iRdPdSize );
+   }
+   if( iWrPdSize > ABP_MAX_PROCESS_DATA )
+   {
+      ad_schk_BeginErrorMessage();
+      ABCC_PORT_printf( "WRPD size implied by the PD map (%"PRIu16" bytes) is larger than the ABCC30-compatible OpMode modes supports (256 bytes).\n", iWrPdSize );
+   }
+#endif
+
+   /*
+   ** Network-specific PD size checks.
+   */
+
+   if( pacNetworkName != NULL )
+   {
+      if( iRdPdSize > iPdSizeLimit )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "RDPD size implied by the PD map (%"PRIu16" bytes) map is larger than the %s limit (%"PRIu16" bytes).", iRdPdSize, pacNetworkName, iPdSizeLimit );
+         if( pacPdSizeComment != NULL )
+         {
+            ABCC_PORT_printf( " %s", pacPdSizeComment );
+         }
+         ABCC_PORT_printf( "\n" );
+      }
+
+      if( iWrPdSize > iPdSizeLimit )
+      {
+         ad_schk_BeginWarningMessage();
+         ABCC_PORT_printf( "WRPD size implied by the PD map (%"PRIu16" bytes) map is larger than the %s limit (%"PRIu16" bytes).", iWrPdSize, pacNetworkName, iPdSizeLimit );
+         if( pacPdSizeComment != NULL )
+         {
+            ABCC_PORT_printf( " %s", pacPdSizeComment );
+         }
+         ABCC_PORT_printf( "\n" );
+      }
+   }
+
+   if( ( iNetworkType == ABP_NW_TYPE_PIR ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR_FO ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR_IIOT ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR_FO_IIOT ) )
+   {
+      UINT8  bSubmoduleCount;
+
+      /*
+      ** With the ABCC40 PROFINET the module must add the IOPS/IOCS bytes to the
+      ** existing PD, which can increase the PD size beyond the 'raw' 1440 bytes
+      ** that PROFINET allows. IOxS needs to be added for all submodules before
+      ** this can be checked.
+      */
+
+      /*
+      ** There is one IOxS pair for each submodule (DAP, Interface, Port 1, and
+      ** Port 2) in the DAP module in Slot 0. This is added automatically by the
+      ** ABCC40.
+      */
+      iRdPdSize += ( 4 * ABP_OCTET_SIZEOF );
+      iWrPdSize += ( 4 * ABP_OCTET_SIZEOF );
+
+      /*
+      ** Each PD mapping operation will result in one submodule being added, with
+      ** one IOxS pair for each submodule.
+      */
+      bSubmoduleCount = 0;
+      for( iMapIndex = 0; pasPdMapList[ iMapIndex ].eDir != PD_END_MAP; iMapIndex++ )
+      {
+         if( pasPdMapList[ iMapIndex ].iInstance == AD_MAP_PAD_ADI )
+         {
+            continue;
+         }
+
+         iRdPdSize += ABP_OCTET_SIZEOF;
+         iWrPdSize += ABP_OCTET_SIZEOF;
+         bSubmoduleCount++;
+      }
+
+      if( iRdPdSize > 1440 )
+      {
+         ad_schk_BeginErrorMessage();
+         ABCC_PORT_printf( "Actual RDPD size implied by the PD map list (%"PRIu16" bytes) is too large for PROFINET (1440 bytes).\n", iRdPdSize );
+      }
+      if( iWrPdSize > 1440 )
+      {
+         ad_schk_BeginErrorMessage();
+         ABCC_PORT_printf( "Actual WRPD size implied by the PD map list (%"PRIu16" bytes) is too large for PROFINET (1440 bytes).\n", iWrPdSize );
+      }
+      if( bSubmoduleCount > 128 )
+      {
+         ad_schk_BeginErrorMessage();
+         ABCC_PORT_printf( "Submodule count implied by the PD map list (%"PRIu8") is too large for the ABCC40 PROFINET (128 submodules).\n", bSubmoduleCount );
+      }
+   }
+
+PRINT_COUNT_AND_EXIT:
+
+   ABCC_PORT_printf( "PD map check finished: %"PRIu16" errors, %"PRIu16" warnings.\n", ad_schk_iErrorCount, ad_schk_iWarningCount );
+
+   return;
+}
+#endif

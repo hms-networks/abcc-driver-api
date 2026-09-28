@@ -411,13 +411,20 @@ static void RunStateMachine( UINT16 iInstance )
 
 static void NotifyResult( ABCC_ErrorCodeType eResult )
 {
-   if( appl_pnResultCallback )
-   {
-      appl_pnResultCallback( eResult );
-   }
+   ABCC_API_pnSelectFwResultCallback pnCallback = appl_pnResultCallback;
 
-   /* Only notify user once per select firmware attempt */
+   /*
+   ** Clear the callback before invoking it. If the callback (or
+   ** something it calls) starts a new firmware selection attempt,
+   ** that attempt registers its own callback, which must not be
+   ** erased when this notification returns.
+   */
    appl_pnResultCallback = NULL;
+
+   if ( pnCallback )
+   {
+      pnCallback( eResult );
+   }
 }
 
 /*******************************************************************************
@@ -459,9 +466,9 @@ void ABCC_API_SelectFirmware(
    if( eError != ABCC_EC_NO_ERROR )
    {
       /*
-      ** No FSI transaction was started, so there is nothing to
-      ** clean up on the module. Restore the idle state and report
-      ** the failure so the caller may retry.
+      ** No FSI transaction was started. Restore the
+      ** idle state and report the failure so the
+      ** caller may retry.
       */
       SetState( SELECT_FW_STATE_NOT_STARTED );
       NotifyResult( eError );

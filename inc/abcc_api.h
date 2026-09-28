@@ -151,7 +151,7 @@ EXTFUNC ABCC_ErrorCodeType ABCC_API_SetMsgFragSize( const UINT16 iReqMsgFragSize
 ** exchanged).
 **
 ** As an alternative to polling, the application can be notified on state
-** changes via ABCC_API_CONFIG_ANYBUS_STATE_CHANGE_NOTIFY — see
+** changes via ABCC_API_CONFIG_ANYBUS_STATE_CHANGE_NOTIFY, see
 ** abcc_api_config.h for details.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -376,7 +376,7 @@ EXTFUNC void ABCC_API_CbfSyncIsr( void );
 ********************************************************************************
 */
 /*------------------------------------------------------------------------------
-** List of pplication Data Instances.
+** List of Application Data Instances.
 **
 ** NOTE: The entries in the ADI list cannot be placed in arbitrary order; they
 ** must be sorted in ascending order (by ADI number) for all lookup functions

@@ -4,7 +4,7 @@
 ********************************************************************************
 ** File Description:
 ** Interface for selecting a firmware from the internal file system of the
-** CompactCom B40 Mini (Loaded) and copying it to the firware candidate area in
+** CompactCom B40 Mini (Loaded) and copying it to the firmware candidate area in
 ** preparation for installation after next reset of the CompactCom B40 Mini.
 ********************************************************************************
 */
@@ -36,7 +36,7 @@
 */
 
 /*------------------------------------------------------------------------------
-** Common Ethernet Loaded firmwares
+** Common Ethernet Loaded firmwares.
 **------------------------------------------------------------------------------
 */
 typedef enum ABCC_API_CommonEtnFirmware
@@ -50,11 +50,12 @@ typedef enum ABCC_API_CommonEtnFirmware
 ABCC_API_CommonEtnFirmwareType;
 
 /*------------------------------------------------------------------------------
-** Function pointer definition which is used to report the result of the
-** select firmware function.
+** Callback function type used to report the result of the firmware
+** selection operation.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    eResult - ABCC error code indicating success or failure.
+**
 ** Returns:
 **    None
 **------------------------------------------------------------------------------
@@ -73,20 +74,22 @@ typedef void (*ABCC_API_pnSelectFwResultCallback)( ABCC_ErrorCodeType eResult );
 
 /*------------------------------------------------------------------------------
 ** Some CompactCom versions are pre-loaded with firmware for the most common
-** Ethernet network protocols, also refered to as "Common Ethernet Loaded".
+** Ethernet network protocols, also referred to as "Common Ethernet Loaded".
 **
-** This function is used to copy a pre-loaded firmware to the CompactCom's
-** firmware candidate area. The firmware to be copied shall be located in a
-** folder named "/Network FW/" with the filename format
-** ABCC_40_(EIP|PIR|ECT|EIT)_.*\.hiff. The provided callback is invoked after the
-** operation has completed with either a success or error response. In case of
-** a success response the Anybus CompactCom has to be restarted for the new
-** firmware to be installed.
+** This function copies a pre-loaded firmware file to the CompactCom's
+** firmware candidate area. The source file shall be located in a
+** "/Network FW/" folder with the filename format:
+**
+**    ABCC_40_(EIP|PIR|ECT|EIT)_.*\.hiff.
+**
+** The provided callback is invoked upon completion with a success or error
+** result. If successful, the Anybus CompactCom must be restarted to install
+** the new firmware.
 **------------------------------------------------------------------------------
 ** Arguments:
-**    eFirmware - Firmware to be selected for update
-**    pnResultCallback - Callback function to be called with the result of the
-**                       operation.
+**    eFirmware        - Firmware to be selected for update.
+**    pnResultCallback - Callback invoked with the operation result.
+**
 ** Returns:
 **    None
 **------------------------------------------------------------------------------

@@ -218,4 +218,75 @@
    #define AD_IA_MIN_MAX_DEFAULT_ENABLE            0
 #endif
 
+/*
+** ADI Data Value Swapping
+**
+** By default, ADI values are byte-swapped between application and network byte
+** order by the application data object handler. However, some use cases require
+** swapping to be configurable.
+**
+** The following defines allow disabling this swap for specific access channels.
+** When disabled, values are copied as-is (no endian conversion);
+** stored ADI values must then already match the desired on-wire byte order.
+** The default byte order can be determined by using ABCC_NetFormat().
+**
+** AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+**   Disables swapping for mapped process data blocks.
+** 
+** AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+**   Disables swapping for message-based ADI access (typically triggered by an
+**   acyclic command from the supervising PLC). Also covers min, max, and
+**   default values of the ADIs.
+** 
+** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**   Disables swapping for both channels at once. Overrides the other two
+**   defines when set (simplifies configuration & reduces code size).
+**
+** note: Disabling swapping for message-based access will also disable min/max
+**       range checks for Set operations targeting ADI elements, since the
+**       application data object handler will no longer be able to determine the
+**       correct min/max values for the ADI elements (their byte order may
+**       differ from application byte order).
+**       To handle the range check within application, transparent set callbacks
+**       (enabled by ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED) can be used.
+**       The corresponding warning will be reported as platform-independant
+**       compiler error but can be suppressed by defining
+**       AD_CFG_OVERRIDE_WARNING_RANGE_CHECK.
+** 
+*/
+#ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+
+#ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+
+#ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL      0
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+
+#if AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+   #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
+   #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+   #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
+#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+
+#ifndef AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+   #define AD_CFG_OVERRIDE_WARNING_RANGE_CHECK 0
+#endif // !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+
+#if( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+   #if AD_IA_MIN_MAX_DEFAULT_ENABLE
+      #if !ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED
+         #if !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+         
+            #error "WARNING: Range check (for message-based set accesses) does not work if ADI byte swap is disabled for message-based access. This warning can be overridden using the `AD_CFG_OVERRIDE_WARNING_RANGE_CHECK` define."
+         
+         #endif // !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+      #endif // !ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED
+   #endif // AD_IA_MIN_MAX_DEFAULT_ENABLE
+#endif
+
 #endif

@@ -123,7 +123,9 @@ typedef struct ad_MapInfo
 }
 ad_MapInfoType;
 
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static BOOL ad_fDoNetworkEndianSwap = FALSE;
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 static const AD_MapType* ad_asDefaultMap = NULL;
 static const AD_AdiEntryType* ad_asADIEntryList = NULL;
 static UINT16  ad_iNumOfADIs;
@@ -199,8 +201,9 @@ while( 0 )
 */
 #define BitToOctetOffset( bitOffset ) ( (bitOffset) >> 3 )
 
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 /*------------------------------------------------------------------------------
-** Copies a 16 bit values from a source to a destination. Each value will be
+** Copies a 16 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -231,7 +234,7 @@ static void Copy16WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
 }
 
 /*------------------------------------------------------------------------------
-** Copies a 32 bit values from a source to a destination. Each value will be
+** Copies a 32 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -263,7 +266,7 @@ static void Copy32WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
 
 
 /*------------------------------------------------------------------------------
-** Copies a 64 bit values from a source to a destination. Each value will be
+** Copies a 64 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -294,6 +297,8 @@ static void Copy64WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
    }
 }
 #endif
+
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
 /*------------------------------------------------------------------------------
 ** Calculates the size of a part of or a complete ADI, in bits.
@@ -875,9 +880,17 @@ static UINT16 CopyBitData( void* pxDest,
 /*------------------------------------------------------------------------------
 **  Copy value (single element or parts of an array) of a specific type
 **  from a specified source to a destination. If the host platform endian
-**  differs from network endian a swap will be done.
-**  NOTE!! For all non-bit data types the source and destination must be octet
-**  aligned.
+**  differs from network endian a swap will be done if not disabled (see note 2
+**  below).
+**
+**  NOTE 1 !! For all non-bit data types the source and destination must be
+**  octet aligned.
+**
+**  NOTE 2 !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    pxDst             - Destination base pointer.
@@ -887,19 +900,46 @@ static UINT16 CopyBitData( void* pxDest,
 **    bDataType         - Data type according to ABP_<X> types in abp.h
 **    iNumElem          - Number of elements to copy.
 **
+**    fExplicit         - Only present if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD or
+**                        AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE is set to 1.
+**                        TRUE:  Copy is triggered by a message
+**                        FALSE: Copy is triggered by process data
+**
 ** Returns:
 **    Size of copied data in bits.
 **------------------------------------------------------------------------------
 */
-static UINT16 CopyValue( void* pxDst,
-                         UINT16 iDestBitOffset,
-                         const void* pxSrc,
-                         UINT16 iSrcBitOffset,
-                         UINT8 bDataType,
-                         UINT16 iNumElem )
+#if AD_CFG_DISABLE_ADI_BYTE_SWAP_PD || AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+   static UINT16 CopyValue( void* pxDst,
+                            UINT16 iDestBitOffset,
+                            const void* pxSrc,
+                            UINT16 iSrcBitOffset,
+                            UINT8 bDataType,
+                            UINT16 iNumElem,
+                            BOOL fExplicit )
+#else
+   static UINT16 CopyValue( void* pxDst,
+                            UINT16 iDestBitOffset,
+                            const void* pxSrc,
+                            UINT16 iSrcBitOffset,
+                            UINT8 bDataType,
+                            UINT16 iNumElem )
+#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_PD || AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
 {
    UINT8 bDataTypeSizeInOctets;
    UINT16 iBitSetSize;
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+   BOOL fDoNetworkEndianSwap = ad_fDoNetworkEndianSwap;
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+
+#if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+   if( ( fExplicit && AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE ) ||
+       ( !fExplicit && AD_CFG_DISABLE_ADI_BYTE_SWAP_PD ) )
+   {
+      fDoNetworkEndianSwap = FALSE;
+   }
+#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+
 
    if( Is_BITx_Or_PADx( bDataType ) || ( bDataType == ABP_BOOL1 ) )
    {
@@ -914,7 +954,8 @@ static UINT16 CopyValue( void* pxDst,
    {
       bDataTypeSizeInOctets = ABCC_GetDataTypeSize( bDataType );
 
-      if( ad_fDoNetworkEndianSwap )
+   #if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+      if( fDoNetworkEndianSwap )
       {
          switch( bDataTypeSizeInOctets )
          {
@@ -948,6 +989,7 @@ static UINT16 CopyValue( void* pxDst,
          }
       }
       else
+   #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
       {
          ABCC_PORT_CopyOctets( pxDst, BitToOctetOffset( iDestBitOffset ),
                                pxSrc, BitToOctetOffset( iSrcBitOffset ),
@@ -1073,12 +1115,18 @@ const ad_AllPropertiesType* GetDefaultProperties( UINT8 bDataType )
 
 /*------------------------------------------------------------------------------
 **  Get min, max or default value of a single ADI element.
-**  The value is converted to network endian.
+**  The value is converted to network endian if not disabled (see note below).
+**
+**  NOTE !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Entry of ADI
 **    pxDest            - Pointer to destination
-**    pxDest            - Destination bit offset
+**    iDestBitOffset    - Destination bit offset
 **    eMinMaxDefault    - Get min, max or default value described by
 **                        AD_MinMaxDefaultIndexType
 **    bDataType         - Data type
@@ -1111,7 +1159,11 @@ static UINT16 GetSingleMinMaxDefault( const ad_AllPropertiesType* puProps,
                          puProps,
                          iSrcOctetOffset * 8,
                          bDataType,
-                         1 );
+                         1
+              #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                       , TRUE // min/max/default values of ADIs are read by message-based access, only
+              #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                       );
 
    return( iBitSize );
 }
@@ -1147,6 +1199,7 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
    case ABP_UINT8:
    case ABP_ENUM:
    case ABP_OCTET:
+   {
 #ifdef ABCC_SYS_16_BIT_CHAR
       /*
       ** Clear msb
@@ -1162,8 +1215,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT8:
+   {
 #ifdef ABCC_SYS_16_BIT_CHAR
       if( puValue->bSigned & 0x0080 )
       {
@@ -1189,8 +1244,11 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
+
 
    case ABP_UINT16:
+   {
       if( puValue->iUnsigned < puProp->sPropUint16.iMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1200,8 +1258,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT16:
+   {
       if( puValue->iSigned < puProp->sPropInt16.iMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1211,8 +1271,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_UINT32:
+   {
       if( puValue->lUnsigned < puProp->sPropUint32.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1222,8 +1284,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT32:
+   {
       if( puValue->lSigned < puProp->sPropInt32.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1233,8 +1297,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_FLOAT:
+   {
       if( puValue->rFloat < puProp->sPropFloat32.rMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1244,9 +1310,11 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 #if( ABCC_CFG_DOUBLE_ADI_SUPPORT_ENABLED )
    case ABP_DOUBLE:
+   {
       if( puValue->dDouble < puProp->sPropFloat64.dMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1256,10 +1324,12 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 #endif
 #if( ABCC_CFG_64BIT_ADI_SUPPORT_ENABLED )
    case ABP_UINT64:
+   {
       if( puValue->l64Unsigned < puProp->sPropUint64.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1269,8 +1339,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT64:
+   {
       if( puValue->l64Signed < puProp->sPropInt64.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1280,6 +1352,7 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 #endif
    case ABP_CHAR:
@@ -1380,7 +1453,11 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                            pxSrc,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           1 );
+                                           1
+                                #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         , TRUE // range check is done for message based ADI access, only
+                                #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         );
 
                bErrCode = checkMinMax( &uValue,
                                        psAdiEntry->psStruct[ i ].uData.sVOID.pxValueProps,
@@ -1415,7 +1492,11 @@ static UINT8 VerifyRange( const AD_AdiEntryType* psAdiEntry, void* pxSrc, UINT16
                                         pxSrc,
                                         iSrcBitOffset,
                                         psAdiEntry->bDataType,
-                                        1 );
+                                        1
+                             #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                      , TRUE // range check is done for message based ADI access, only
+                             #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                      );
 
             bErrCode = checkMinMax( &uValue,
                                     psAdiEntry->uData.sVOID.pxValueProps,
@@ -1550,6 +1631,14 @@ static UINT8 GetMinMaxDefault( const AD_AdiEntryType* psAdiEntry,
 
 /*------------------------------------------------------------------------------
 **  Set ADI of any data type. The provided data must have network endian format.
+**  By default it is swapped to application byte order. This swap can be
+**  disabled by configuration (see note below).
+**
+**  NOTE !! The defines AD_CFG_DISABLE_ADI_BYTE_SWAP_PD,
+**  AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE and AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+**  can be used to disable the byte swap functionality for process data, message
+**  data or both, respectively. If AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL is set to
+**  1, the other two defines are ignored.
 **------------------------------------------------------------------------------
 ** Arguments:
 **    psAdiEntry        - Pointer to ADI entry.
@@ -1600,11 +1689,15 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                        pxData,
                                        *piSrcBitOffset,
                                        psAdiEntry->psStruct[ i ].bDataType,
-                                       psAdiEntry->psStruct[ i ].iNumSubElem );
+                                       psAdiEntry->psStruct[ i ].iNumSubElem
+                            #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                     , fExplicit
+                            #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                      );
       }
    }
    else
-#else
+#elif !(AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD)
    (void)fExplicit;
 #endif
    {
@@ -1614,7 +1707,11 @@ static void SetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                     pxData,
                                     *piSrcBitOffset,
                                     psAdiEntry->bDataType,
-                                    bNumElements );
+                                    bNumElements
+                         #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                  , fExplicit
+                         #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                  );
    }
 #if( ABCC_CFG_ADI_GET_SET_CALLBACK_ENABLED )
    if( psAdiEntry->pnSetAdiValue != NULL )
@@ -1978,6 +2075,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
       switch( ABCC_GetMsgCmdBits( psMsgBuffer ) )
       {
       case ABP_CMD_GET_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
          case ABP_OA_NAME:
@@ -2001,55 +2099,55 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
 
          case ABP_APPD_OA_NR_READ_PD_MAPPABLE_INSTANCES:
-            {
-               UINT16 iIndex;
-               UINT16 iCnt = 0;
+         {
+            UINT16 iIndex;
+            UINT16 iCnt = 0;
 
-               for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            {
+               if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD )
                {
-                  if( ad_asADIEntryList[iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD )
-                  {
-                     iCnt++;
-                  }
+                  iCnt++;
                }
-               ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
-               iDataSize = ABP_UINT16_SIZEOF;
             }
+            ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
+            iDataSize = ABP_UINT16_SIZEOF;
             break;
+         }
 
          case ABP_APPD_OA_NR_WRITE_PD_MAPPABLE_INSTANCES:
-            {
-               UINT16 iIndex;
-               UINT16 iCnt = 0;
+         {
+            UINT16 iIndex;
+            UINT16 iCnt = 0;
 
-               for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            {
+               if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD )
                {
-                  if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD )
-                  {
-                     iCnt++;
-                  }
+                  iCnt++;
                }
-               ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
-               iDataSize = ABP_UINT16_SIZEOF;
             }
+            ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
+            iDataSize = ABP_UINT16_SIZEOF;
             break;
+         }
 
          case ABP_APPD_OA_NR_NV_INSTANCES:
-            {
-               UINT16 iIndex;
-               UINT16 iCnt = 0;
+         {
+            UINT16 iIndex;
+            UINT16 iCnt = 0;
 
-               for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            {
+               if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_NVS_PARAMETER )
                {
-                  if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_NVS_PARAMETER )
-                  {
-                     iCnt++;
-                  }
+                  iCnt++;
                }
-               ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
-               iDataSize = ABP_UINT16_SIZEOF;
             }
+            ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
+            iDataSize = ABP_UINT16_SIZEOF;
             break;
+         }
 
          default:
             /*
@@ -2059,8 +2157,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
 
       case ABP_APPD_CMD_GET_INST_BY_ORDER:
+      {
          iTemp = ABCC_GetMsgCmdExt( psMsgBuffer );
 
          if( ( iTemp == 0 ) ||
@@ -2079,6 +2179,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             iDataSize = ABP_UINT16_SIZEOF;
          }
          break;
+      }
 
 #if( ABCC_CFG_REMAP_SUPPORT_ENABLED )
       case ABP_APPD_REMAP_ADI_WRITE_AREA:
@@ -2126,6 +2227,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             bErrCode = ABP_ERR_INV_CMD_EXT_1;
             break;
          }
+
          if( bErrCode != ABP_ERR_NO_ERROR )
          {
             break;
@@ -2185,15 +2287,17 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
       switch( ABCC_GetMsgCmdBits( psMsgBuffer ) )
       {
       case ABP_CMD_GET_ATTR:
+      {
          /*
          ** Switch on attribute.
          */
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
          case ABP_APPD_IA_NAME:
+         {
             if( psAdiEntry->pacName )
             {
-               iDataSize = (UINT16)strlen( psAdiEntry->pacName );
+               iDataSize = (UINT16) strlen( psAdiEntry->pacName );
                ABCC_SetMsgString( psMsgBuffer,
                                   psAdiEntry->pacName, iDataSize, 0 );
             }
@@ -2202,8 +2306,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = 0;
             }
             break;
+         }
 
          case ABP_APPD_IA_DATA_TYPE:
+         {
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             if( psAdiEntry->psStruct != NULL )
             {
@@ -2223,6 +2329,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = ABP_APPD_IA_DATA_TYPE_DS;
             }
             break;
+         }
 
          case ABP_APPD_IA_NUM_ELEM:
             ABCC_SetMsgData8( psMsgBuffer, psAdiEntry->bNumOfElements, 0 );
@@ -2230,6 +2337,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
 
          case ABP_APPD_IA_DESCRIPTOR:
+         {
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             if( psAdiEntry->psStruct != NULL )
             {
@@ -2249,8 +2357,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = ABP_APPD_IA_DESCRIPTOR_DS;
             }
             break;
+         }
 
          case ABP_APPD_IA_VALUE: /* Value. */
+         {
             if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
@@ -2272,30 +2382,42 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                             &iMsgBitOffset, TRUE );
             iDataSize = SizeInOctets( 0, iMsgBitOffset );
             break;
+         }
+
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
          case ABP_APPD_IA_MAX_VALUE:
+         {
             bErrCode = GetMinMaxDefault( psAdiEntry,
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_MAX_VALUE_INDEX,
                                          &iDataSize );
             iDataSize = SizeInOctets( 0, iDataSize );
             break;
+         }
+
          case ABP_APPD_IA_MIN_VALUE:
+         {
             bErrCode = GetMinMaxDefault( psAdiEntry,
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_MIN_VALUE_INDEX,
                                          &iDataSize );
             iDataSize = SizeInOctets( 0, iDataSize );
             break;
+         }
+
          case ABP_APPD_IA_DFLT_VALUE:
+         {
             bErrCode = GetMinMaxDefault( psAdiEntry,
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_DEFAULT_VALUE_INDEX,
                                          &iDataSize );
             iDataSize = SizeInOctets( 0, iDataSize );
             break;
+         }
 #endif
+
          case ABP_APPD_IA_NUM_SUB_ELEM:
+         {
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             if( psAdiEntry->psStruct != NULL )
             {
@@ -2315,9 +2437,11 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                bErrCode = ABP_ERR_INV_CMD_EXT_0;
             }
             break;
+         }
 
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
          case ABP_APPD_IA_ELEM_NAME:
+         {
             if( psAdiEntry->psStruct != NULL )
             {
                UINT16 i;
@@ -2357,6 +2481,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
 
             break;
+         }
 #endif
 
          default:
@@ -2367,7 +2492,9 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
       case ABP_CMD_SET_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
          case ABP_APPD_IA_NAME:
@@ -2382,7 +2509,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
 
          case ABP_APPD_IA_VALUE:
-
+         {
             if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
@@ -2404,8 +2531,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                break;
             }
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
+   #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+
             bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                                     AD_ALL_ADI_INDEX );
+
+   #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
 
             if( bErrCode == ABP_ERR_NO_ERROR )
@@ -2433,6 +2564,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
 
             break;
+         }
 
          default:
             /*
@@ -2442,9 +2574,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
 
       case ABP_CMD_GET_ENUM_STR:
-
+      {
          if( ( ABCC_GetMsgCmdExt0( psMsgBuffer ) == ABP_APPD_IA_VALUE ) &&
              ( psAdiEntry->bDataType == ABP_ENUM ) )
          {
@@ -2464,22 +2597,22 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
             else
             {
-               UINT8 bStringIndex;
+               UINT16 iStringIndex;
 
-               for( bStringIndex = 0; bStringIndex < psAdiEntry->uData.sENUM.psValueProps->bNumOfEnumStrings; bStringIndex++ )
+               for( iStringIndex = 0; iStringIndex < psAdiEntry->uData.sENUM.psValueProps->iNumOfEnumStrings; iStringIndex++ )
                {
-                  if( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].eValue ==
+                  if( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].bValue ==
                       ABCC_GetMsgCmdExt1( psMsgBuffer ) )
                   {
                      break;
                   }
                }
 
-               if( bStringIndex < psAdiEntry->uData.sENUM.psValueProps->bNumOfEnumStrings )
+               if( iStringIndex < psAdiEntry->uData.sENUM.psValueProps->iNumOfEnumStrings )
                {
-                  iDataSize = (UINT16)strlen( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].acEnumStr );
+                  iDataSize = (UINT16)strlen( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].acEnumStr );
                   ABCC_SetMsgString( psMsgBuffer,
-                                     psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].acEnumStr,
+                                     psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].acEnumStr,
                                      iDataSize, 0 );
                }
                else
@@ -2500,63 +2633,78 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             bErrCode = ABP_ERR_INV_CMD_EXT_0;
          }
          break;
+      }
 
       case ABP_CMD_GET_INDEXED_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
-            case ABP_APPD_IA_VALUE:
-               if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
-               {
-                  bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
-                  break;
-               }
-#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
-               else if( ( psAdiEntry->psStruct != NULL ) &&
-                          !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                   ABP_APPD_DESCR_GET_ACCESS ) )
-               {
-                  bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
-                  break;
-               }
-#endif
-               else
-               {
-                  AD_GetAdiValue( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
-                                  1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                  &iMsgBitOffset, TRUE );
-
-                  iDataSize = SizeInOctets( 0, iMsgBitOffset );
-
-                  if( iDataSize == 0 )
-                  {
-                     bErrCode = ABP_ERR_OUT_OF_RANGE;
-                  }
-               }
-            break;
-
-#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
-            case ABP_APPD_IA_ELEM_NAME:
-               if( ( psAdiEntry->psStruct != NULL ) &&
-                   ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
-               {
-                  if( ABCC_GetMsgCmdExt1( psMsgBuffer ) < psAdiEntry->bNumOfElements )
-                  {
-                     ABCC_SetMsgString( psMsgBuffer,
-                                        psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
-                                        (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
-                                        0 );
-                     iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
-                  }
-                  else
-                  {
-                     bErrCode = ABP_ERR_INV_CMD_EXT_1;
-                  }
-               }
-               else
-               {
-                  bErrCode = ABP_ERR_INV_CMD_EXT_0;
-               }
+         case ABP_APPD_IA_VALUE:
+         {
+            if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                break;
+            }
+            else if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( psAdiEntry->bDataType == ABP_CHAR )
+            {
+               /* This command cannot be used for CHAR arrays. */
+               bErrCode = ABP_ERR_GENERAL_ERROR;
+               break;
+            }
+#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                       !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
+                                                ABP_APPD_DESCR_GET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
+               break;
+            }
+#endif
+            else
+            {
+               AD_GetAdiValue( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
+                               1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
+                               &iMsgBitOffset, TRUE );
+
+               iDataSize = SizeInOctets( 0, iMsgBitOffset );
+
+               if( iDataSize == 0 )
+               {
+                  bErrCode = ABP_ERR_OUT_OF_RANGE;
+               }
+            }
+            break;
+         }
+
+#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
+         case ABP_APPD_IA_ELEM_NAME:
+         {
+            if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                     ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
+            {
+               ABCC_SetMsgString( psMsgBuffer,
+                                  psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
+                                  (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
+                                  0 );
+               iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
+            }
+            else
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_0;
+            }
+            break;
+         }
 #endif
 
          default:
@@ -2564,44 +2712,75 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
+
       case ABP_CMD_SET_INDEXED_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
-            case ABP_APPD_IA_VALUE:
-               if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
-               {
-                  bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
-                  break;
-               }
+         case ABP_APPD_IA_VALUE:
+         {
+            if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+               break;
+            }
+            else if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( psAdiEntry->bDataType == ABP_CHAR )
+            {
+               /* This command cannot be used for CHAR arrays. */
+               bErrCode = ABP_ERR_GENERAL_ERROR; 
+               break;
+            }
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
-               else if( ( psAdiEntry->psStruct != NULL ) &&
-                        !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                 ABP_APPD_DESCR_SET_ACCESS ) )
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                     !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
+                                              ABP_APPD_DESCR_SET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+               break;
+            }
+#endif
+            else
+            {
+               iItemSize = ( GetAdiSizeInBits( psAdiEntry, 1, ABCC_GetMsgCmdExt1( psMsgBuffer ) ) + 7 ) / 8;
+
+               if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
                {
-                  bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+                  bErrCode = ABP_ERR_TOO_MUCH_DATA;
                   break;
                }
-#endif
-               else
+               else if( ABCC_GetMsgDataSize( psMsgBuffer ) < iItemSize )
                {
-                  iItemSize = ( GetAdiSizeInBits( psAdiEntry, 1, ABCC_GetMsgCmdExt1( psMsgBuffer ) ) + 7 ) / 8;
-
-                  if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
-                  {
-                     bErrCode = ABP_ERR_TOO_MUCH_DATA;
-                     break;
-                  }
-                  else if( ABCC_GetMsgDataSize( psMsgBuffer ) < iItemSize )
-                  {
-                     bErrCode = ABP_ERR_NOT_ENOUGH_DATA;
-                     break;
-                  }
+                  bErrCode = ABP_ERR_NOT_ENOUGH_DATA;
+                  break;
+               }
 
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
-                  bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
-                                          ABCC_GetMsgCmdExt1( psMsgBuffer ) );
+   #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
+
+               bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
+                                       ABCC_GetMsgCmdExt1( psMsgBuffer ) );
+
+   #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
-                  if( bErrCode == ABP_ERR_NO_ERROR )
+               if( bErrCode == ABP_ERR_NO_ERROR )
+               {
+#if( ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED )
+                  if( psAdiEntry->pnSetAdiValueTransparent != NULL )
+                  {
+                     bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
+                                                                      1,
+                                                                      ABCC_GetMsgCmdExt1( psMsgBuffer ),
+                                                                      iLeTOi( psMsgBuffer->sHeader.iDataSize ),
+                                                                      ABCC_GetMsgDataPtr( psMsgBuffer ) );
+                  }
+                  else
+#endif
                   {
 #if( ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED )
                      if( psAdiEntry->pnSetAdiValueTransparent != NULL )
@@ -2626,13 +2805,16 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                      }
                   }
                }
-               break;
+            }
+            break;
+         }
 
          default:
             bErrCode =  ABP_ERR_UNSUP_CMD;
             break;
          }
          break;
+      }
 
       default:
          /*
@@ -2817,6 +2999,7 @@ void AD_WritePdMapFromBuffer( const AD_MapType* pasMap,
 UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
                          const AD_MapType** ppsDefaultMap )
 {
+#if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
    ABCC_NetFormatType eNetFormat;
    eNetFormat = ABCC_NetFormat();
 #ifdef ABCC_SYS_BIG_ENDIAN
@@ -2824,6 +3007,7 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
 #else
    ad_fDoNetworkEndianSwap = ( eNetFormat == NET_LITTLEENDIAN ) ? FALSE : TRUE;
 #endif
+#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 
    *ppsAdiEntry = ad_asADIEntryList;
    *ppsDefaultMap = ad_asDefaultMap;
@@ -2903,7 +3087,11 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                            psAdiEntry->psStruct[ i ].uData.sVOID.pxValuePtr,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           psAdiEntry->psStruct[ i ].iNumSubElem );
+                                           psAdiEntry->psStruct[ i ].iNumSubElem
+                                #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         , fExplicit
+                                #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         );
          }
       }
       else
@@ -2916,12 +3104,16 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                            psAdiEntry->psStruct[ i ].uData.sVOID.pxValuePtr,
                                            iSrcBitOffset,
                                            psAdiEntry->psStruct[ i ].bDataType,
-                                           psAdiEntry->psStruct[ i ].iNumSubElem );
+                                           psAdiEntry->psStruct[ i ].iNumSubElem
+                                #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         , fExplicit
+                                #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                         );
          }
       }
    }
    else
-#else
+#elif !(AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD)
    (void)fExplicit;
 #endif
    {
@@ -2931,7 +3123,11 @@ void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                                      psAdiEntry->uData.sVOID.pxValuePtr,
                                      iSrcBitOffset,
                                      psAdiEntry->bDataType,
-                                     bNumElements );
+                                     bNumElements
+                          #if AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                   , fExplicit
+                          #endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+                                   );
    }
 }
 

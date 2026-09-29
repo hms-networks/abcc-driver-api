@@ -2776,33 +2776,20 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                      bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
                                                                       1,
                                                                       ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                                                      iLeTOi( psMsgBuffer->sHeader.iDataSize ),
+                                                                      ABCC_GetMsgDataSize( psMsgBuffer ),
                                                                       ABCC_GetMsgDataPtr( psMsgBuffer ) );
                   }
                   else
 #endif
                   {
-#if( ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED )
-                     if( psAdiEntry->pnSetAdiValueTransparent != NULL )
-                     {
-                        bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
-                                                                         1,
-                                                                         ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                                                         ABCC_GetMsgDataSize( psMsgBuffer ),
-                                                                         ABCC_GetMsgDataPtr( psMsgBuffer ) );
-                     }
-                     else
-#endif
-                     {
-                        SetAdiValue( psAdiEntry,
-                                     ABCC_GetMsgDataPtr( psMsgBuffer ),
-                                     1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                     &iMsgBitOffset, TRUE );
-                        /*
-                        ** Success.
-                        */
-                        iDataSize = 0;
-                     }
+                     SetAdiValue( psAdiEntry,
+                                  ABCC_GetMsgDataPtr( psMsgBuffer ),
+                                  1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
+                                  &iMsgBitOffset, TRUE );
+                     /*
+                     ** Success.
+                     */
+                     iDataSize = 0;
                   }
                }
             }

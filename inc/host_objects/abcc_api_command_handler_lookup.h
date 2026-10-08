@@ -302,7 +302,7 @@
 #define ABCC_CIET_OBJ_DEVICE_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
 #define ABCC_CIET_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceType_Get }
 
-/* Attribute 7: Device Version (default: current SW version) */
+/* Attribute 7: Device Version (default = 0x0000) */
 #define ABCC_CIET_OBJ_DEVICE_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
 #define ABCC_CIET_OBJ_DEVICE_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceVersion_Get }
 

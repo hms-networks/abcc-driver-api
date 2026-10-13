@@ -228,4 +228,77 @@ EXTFUNC UINT16 AD_GetPresentPdSizeInOctets( PD_DirType eDir );
 */
 EXTFUNC void AD_CopyPresentPdToExtBuffer( PD_DirType eDir, void* pxBuffer );
 
+#if AD_CFG_ADI_SANITY_CHECK_ENABLE
+/*------------------------------------------------------------------------------
+** AD_SCHK_TestAdiList()
+** AD_SCHK_TestPdMapList()
+**------------------------------------------------------------------------------
+** These functions will run a basic set of sanity checks on the ADI / PD map
+** given by the arguments. Errors and warnings will be printed to the terminal.
+**
+** "AD_SCHK_TestAdiList()" will check the given ADI list for errors and
+** inconsistences. E.g. duplicate ADIs, invalid/unsupported ABP data types,
+** possible size overruns, etc.
+**
+** "AD_SCHK_TestPdMapList()" will check the given PD map list for errors and
+** inconsistences against the given ADI list. E.g. mapping of non-existing
+** ADIs or ADI elements, mapping in the wrong direction, possible lack of
+** padding, etc.
+**
+** Network-specific checks can be included via the "iNetworkType" argument, it
+** should have one the of the ABP network type values used by the ABCC40s:
+**    ABP_NW_TYPE_PDPV1
+**    ABP_NW_TYPE_COP
+**    ABP_NW_TYPE_DEV
+**    ABP_NW_TYPE_ETN_2P
+**    ABP_NW_TYPE_PIR
+**    ABP_NW_TYPE_PIR_FO
+**    ABP_NW_TYPE_PIR_IIOT
+**    ABP_NW_TYPE_PIR_FO_IIOT
+**    ABP_NW_TYPE_EIP_2P_BB
+**    ABP_NW_TYPE_EIP_2P_BB_IIOT
+**    ABP_NW_TYPE_ECT
+**    ABP_NW_TYPE_CCL
+**    ABP_NW_TYPE_BIP
+**    ABP_NW_TYPE_EPL
+**    ABP_NW_TYPE_CFN
+**    ABP_NW_TYPE_CIET
+** If "iNetworkType" has any other value network-specific checks are not made.
+**------------------------------------------------------------------------------
+** Usage:
+**
+** "AD_SCHK_TestAdiList()" should be run first to check the ADI list for errors
+** and inconsistencies. Any reported errors should be corrected, and
+** "AD_SCHK_TestAdiList()" should be run again.
+**
+** Once "AD_SCHK_TestAdiList()" passes without errors "AD_SCHK_TestPdMapList()"
+** can be called to check the corresponding PD map list for errors and
+** inconsistencies. This requires the ADI list which the PD map list tries to
+** map.
+**------------------------------------------------------------------------------
+** Limitations:
+**
+** - Save for the ABP_ENUM data type, range checks on the ADI Min/Max/Default
+**   values are not yet implemented.
+** - Network-specific PD size checks for the three CC-Link-based networks,
+**   i.e. checks that calculates the actual bits/words sizes, are not yet
+**   implemented.
+** - Both test functions uses the messaging system to poll for network-specific
+**   settings in the host application object space, the ABCC driver must have
+**   been initialised for the messaging system to be usable, so the test
+**   functions can only be called during runtime.
+**------------------------------------------------------------------------------
+** Arguments:
+**    pasAdiList - Pointer to the ADI list.
+**    iNumOfAdis - Number of entries in the ADI list.
+**    pasPdMapList - Pointer to the PD map list.
+**    iNetworkType - Network type ID for the network-specific checks to run.
+** Returns:
+**    -
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void AD_SCHK_TestAdiList( const AD_AdiEntryType* const pasAdiList, const UINT16 iNumOfAdis, const UINT16 iNetworkType );
+EXTFUNC void AD_SCHK_TestPdMapList( const AD_MapType* pasPdMapList, const AD_AdiEntryType* pasAdiList, const UINT16 iNumOfAdis, const UINT16 iNetworkType );
+#endif
+
 #endif  /* inclusion lock */

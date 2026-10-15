@@ -133,22 +133,58 @@ static void CleanUp( UINT16 iInstance, BOOL fInResponseCallback )
 {
    if( IsDirectoryOpen( fInResponseCallback ) )
    {
-      if( DirectoryClose( iInstance ) != ABCC_EC_NO_ERROR )
+      if( DirectoryClose( iInstance ) == ABCC_EC_NO_ERROR )
       {
-         SetState( SELECT_FW_STATE_NOT_STARTED );
+         /*
+         ** Close command sent. DeleteInstance() will be issued from
+         ** RunStateMachine() when the close response arrives.
+         */
+         return;
       }
+
+      /*
+      ** The close command could not be sent. Fall through and try
+      ** deleting the instance instead; the module discards open
+      ** directory handles when the owning instance is deleted.
+      */
+      ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
+         "Cleanup: failed to send directory close, attempting instance delete\n" );
    }
-   else if( IsInstanceCreated( fInResponseCallback ) )
+
+   if( IsInstanceCreated( fInResponseCallback ) )
    {
-      if( DeleteInstance( iInstance ) != ABCC_EC_NO_ERROR )
+      if( DeleteInstance( iInstance ) == ABCC_EC_NO_ERROR )
       {
-         SetState( SELECT_FW_STATE_NOT_STARTED );
+         /*
+         ** Delete command sent; RunStateMachine() finishes the cleanup
+         ** when the response arrives.
+         */
+         return;
       }
+
+      /*
+      ** The instance could not be deleted. It remains allocated on the
+      ** module side; it will not be reclaimed by this host. Local
+      ** state is recovered so the feature stays usable.
+      */
+      ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
+         "Cleanup: failed to send instance delete, instance remains allocated on module side\n" );
    }
-   else
+
+   if( fInResponseCallback &&
+        ( appl_eSelectFwState == SELECT_FW_STATE_DELETE_INSTANCE_WAIT_RSP ) )
    {
-      SetState( SELECT_FW_STATE_NOT_STARTED );
+      /*
+      ** The delete command was sent but the module answered with an
+      ** error, so the FSI instance remains allocated on the module
+      ** side and will not be reclaimed by this host. Nothing further
+      ** can be done from here; report the loss.
+      */
+      ABCC_API_SELECT_FIRMWARE_DEBUG_PRINT(
+         "Cleanup: module rejected instance delete, instance remains allocated on module side\n" );
    }
+
+   SetState( SELECT_FW_STATE_NOT_STARTED );
 }
 
 static void SetState( appl_SelectFwState eState )
@@ -388,13 +424,20 @@ static void RunStateMachine( UINT16 iInstance )
 
 static void NotifyResult( ABCC_ErrorCodeType eResult )
 {
-   if( appl_pnResultCallback )
-   {
-      appl_pnResultCallback( eResult );
-   }
+   ABCC_API_pnSelectFwResultCallback pnCallback = appl_pnResultCallback;
 
-   /* Only notify user once per select firmware attempt */
+   /*
+   ** Clear the callback before invoking it. If the callback (or
+   ** something it calls) starts a new firmware selection attempt,
+   ** that attempt registers its own callback, which must not be
+   ** erased when this notification returns.
+   */
    appl_pnResultCallback = NULL;
+
+   if( pnCallback )
+   {
+      pnCallback( eResult );
+   }
 }
 
 /*******************************************************************************
@@ -406,6 +449,8 @@ void ABCC_API_SelectFirmware(
    ABCC_API_CommonEtnFirmwareType eFirmware,
    ABCC_API_pnSelectFwResultCallback pnResultCallback )
 {
+   ABCC_ErrorCodeType eError;
+
    if( eFirmware < 0 || eFirmware >= ABCC_API_NW_TYPE_LAST )
    {
       if( pnResultCallback )
@@ -428,7 +473,19 @@ void ABCC_API_SelectFirmware(
 
    appl_eTargetFirmware = eFirmware;
    appl_pnResultCallback = pnResultCallback;
-   CreateInstance();
+
+   eError = CreateInstance();
+
+   if( eError != ABCC_EC_NO_ERROR )
+   {
+      /*
+      ** No FSI transaction was started. Restore the
+      ** idle state and report the failure so the
+      ** caller may retry.
+      */
+      SetState( SELECT_FW_STATE_NOT_STARTED );
+      NotifyResult( eError );
+   }
 }
 
 #endif

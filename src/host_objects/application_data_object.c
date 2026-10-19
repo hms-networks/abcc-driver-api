@@ -2067,7 +2067,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
    iDataSize = 0;
    bErrCode = ABP_ERR_NO_ERROR;
 
-   if( iLeTOi( psMsgBuffer->sHeader.iInstance ) == ABP_INST_OBJ )
+   if( ABCC_GetMsgInstance( psMsgBuffer ) == ABP_INST_OBJ )
    {
       /*
       ** A request to the object instance.
@@ -2520,12 +2520,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             ** Check the length of each array.
             */
             iItemSize = GetAdiSizeInOctets( psAdiEntry );
-            if( iLeTOi( psMsgBuffer->sHeader.iDataSize ) > iItemSize )
+            if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
             {
                bErrCode = ABP_ERR_TOO_MUCH_DATA;
                break;
             }
-            else if( iLeTOi( psMsgBuffer->sHeader.iDataSize ) < iItemSize )
+            else if( ABCC_GetMsgDataSize( psMsgBuffer ) < iItemSize )
             {
                bErrCode = ABP_ERR_NOT_ENOUGH_DATA;
                break;
@@ -2547,7 +2547,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                   bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
                                                                    psAdiEntry->bNumOfElements,
                                                                    0,
-                                                                   iLeTOi( psMsgBuffer->sHeader.iDataSize ),
+                                                                   ABCC_GetMsgDataSize( psMsgBuffer ),
                                                                    ABCC_GetMsgDataPtr( psMsgBuffer ) );
                }
                else
@@ -2776,7 +2776,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                      bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
                                                                       1,
                                                                       ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                                                      iLeTOi( psMsgBuffer->sHeader.iDataSize ),
+                                                                      ABCC_GetMsgDataSize( psMsgBuffer ),
                                                                       ABCC_GetMsgDataPtr( psMsgBuffer ) );
                   }
                   else
@@ -3002,6 +3002,7 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
    return( ad_iNumOfADIs );
 }
 
+#if( ABCC_CFG_REMAP_SUPPORT_ENABLED )
 void AD_RemapDone( void )
 {
    /*
@@ -3010,6 +3011,7 @@ void AD_RemapDone( void )
    */
    ABCC_TriggerWrPdUpdate();
 }
+#endif
 
 void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                      void* pxDest,

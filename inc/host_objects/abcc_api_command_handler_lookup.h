@@ -69,7 +69,7 @@
 #define ABCC_APPLICATION_OBJ_OA_RESET_REQUEST_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ,                                           .bCommand = ABP_APP_CMD_RESET_REQUEST,                                                                                       .uCbx.pnResetReqObj    = ABCC_CbfApplicationObj_ResetRequest }
 
 /* Attribute 1: Configured */
-#define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetUint32Attr  = ABCC_CbfApplicationObjConfigured_Get }
+#define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr   = ABCC_CbfApplicationObjConfigured_Get }
 
 /* Attribute 2: Supported languages */
 #define ABCC_APPLICATION_OBJ_SUP_LANG_GET_VALUE(x, y)     { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SUP_LANG,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = (y) }
@@ -351,7 +351,7 @@
 
 /* Attribute 5: Serial number */
 #define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
-#define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNmber_Get }
+#define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNumber_Get }
 
 /* Attribute 6: Manufacturer Device Name (max. length: 64 bytes) */
 #define ABCC_ETHERCAT_OBJ_DEVICE_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MANF_DEV_NAME,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
@@ -1419,7 +1419,7 @@ void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pvPackedArrSrc, UINT16 iSizeByte
 **       Serial number of the device.
 **------------------------------------------------------------------------------
 */
-UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
+UINT32 ABCC_CbfEtherCATObjSerialNumber_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to state whether the file over EtherCAT (FoE) is enabled or
@@ -1685,7 +1685,7 @@ UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pcPackedStrDest, UINT16 iBuff
 **       Note: With S2 redundancy enabled, the minimum number of ARs is 2.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjMaxAr_Get( void );
+UINT32 ABCC_CbfProfinetIoObjMaxAr_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET Order ID to the CompactCom.

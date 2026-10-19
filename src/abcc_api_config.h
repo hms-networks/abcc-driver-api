@@ -49,14 +49,14 @@
 #endif
 
 /*------------------------------------------------------------------------------
-** #define ABCC_API_COMMAND_MESSAGE_HOOK_ENABLED   1 - Enable / 0 - Disable
+** ABCC_API_COMMAND_MESSAGE_HOOK_ENABLED   1 - Enable / 0 - Disable
 **
-** Allows the user to handle ABCC commands instead of the default handler.
-** This can be used to implement custom handling of commands to any object or
-** instance. The invoked callback function may also opt to let the default
-** handler take care of the command.
+** Allows the application to intercept commands received from the ABCC
+** before the default command handler processes them. Use this to implement
+** custom handling of commands to any object or instance. The callback may
+** also pass a command on to the default handler by returning FALSE.
 **
-** ABCC_API_CbfCommanMessageHook() must be implemented if this is enabled.
+** ABCC_API_CbfCommandMessageHook() must be implemented if this is enabled.
 **------------------------------------------------------------------------------
 */
 #ifndef ABCC_API_COMMAND_MESSAGE_HOOK_ENABLED
@@ -64,28 +64,32 @@
 #endif
 
 /*------------------------------------------------------------------------------
-** Define this to be notified about error events reported by the driver. If the
-** severity is of type ABCC_LOG_SEVERITY_FATAL the driver will get stuck in
-** an infintite loop once/if this function returns in abcc_driver_config.h.
+** Define this in abcc_driver_config.h to be notified about error events
+** reported by the driver.
+**
+** If the severity is ABCC_LOG_SEVERITY_FATAL, the driver will trap in an
+** infinite loop once the notification function returns. The notification is
+** therefore the last chance to log, save state, or trigger a system reset.
 **
 ** Example:
 ** #define ABCC_API_CONFIG_ERROR_EVENT_NOTIFY(eSeverity, iErrorCode, lAddInfo) \
 ** Example_AbccErrorEventNotify( eSeverity, iErrorCode, lAddInfo )
 **
-** The Example_AbccErrorEventNotify function definition is then implemented by
-** the user.
+** Example_AbccErrorEventNotify is then implemented by the user.
 **------------------------------------------------------------------------------
 */
 
 /*------------------------------------------------------------------------------
-** Define this to be notified about ABCC state changes in abcc_driver_config.h.
+** Define this in abcc_driver_config.h to be notified about Anybus state
+** changes.
 **
 ** Example:
 ** #define ABCC_API_CONFIG_ANYBUS_STATE_CHANGE_NOTIFY( eNewAnbState ) \
 ** Example_AnybusStateChangeNotify( eNewAnbState )
 **
 ** The Example_AnybusStateChangeNotify function definition is then implemented
-** by the user.
+** by the user. As an alternative to this notification, the Anybus state can be
+** polled with ABCC_API_AnbState().
 **------------------------------------------------------------------------------
 */
 
@@ -94,8 +98,9 @@
 ********************************************************************************
 */
 /*------------------------------------------------------------------------------
-** Supported host-side network objects - Define to 1 in abcc_driver_config.h to
-** enable the object, and 0 to disable.
+** Host-side network object support.
+**
+** Define to 1 in abcc_driver_config.h to enable the object, 0 to disable.
 **------------------------------------------------------------------------------
 */
 #ifndef CIET_OBJ_ENABLE
@@ -136,8 +141,9 @@
 #endif
 
 /*------------------------------------------------------------------------------
-** Supported host-side objects - Define to 1 in abcc_driver_config.h to
-** enable the object, and 0 to disable.
+** Host-side object support.
+**
+** Define to 1 in abcc_driver_config.h to enable the object, 0 to disable.
 **------------------------------------------------------------------------------
 */
 #ifndef APP_OBJ_ENABLE
@@ -163,20 +169,23 @@
 #endif
 
 /*------------------------------------------------------------------------------
-** Supported module-side objects - Define to 1 in abcc_driver_config.h to
-** enable the object, and 0 to disable.
+** Anybus module-side object support.
+**
+** Define to 1 in abcc_driver_config.h to enable the object, 0 to disable.
 **------------------------------------------------------------------------------
 */
 #ifndef ANB_FSI_OBJ_ENABLE
    #define ANB_FSI_OBJ_ENABLE                      0
 #endif
-
+#ifndef DI_OBJ_ENABLE
+   #define DI_OBJ_ENABLE                           0
+#endif
 /*------------------------------------------------------------------------------
-** The max. number of *concurrent FSI operations* that the FSI object keeps
-** track of. Affects static memory consumption inside the FSI object.
+** Maximum number of concurrent FSI operations tracked by the FSI object.
+** Affects static memory consumption inside the FSI object.
 **
-** NOTE: This is *not* the same as the max. number of existing FSI instance or
-** max. number of open files/directories.
+** NOTE: This is *not* the same as the maximum number of existing FSI
+** instances or the maximum number of open files/directories.
 **------------------------------------------------------------------------------
 */
 #ifndef ANB_FSI_MAX_CONCURRENT_OPERATIONS
@@ -189,12 +198,14 @@
 **------------------------------------------------------------------------------
 */
 /*
-** These defines shall be set to the max number of process data mapping entries
-** that will be required by the implementation.
-** Note that each mapping entry represents a 'range' of elements from one ADI,
-** meaning that if only some elements from a multi-element ADI are to be mapped
-** it will require as many mapping entries as there are separate and non-
-** continuous ranges of elements to map.
+** These defines shall be set to the maximum number of process data mapping
+** entries required by the implementation.
+**
+** NOTE: Each mapping entry represents a contiguous 'range' of elements from
+** one ADI. Mapping only some elements of a multi-element ADI therefore
+** requires one mapping entry per separate, non-contiguous range of
+** elements.
+**
 ** Do not forget to consider remap scenarios if ABCC_CFG_REMAP_SUPPORT_ENABLED
 ** is enabled in abcc_driver_config.h.
 */
@@ -208,11 +219,12 @@
 /*
 ** Attributes 5, 6, 7: Min, max and default attributes
 **
-** Enabling this will also enable and include functions that performs runtime
-** min/max range checks for 'SetAttribute' operations targeting ADI elements,
-** which will increase code ROM consumption.
-** If disabled no range checks will be made, and the min/max will be the full
-** range of each data type.
+** Enabling this also enables functions that perform runtime min/max range
+** checks for SetAttribute operations targeting ADI elements, increasing
+** ROM consumption.
+**
+** If disabled, no range checks are performed and the min/max range will be
+** the full range of each data type.
 */
 #ifndef AD_IA_MIN_MAX_DEFAULT_ENABLE
    #define AD_IA_MIN_MAX_DEFAULT_ENABLE            0
@@ -225,57 +237,58 @@
 ** order by the application data object handler. However, some use cases require
 ** swapping to be configurable.
 **
-** The following defines allow disabling this swap for specific access channels.
-** When disabled, values are copied as-is (no endian conversion);
-** stored ADI values must then already match the desired on-wire byte order.
-** The default byte order can be determined by using ABCC_NetFormat().
+** The defines below allow disabling the swap for specific access channels.
+** When disabled, values are copied as-is (no endian conversion); stored ADI
+** values must then already match the desired on-wire byte order. The default
+** byte order can be determined using ABCC_NetFormat().
 **
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
 **   Disables swapping for mapped process data blocks.
 ** 
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
-**   Disables swapping for message-based ADI access (typically triggered by an
-**   acyclic command from the supervising PLC). Also covers min, max, and
-**   default values of the ADIs.
+**    Disables swapping for message-based ADI access (typically triggered by
+**    an acyclic command from the supervising PLC). Also covers the min, max,
+**    and default values of the ADIs.
 ** 
 ** AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
-**   Disables swapping for both channels at once. Overrides the other two
-**   defines when set (simplifies configuration & reduces code size).
+**    Disables swapping for both channels at once. When set, it takes
+**    precedence over the other two defines (which are then forced to 0),
+**    simplifying configuration and reducing code size.
 **
-** note: Disabling swapping for message-based access will also disable min/max
+** Note: Disabling swapping for message-based access will also disable min/max
 **       range checks for Set operations targeting ADI elements, since the
 **       application data object handler will no longer be able to determine the
 **       correct min/max values for the ADI elements (their byte order may
 **       differ from application byte order).
-**       To handle the range check within application, transparent set callbacks
-**       (enabled by ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED) can be used.
-**       The corresponding warning will be reported as platform-independant
-**       compiler error but can be suppressed by defining
+**       To perform the range check in the application instead, use the
+**       transparent set callbacks (enabled by
+**       ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED). This conflict is reported
+**       as a compiler error, which can be suppressed by defining
 **       AD_CFG_OVERRIDE_WARNING_RANGE_CHECK.
 ** 
 */
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
-#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
+#endif
 
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
-#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
+#endif
 
 #ifndef AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL      0
-#endif // !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+#endif
 
 #if AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
    #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_PD
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_PD         0
    #undef AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE
    #define AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE    0
-#endif // AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
+#endif
 
 #ifndef AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
    #define AD_CFG_OVERRIDE_WARNING_RANGE_CHECK 0
-#endif // !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
+#endif
 
 #if( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
    #if AD_IA_MIN_MAX_DEFAULT_ENABLE

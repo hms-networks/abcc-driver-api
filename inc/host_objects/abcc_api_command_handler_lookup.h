@@ -950,7 +950,7 @@
 #define ABCC_OPCUA_OBJ_MODEL_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MODEL, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
 #define ABCC_OPCUA_OBJ_MODEL_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MODEL, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfOPCUAObjModel_Get }
 
-/* Attribute 2: Application/Localnamespace URI (max. length: 128 bytes) */
+/* Attribute 2: Application/Local namespace URI (max. length: 128 bytes) */
 #define ABCC_OPCUA_OBJ_APPL_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_URI_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjApplURI_Get }
 
 /* Attribute 3: Vendor namespace URI (max. length: 128 bytes) */
@@ -971,15 +971,14 @@
 
 /* Attribute 7: Limits (format: (UINT16) (UINT32) (UINT32) (UINT32)) */
 #define ABCC_OPCUA_OBJ_LIMITS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_LIMITS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iDataSize = ABP_OPCUA_IA_LIMITS_DS }
-#define ABCC_OPCUA_OBJ_PRODUCT_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_LIMITS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_LIMITS_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjLimits_Get }
+#define ABCC_OPCUA_OBJ_LIMITS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_LIMITS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_LIMITS_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjLimits_Get }
 
 /* Attribute 8: Application models */
-#define ABCC_OPCUA_OBJ_APPL_MODELS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_MODELS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_MODELS_MAX_DS }
-#define ABCC_OPCUA_OBJ_PRODUCT_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_MODELS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_MODELS_MAX_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjApplicationModels_Get }
+#define ABCC_OPCUA_OBJ_APPLICATION_MODELS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_MODELS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_MODELS_MAX_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjApplicationModels_Get }
 
 /* Attribute 9: Status */
 #define ABCC_OPCUA_OBJ_STATUS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_STATUS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_STATUS_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjStatus_Get }
-#define ABCC_OPCUA_OBJ_STATUS_SET_CBFUNC  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_STATUS, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_STATUS_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjStatus_Set }
+#define ABCC_OPCUA_OBJ_STATUS_SET_CBFUNC  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_STATUS, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_STATUS_DS, .uCbx.pnSetArrAttr = ABCC_CbfOPCUAObjStatus_Set }
 
 /* Attribute 10: Max Session Timeout */
 #define ABCC_OPCUA_OBJ_MAX_SESSION_TIMEOUT_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MAX_SESSION_TIMEOUT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
@@ -2964,7 +2963,7 @@ UINT16 ABCC_CbfOPCUAObjApplURI_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes
 UINT16 ABCC_CbfOPCUAObjVendorNamespaceURI_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
-** Callback function to set the name of the DeviceType
+** Callback function to retrieve the name of the DeviceType
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pcPackedStrDest - Pointer to buffer where string shall be written.
@@ -2977,7 +2976,7 @@ UINT16 ABCC_CbfOPCUAObjVendorNamespaceURI_Get( char* pcPackedStrDest, UINT16 iBu
 UINT16 ABCC_CbfOPCUAObjDeviceTypeName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
-** Callback function to set the name of the instance of the DeviceType
+** Callback function to retrieve the name of the instance of the DeviceType
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pcPackedStrDest - Pointer to buffer where string shall be written.
@@ -2990,7 +2989,7 @@ UINT16 ABCC_CbfOPCUAObjDeviceTypeName_Get( char* pcPackedStrDest, UINT16 iBuffSi
 UINT16 ABCC_CbfOPCUAObjDeviceInstanceName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
-** Callback function to set the Product URI
+** Callback function to retrieve the Product URI
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pcPackedStrDest - Pointer to buffer where string shall be written.
@@ -3048,15 +3047,15 @@ UINT16 ABCC_CbfOPCUAObjStatus_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes 
 ** Callback function to set the latest status value.
 **------------------------------------------------------------------------------
 ** Arguments:
-**       pvPackedArrDest - Pointer to buffer containing the data, a packed struct of
-**                         2 x UINT8.
-**       iBuffSizeBytes -  Size of the buffer in bytes, always 2 in this case.
+**       pvPackedArrSrc - Pointer to buffer containing the data, a packed 
+**                        struct of 2 x UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, always 2 in this case.
 **
 ** Returns:
-**       Size of the inserted array in bytes.
+**       None
 **------------------------------------------------------------------------------
 */
-void ABCC_CbfOPCUAObjStatus_Set( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
+void ABCC_CbfOPCUAObjStatus_Set( void* pvPackedArrSrc, UINT16 iBuffSizeBytes );
 
 /*------------------------------------------------------------------------------
 ** Callback function to specify the maximum session timeout in milliseconds.

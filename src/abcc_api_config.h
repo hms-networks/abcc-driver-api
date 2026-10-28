@@ -230,6 +230,35 @@
    #define AD_IA_MIN_MAX_DEFAULT_ENABLE            0
 #endif
 
+#if ASM_OBJ_ENABLE
+/*------------------------------------------------------------------------------
+** Assembly Mapping Object (0xEB)
+**------------------------------------------------------------------------------
+*/
+/*
+** Support for dynamic assembly instances.
+*/
+#ifndef ASM_SUPPORT_DYNAMIC_INSTANCES
+   #define ASM_SUPPORT_DYNAMIC_INSTANCES          0
+#endif
+
+/*
+** Support instance name strings.
+*/
+#ifndef ASM_IA_NAME_ENABLE
+   #define ASM_IA_NAME_ENABLE                     0
+#endif
+
+/*
+** Support maximum number of application data instances (ADIs) in an assembly
+** map.
+*/
+#ifndef ASM_IA_MAX_NUM_ADI_MAPS_ENABLE
+   #define ASM_IA_MAX_NUM_ADI_MAPS_ENABLE         0
+#endif
+
+#endif /* ASM_OBJ_ENABLE */
+
 /*
 ** ADI Data Value Swapping
 **
@@ -297,9 +326,9 @@
          
             #error "WARNING: Range check (for message-based set accesses) does not work if ADI byte swap is disabled for message-based access. This warning can be overridden using the `AD_CFG_OVERRIDE_WARNING_RANGE_CHECK` define."
          
-         #endif // !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK
-      #endif // !ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED
-   #endif // AD_IA_MIN_MAX_DEFAULT_ENABLE
-#endif
+         #endif /* !AD_CFG_OVERRIDE_WARNING_RANGE_CHECK */
+      #endif /* !ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED */
+   #endif /* AD_IA_MIN_MAX_DEFAULT_ENABLE */
+#endif /* ( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL ) */
 
-#endif
+#endif /* ABCC_API_CONFIG_H_ */

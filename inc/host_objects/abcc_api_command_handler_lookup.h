@@ -954,7 +954,7 @@
 #define ABCC_OPCUA_OBJ_APPL_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_URI_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjApplURI_Get }
 
 /* Attribute 3: Vendor namespace URI (max. length: 128 bytes) */
-#define ABCC_OPCUA_OBJ_VENDOR_NAMESPACE_URI_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
+#define ABCC_OPCUA_OBJ_VENDOR_NAMESPACE_URI_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
 #define ABCC_OPCUA_OBJ_VENDOR_NAMESPACE_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjVendorNamespaceURI_Get }
 
 /* Attribute 4: DeviceType Name (max. length: 64 bytes) */

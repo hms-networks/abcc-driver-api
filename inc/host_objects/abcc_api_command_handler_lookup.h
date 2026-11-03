@@ -26,6 +26,7 @@
 #include "abp_dev.h"
 #include "abp_epl.h"
 #include "abp_sync.h"
+#include "abp_opcua.h"
 #include "abcc_types.h"
 
 /*******************************************************************************
@@ -69,7 +70,7 @@
 #define ABCC_APPLICATION_OBJ_OA_RESET_REQUEST_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ,                                           .bCommand = ABP_APP_CMD_RESET_REQUEST,                                                                                       .uCbx.pnResetReqObj    = ABCC_CbfApplicationObj_ResetRequest }
 
 /* Attribute 1: Configured */
-#define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr   = ABCC_CbfApplicationObjConfigured_Get }
+#define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetUint32Attr  = ABCC_CbfApplicationObjConfigured_Get }
 
 /* Attribute 2: Supported languages */
 #define ABCC_APPLICATION_OBJ_SUP_LANG_GET_VALUE(x, y)     { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SUP_LANG,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = (y) }
@@ -280,15 +281,15 @@
 #if CIET_OBJ_ENABLE
 /* Attribute 1: Vendor Code (default = 0x0212) */
 #define ABCC_CIET_OBJ_VENDOR_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_VENDOR_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjVendorCode_Get }
+#define ABCC_CIET_OBJ_VENDOR_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjVendorCode_Get } 
 
 /* Attribute 2: Vendor Name */
 #define ABCC_CIET_OBJ_VENDOR_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
-#define ABCC_CIET_OBJ_VENDOR_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_VENDOR_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjVendorName_Get }
+#define ABCC_CIET_OBJ_VENDOR_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_VENDOR_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjVendorName_Get } 
 
 /* Attribute 3: Model Code (default = 0x0000 0003) */
 #define ABCC_CIET_OBJ_MODEL_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
-#define ABCC_CIET_OBJ_MODEL_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfCCLinkIETObjModelCode_Get }
+#define ABCC_CIET_OBJ_MODEL_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfCCLinkIETObjModelCode_Get } 
 
 /* Attribute 4: Expansion Model Code (default = 0x0000) */
 #define ABCC_CIET_OBJ_EXPANSION_MODEL_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_EXPANSION_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x), }
@@ -296,19 +297,19 @@
 
 /* Attribute 5: Model Name (max. length: 19 characters) */
 #define ABCC_CIET_OBJ_MODEL_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
-#define ABCC_CIET_OBJ_MODEL_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_MODEL_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjModelName_Get }
+#define ABCC_CIET_OBJ_MODEL_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_MODEL_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjModelName_Get } 
 
 /* Attribute 6: Device Type (default = 0x007F) */
 #define ABCC_CIET_OBJ_DEVICE_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceType_Get }
+#define ABCC_CIET_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceType_Get } 
 
-/* Attribute 7: Device Version (default = 0x0000) */
-#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceVersion_Get }
+/* Attribute 7: Device Version */
+#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkIETObjDeviceVersion_Get } 
 
 /* Attribute 8: Firmware Version (default = 0x0000) */
 #define ABCC_CIET_OBJ_FW_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_FW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_FW_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_FW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjFWVersion_Get }
+#define ABCC_CIET_OBJ_FW_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_FW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjFWVersion_Get } 
 
 /* Attribute 9: Hardware Version (default = 0x00) */
 #define ABCC_CIET_OBJ_HW_VERSION_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_HW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x), }
@@ -316,10 +317,10 @@
 
 /* Attribute 10: Serial Number (max. length: 32 bytes) */
 #define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
-#define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_SERIAL_NUMBER_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjSerialNumber_Get }
+#define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_SERIAL_NUMBER_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjSerialNumber_Get } 
 
 /* Attribute 11: Clock Offset */
-#define ABCC_CIET_OBJ_CLOCK_OFFSET_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_CLOCK_OFFSET, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CIET_IA_CLOCK_OFFSET_DS, .uCbx.pnSetArrAttr = ABCC_CbfCCLinkIETObjClockOffset_Set }
+#define ABCC_CIET_OBJ_CLOCK_OFFSET_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_CLOCK_OFFSET, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CIET_IA_CLOCK_OFFSET_DS, .uCbx.pnSetArrAttr = ABCC_CbfCCLinkIETObjClockOffset_Set } 
 #endif
 
 /*------------------------------------------------------------------------------
@@ -351,7 +352,7 @@
 
 /* Attribute 5: Serial number */
 #define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
-#define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNumber_Get }
+#define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNmber_Get }
 
 /* Attribute 6: Manufacturer Device Name (max. length: 64 bytes) */
 #define ABCC_ETHERCAT_OBJ_DEVICE_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MANF_DEV_NAME,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
@@ -931,6 +932,65 @@
 #endif
 
 /*------------------------------------------------------------------------------
+** OPC UA Object (0xE3)
+**------------------------------------------------------------------------------
+*/
+/* Object attributes (These are registered into the list automatically when the object is enabled.) */
+#if OPCUA_OBJ_ENABLE
+#define OPCUA_OBJ_OBJ_ATTRIBUTES { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NAME,         .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString   = "OPC UA" }, \
+                                 { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_REV,          .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8,  .uData.bUnsigned8  = 0x02 }, \
+                                 { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_NUM_INST,     .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 }, \
+                                 { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = ABP_INST_OBJ, .uCmdExt.bAttr = ABP_OA_HIGHEST_INST, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = 0x0001 },
+#else
+#define OPCUA_OBJ_OBJ_ATTRIBUTES
+#endif
+
+#if OPCUA_OBJ_ENABLE
+/* Attribute 1: OPC UA Model */
+#define ABCC_OPCUA_OBJ_MODEL_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MODEL, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
+#define ABCC_OPCUA_OBJ_MODEL_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MODEL, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfOPCUAObjModel_Get }
+
+/* Attribute 2: Application/Local namespace URI (max. length: 128 bytes) */
+#define ABCC_OPCUA_OBJ_APPL_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_URI_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjApplURI_Get }
+
+/* Attribute 3: Vendor namespace URI (max. length: 128 bytes) */
+#define ABCC_OPCUA_OBJ_VENDOR_NAMESPACE_URI_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
+#define ABCC_OPCUA_OBJ_VENDOR_NAMESPACE_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_VENDOR_NAMESPACE_URI_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjVendorNamespaceURI_Get }
+
+/* Attribute 4: DeviceType Name (max. length: 64 bytes) */
+#define ABCC_OPCUA_OBJ_DEVICE_TYPE_NAME_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_DEVICE_TYPE_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
+#define ABCC_OPCUA_OBJ_DEVICE_TYPE_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_DEVICE_TYPE_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_DEVICE_TYPE_NAME_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjDeviceTypeName_Get }
+
+/* Attribute 5: Device instance name (max. length: 64 bytes) */
+#define ABCC_OPCUA_OBJ_DEVICE_INSTANCE_NAME_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_DEVICE_INST_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
+#define ABCC_OPCUA_OBJ_DEVICE_INSTANCE_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_DEVICE_INST_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_DEVICE_INST_NAME_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjDeviceInstanceName_Get }
+
+/* Attribute 6: Product URI (max. length: 128 bytes) */
+#define ABCC_OPCUA_OBJ_PRODUCT_URI_GET_VALUE(x)  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_PRODUCT_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR,    .uData.pacString        = (x) }
+#define ABCC_OPCUA_OBJ_PRODUCT_URI_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_PRODUCT_URI, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_PRODUCT_URI_MAX_DS, .uCbx.pnGetStrAttr = ABCC_CbfOPCUAObjProductURI_Get }
+
+/* Attribute 7: Limits (format: (UINT16) (UINT32) (UINT32) (UINT32)) */
+#define ABCC_OPCUA_OBJ_LIMITS_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_LIMITS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer = (x), .uAttrLength.iDataSize = ABP_OPCUA_IA_LIMITS_DS }
+#define ABCC_OPCUA_OBJ_LIMITS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_LIMITS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_LIMITS_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjLimits_Get }
+
+/* Attribute 8: Application models */
+#define ABCC_OPCUA_OBJ_APPLICATION_MODELS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_APPLICATION_MODELS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iMaxDataSize = ABP_OPCUA_IA_APPLICATION_MODELS_MAX_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjApplicationModels_Get }
+
+/* Attribute 9: Status */
+#define ABCC_OPCUA_OBJ_STATUS_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_STATUS, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_STATUS_DS, .uCbx.pnGetArrAttr = ABCC_CbfOPCUAObjStatus_Get }
+#define ABCC_OPCUA_OBJ_STATUS_SET_CBFUNC  { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_STATUS, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_OPCUA_IA_STATUS_DS, .uCbx.pnSetArrAttr = ABCC_CbfOPCUAObjStatus_Set }
+
+/* Attribute 10: Max Session Timeout */
+#define ABCC_OPCUA_OBJ_MAX_SESSION_TIMEOUT_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MAX_SESSION_TIMEOUT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
+#define ABCC_OPCUA_OBJ_MAX_SESSION_TIMEOUT_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MAX_SESSION_TIMEOUT, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfOPCUAObjMaxSessionTimeout_Get }
+
+/* Attribute 11: Max Security Token Lifetime */
+#define ABCC_OPCUA_OBJ_MAX_SECURITY_TOKEN_LIFETIME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MAX_SEC_TOKEN_LIFETIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
+#define ABCC_OPCUA_OBJ_MAX_SECURITY_TOKEN_LIFETIME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_OPCUA, .bInstance = 0x01, .uCmdExt.bAttr = ABP_OPCUA_IA_MAX_SEC_TOKEN_LIFETIME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfOPCUAObjMaxSecurityTokenLifetime_Get }
+
+#endif
+
+/*------------------------------------------------------------------------------
 ** List that will automatically register enabled object attributes.
 **------------------------------------------------------------------------------
 */
@@ -949,7 +1009,8 @@
         DPV1_OBJ_OBJ_ATTRIBUTES \
         DEV_OBJ_OBJ_ATTRIBUTES \
         EPL_OBJ_OBJ_ATTRIBUTES \
-        SYNC_OBJ_OBJ_ATTRIBUTES
+        SYNC_OBJ_OBJ_ATTRIBUTES \
+        OPCUA_OBJ_OBJ_ATTRIBUTES
 
 /*******************************************************************************
 ** Predefined callback function prototypes used by command_handler_lookup_table.
@@ -1352,7 +1413,7 @@ UINT16 ABCC_CbfCCLinkIETObjDeviceType_Get( void );
 **       Device Version of the device.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfCCLinkIETObjDeviceVersion_Get( void );
+UINT8 ABCC_CbfCCLinkIETObjDeviceVersion_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Firmware Version to the CompactCom.
@@ -1396,7 +1457,7 @@ UINT16 ABCC_CbfCCLinkIETObjSerialNumber_Get( char* pcPackedStrDest, UINT16 iBuff
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pvPackedArrSrc  - Pointer to buffer containing a packed struct of
-**                         1 x SINT64, 1 x SINT32, 1 x SINT16, 1 x SINT16
+**                        1 x SINT64, 1 x SINT32, 1 x SINT16, 1 x SINT16
 **       iSizeBytes - Size of the buffer in bytes, 16 in this case.
 **
 ** Returns:
@@ -1419,7 +1480,7 @@ void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pvPackedArrSrc, UINT16 iSizeByte
 **       Serial number of the device.
 **------------------------------------------------------------------------------
 */
-UINT32 ABCC_CbfEtherCATObjSerialNumber_Get( void );
+UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to state whether the file over EtherCAT (FoE) is enabled or
@@ -1685,7 +1746,7 @@ UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pcPackedStrDest, UINT16 iBuff
 **       Note: With S2 redundancy enabled, the minimum number of ARs is 2.
 **------------------------------------------------------------------------------
 */
-UINT32 ABCC_CbfProfinetIoObjMaxAr_Get( void );
+UINT16 ABCC_CbfProfinetIoObjMaxAr_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET Order ID to the CompactCom.
@@ -2854,5 +2915,171 @@ UINT16 ABCC_CbfSyncObjSupportedSyncModes_Get( void );
 */
 
 void ABCC_CbfSyncObjControlCycleFactor_Set( UINT16 iControlCycleFactor );
+
+
+/*------------------------------------------------------------------------------
+** OPC UA Object (0xE3)
+**------------------------------------------------------------------------------
+*/
+
+/*------------------------------------------------------------------------------
+** Callback function to define the OPC UA model to use
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       0: Disabled (default)
+**       1: CompactCom 40 model
+**       2: Application defined model
+**------------------------------------------------------------------------------
+*/
+UINT8 ABCC_CbfOPCUAObjModel_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the Application URI/Local server namespace URI
+**------------------------------------------------------------------------------
+** Arguments:
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjApplURI_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the Vendor namespace URI
+**------------------------------------------------------------------------------
+** Arguments:
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjVendorNamespaceURI_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the name of the DeviceType
+**------------------------------------------------------------------------------
+** Arguments:
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjDeviceTypeName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the name of the instance of the DeviceType
+**------------------------------------------------------------------------------
+** Arguments:
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjDeviceInstanceName_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to retrieve the Product URI
+**------------------------------------------------------------------------------
+** Arguments:
+**       pcPackedStrDest - Pointer to buffer where string shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+** 
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjProductURI_Get( char* pcPackedStrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to configure the server limits.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pvPackedArrDest - Pointer to buffer where a packed struct of
+**                         1 x UINT16, 3 x UINT32 shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes, always 14 in this case.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjLimits_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to configure one or multiple application models.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pvPackedArrDest - Pointer to buffer where an array of structs of
+**                         2 x UINT8, 1 x UINT16 shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes.
+**
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjApplicationModels_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to report latest status value.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pvPackedArrDest - Pointer to buffer where a packed struct of
+**                         2 x UINT8 shall be written.
+**       iBuffSizeBytes -  Size of the buffer in bytes, always 2 in this case.
+**
+** Returns:
+**       Size of the inserted array in bytes.
+**------------------------------------------------------------------------------
+*/
+UINT16 ABCC_CbfOPCUAObjStatus_Get( void* pvPackedArrDest, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to set the latest status value.
+**------------------------------------------------------------------------------
+** Arguments:
+**       pvPackedArrSrc - Pointer to buffer containing the data, a packed 
+**                        struct of 2 x UINT8.
+**       iBuffSizeBytes - Size of the buffer in bytes, always 2 in this case.
+**
+** Returns:
+**       None
+**------------------------------------------------------------------------------
+*/
+void ABCC_CbfOPCUAObjStatus_Set( void* pvPackedArrSrc, UINT16 iBuffSizeBytes );
+
+/*------------------------------------------------------------------------------
+** Callback function to specify the maximum session timeout in milliseconds.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Maximum session timeout in milliseconds.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfOPCUAObjMaxSessionTimeout_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to specify the maximum security token lifetime in 
+** milliseconds.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None
+**
+** Returns:
+**       Maximum security token lifetime in milliseconds.
+**------------------------------------------------------------------------------
+*/
+UINT32 ABCC_CbfOPCUAObjMaxSecurityTokenLifetime_Get( void );
 
 #endif

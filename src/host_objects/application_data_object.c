@@ -356,7 +356,11 @@ static UINT16 GetAdiSizeInOctets( const AD_AdiEntryType* psAdiEntry )
    UINT16 iSize;
 
    iSize = GetAdiSizeInBits( psAdiEntry, psAdiEntry->bNumOfElements, 0 );
-   iSize = ( iSize + 7 ) / 8;
+   /*
+   ** Max non-struct ADI size is 255 elements * 64 bits = 16320 bits, so the
+   ** addition cannot wrap, even with a 16-bit int.
+   */
+   iSize = (UINT16)( ( iSize + 7 ) / 8 );
 
    return( iSize );
 }
@@ -408,7 +412,7 @@ static void UpdateMapSize( ad_MapInfoType* psMap )
          psMap->iPdSize += psMap->paiMappedAdiList[ iMapIndex ].bNumElements;
       }
    }
-   psMap->iPdSize = SizeInOctets( 0, psMap->iPdSize );
+   psMap->iPdSize = (UINT16)( SizeInOctets( 0, psMap->iPdSize ) );
 }
 
 /*------------------------------------------------------------------------------
@@ -438,15 +442,19 @@ static UINT16 GetAdiIndex( UINT16 iInstance )
       return( AD_INVALID_ADI_INDEX );
    }
 
+   /*
+   ** The casts are safe: ad_iNumOfADIs >= 1 here, and the loop keeps
+   ** iLow <= iMid - 1 < iMid <= iHigh, so no step goes below 0 or above 0xFFFF.
+   */
    iLow = 0;
-   iHigh = ad_iNumOfADIs - 1;
+   iHigh = (UINT16)( ad_iNumOfADIs - 1 );
 
    while( iLow != iHigh )
    {
-      iMid = iLow + ( ( iHigh - iLow + 1 ) / 2 );
+      iMid = (UINT16)( iLow + ( ( iHigh - iLow + 1 ) / 2 ) );
       if( ad_asADIEntryList[ iMid ].iInstance > iInstance )
       {
-         iHigh = iMid - 1;
+         iHigh = (UINT16)( iMid - 1 );
       }
       else
       {
@@ -784,7 +792,7 @@ static UINT16 CopyBitData( void* pxDest,
       /*
       ** This is only a pad. No copy is done.
       */
-      iSetBitSize += bDataType - ABP_PAD0;
+      iSetBitSize = (UINT16)( iSetBitSize + ( bDataType - ABP_PAD0 ) );
    }
    else
    {
@@ -803,7 +811,7 @@ static UINT16 CopyBitData( void* pxDest,
       }
       else
       {
-         iSetBitSize += ( ( bDataType - ABP_BIT1 ) + 1 );
+         iSetBitSize = (UINT16)( iSetBitSize + ( ( bDataType - ABP_BIT1 ) + 1 ) );
       }
 
       for( i = 0; i < iNumElem; i++ )
@@ -996,7 +1004,7 @@ static UINT16 CopyBitData( void* pxDest,
                                bDataTypeSizeInOctets * iNumElem );
       }
 
-      iBitSetSize = ( iNumElem * bDataTypeSizeInOctets ) << 3;
+      iBitSetSize = (UINT16)( ( iNumElem * bDataTypeSizeInOctets ) << 3 );
    }
 
    return( iBitSetSize );
@@ -2036,7 +2044,7 @@ UINT16 AD_GetMapSizeOctets( const AD_MapType* pasMap )
       }
    }
 
-   return( SizeInOctets( 0, iSize ) );
+   return( (UINT16)( SizeInOctets( 0, iSize ) ) );
 }
 
 UINT16 AD_GetNumAdisInMap( const AD_MapType* pasMap )
@@ -2380,7 +2388,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             AD_GetAdiValue( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
                             psAdiEntry->bNumOfElements, 0,
                             &iMsgBitOffset, TRUE );
-            iDataSize = SizeInOctets( 0, iMsgBitOffset );
+            iDataSize = (UINT16)SizeInOctets( 0, iMsgBitOffset );
             break;
          }
 
@@ -2391,7 +2399,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_MAX_VALUE_INDEX,
                                          &iDataSize );
-            iDataSize = SizeInOctets( 0, iDataSize );
+            iDataSize = (UINT16)SizeInOctets( 0, iDataSize );
             break;
          }
 
@@ -2401,7 +2409,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_MIN_VALUE_INDEX,
                                          &iDataSize );
-            iDataSize = SizeInOctets( 0, iDataSize );
+            iDataSize = (UINT16)SizeInOctets( 0, iDataSize );
             break;
          }
 
@@ -2411,7 +2419,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_DEFAULT_VALUE_INDEX,
                                          &iDataSize );
-            iDataSize = SizeInOctets( 0, iDataSize );
+            iDataSize = (UINT16)SizeInOctets( 0, iDataSize );
             break;
          }
 #endif
@@ -2672,7 +2680,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                                1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
                                &iMsgBitOffset, TRUE );
 
-               iDataSize = SizeInOctets( 0, iMsgBitOffset );
+               iDataSize = (UINT16)SizeInOctets( 0, iMsgBitOffset );
 
                if( iDataSize == 0 )
                {
@@ -2747,7 +2755,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 #endif
             else
             {
-               iItemSize = ( GetAdiSizeInBits( psAdiEntry, 1, ABCC_GetMsgCmdExt1( psMsgBuffer ) ) + 7 ) / 8;
+               iItemSize = (UINT16)SizeInOctets( 0, GetAdiSizeInBits( psAdiEntry, 1, ABCC_GetMsgCmdExt1( psMsgBuffer ) ) );
 
                if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
                {

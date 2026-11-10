@@ -322,19 +322,34 @@ static void anb_fsi_MsgResponseHandler( ABP_MsgType* psMsg )
          */
          if( eMsgResult == ABP_ERR_NO_ERROR )
          {
+            const UINT16 iEntryHeaderSize = ABP_UINT32_SIZEOF + ABP_UINT8_SIZEOF;
+            const UINT16 iMaxNameLength =
+               (UINT16)( sizeof( psEntry->uArgs.sDRead.psDirEntry->acName ) - 1 );
+
             iDataSize = ABCC_GetMsgDataSize( psMsg );
-            if( iDataSize > 0 )
+            if( iDataSize >= iEntryHeaderSize )
             {
-               ABCC_GetMsgData32( psMsg, &(psEntry->uArgs.sDRead.psDirEntry->lSize), 0 );
-               ABCC_GetMsgData8( psMsg, &(psEntry->uArgs.sDRead.psDirEntry->bFlags), ABP_UINT32_SIZEOF );
-               iDataSize -= ( ABP_UINT32_SIZEOF + ABP_UINT8_SIZEOF );
-               ABCC_GetMsgString( psMsg, psEntry->uArgs.sDRead.psDirEntry->acName, iDataSize, ABP_UINT32_SIZEOF + ABP_UINT8_SIZEOF );
+               ABCC_GetMsgData32( psMsg, &( psEntry->uArgs.sDRead.psDirEntry->lSize ), 0 );
+               ABCC_GetMsgData8( psMsg, &( psEntry->uArgs.sDRead.psDirEntry->bFlags ), ABP_UINT32_SIZEOF );
+               iDataSize = (UINT16)( iDataSize - iEntryHeaderSize );
+
+               /*
+               ** Clamp the name to the size of acName, so that a long name
+               ** cannot overflow it.
+               */
+               if( iDataSize > iMaxNameLength )
+               {
+                  iDataSize = iMaxNameLength;
+               }
+
+               ABCC_GetMsgString( psMsg, psEntry->uArgs.sDRead.psDirEntry->acName, iDataSize, iEntryHeaderSize );
                psEntry->uArgs.sDRead.psDirEntry->acName[ iDataSize ] = '\0';
             }
             else
             {
                /*
-               ** No data - end of directory TOD
+               ** No data means end of directory. An answer that is too short
+               ** to hold the size and flags is treated the same way.
                */
                psEntry->uArgs.sDRead.psDirEntry->lSize = 0;
                psEntry->uArgs.sDRead.psDirEntry->bFlags = 0;

@@ -108,7 +108,7 @@ ad_MapType;
 /*------------------------------------------------------------------------------
 ** Type with mapping information for a specific direction (read/write).
 **------------------------------------------------------------------------------
-** paiMappedAdiList    - Pointer to list of all mapped items.
+** pasMappedAdiList    - Pointer to list of all mapped items.
 ** iNumMappedAdi       - Number of mapped ADI:s
 ** iMaxNumMappedAdi    - Maximum number of mapped ADI:s.
 ** iPdSize             - Current process data size in octets.
@@ -116,7 +116,7 @@ ad_MapType;
 */
 typedef struct ad_MapInfo
 {
-   ad_MapType*   paiMappedAdiList;
+   ad_MapType*   pasMappedAdiList;
    UINT16        iNumMappedAdi;
    UINT16        iMaxNumMappedAdi;
    UINT16        iPdSize;
@@ -382,7 +382,7 @@ static void UpdateMapSize( ad_MapInfoType* psMap )
    psMap->iPdSize = 0;
    for( iMapIndex = 0; iMapIndex < psMap->iNumMappedAdi; iMapIndex++ )
    {
-      iAdiIndex = psMap->paiMappedAdiList[ iMapIndex ].iAdiIndex;
+      iAdiIndex = psMap->pasMappedAdiList[ iMapIndex ].iAdiIndex;
 
       if( iAdiIndex != AD_MAP_PAD_INDEX )
       {
@@ -400,12 +400,12 @@ static void UpdateMapSize( ad_MapInfoType* psMap )
 
          psMap->iPdSize +=
             GetAdiSizeInBits( &ad_asADIEntryList[ iAdiIndex ],
-                                 psMap->paiMappedAdiList[ iMapIndex ].bNumElements,
-                                 psMap->paiMappedAdiList[ iMapIndex ].bStartIndex );
+                                 psMap->pasMappedAdiList[ iMapIndex ].bNumElements,
+                                 psMap->pasMappedAdiList[ iMapIndex ].bStartIndex );
       }
       else
       {
-         psMap->iPdSize += psMap->paiMappedAdiList[ iMapIndex ].bNumElements;
+         psMap->iPdSize += psMap->pasMappedAdiList[ iMapIndex ].bNumElements;
       }
    }
    psMap->iPdSize = SizeInOctets( 0, psMap->iPdSize );
@@ -700,16 +700,16 @@ static void RemapProcessDataCommand( ABP_MsgType* psMsg,
          {
             for( iIndex = 0; iIndex < iItemsToMove; iIndex++ )
             {
-               psCurrMap->paiMappedAdiList[ iMoveTo + iIndex ] =
-                  psCurrMap->paiMappedAdiList[ iMoveFrom + iIndex ];
+               psCurrMap->pasMappedAdiList[ iMoveTo + iIndex ] =
+                  psCurrMap->pasMappedAdiList[ iMoveFrom + iIndex ];
             }
          }
          else
          {
             for( iIndex = iItemsToMove; iIndex > 0; iIndex-- )
             {
-               psCurrMap->paiMappedAdiList[ iMoveTo + iIndex - 1 ] =
-                  psCurrMap->paiMappedAdiList[ iMoveFrom + iIndex - 1 ];
+               psCurrMap->pasMappedAdiList[ iMoveTo + iIndex - 1 ] =
+                  psCurrMap->pasMappedAdiList[ iMoveFrom + iIndex - 1 ];
             }
          }
       }
@@ -722,10 +722,10 @@ static void RemapProcessDataCommand( ABP_MsgType* psMsg,
       for( iAddItemIndex = 0; iAddItemIndex < iItemsToAdd; iAddItemIndex++ )
       {
          ABCC_GetMsgData16( psMsg, &iAdi, iMsgIndex );
-         psCurrMap->paiMappedAdiList[ iMapIndex ].iAdiIndex = GetAdiIndex( iAdi );
+         psCurrMap->pasMappedAdiList[ iMapIndex ].iAdiIndex = GetAdiIndex( iAdi );
          iMsgIndex += 2;
-         ABCC_GetMsgData8( psMsg, &psCurrMap->paiMappedAdiList[ iMapIndex ].bStartIndex, iMsgIndex++ );
-         ABCC_GetMsgData8( psMsg, &psCurrMap->paiMappedAdiList[ iMapIndex ].bNumElements, iMsgIndex++ );
+         ABCC_GetMsgData8( psMsg, &psCurrMap->pasMappedAdiList[ iMapIndex ].bStartIndex, iMsgIndex++ );
+         ABCC_GetMsgData8( psMsg, &psCurrMap->pasMappedAdiList[ iMapIndex ].bNumElements, iMsgIndex++ );
          iMapIndex++;
       }
 
@@ -1746,38 +1746,38 @@ static void WriteBufferFromPdMap( void* pxDstPdDataBuf,
                                   ad_MapInfoType* pasPdMap )
 {
    UINT16 iIndex;
-   const ad_MapType* paiPdMap = pasPdMap->paiMappedAdiList;
+   const ad_MapType* psPdMap = pasPdMap->pasMappedAdiList;
 
-   if( paiPdMap )
+   if( psPdMap )
    {
       for( iIndex = 0; iIndex < pasPdMap->iNumMappedAdi; iIndex++ )
       {
-         if( paiPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
+         if( psPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
          {
-            if( paiPdMap->iAdiIndex >= ad_iNumOfADIs )
+            if( psPdMap->iAdiIndex >= ad_iNumOfADIs )
             {
                /*
                ** Pull the plug! The data in these tables should already have
                ** been checked and should be OK!
                */
                ABCC_LOG_FATAL( ABCC_EC_ERROR_IN_PD_MAP_CONFIG,
-                  (UINT32)paiPdMap->iAdiIndex,
+                  (UINT32)psPdMap->iAdiIndex,
                   "Error in PD map configuration, ADI index out of range (%" PRIu16 ")\n",
-                  paiPdMap->iAdiIndex );
+                  psPdMap->iAdiIndex );
             }
-            AD_GetAdiValue( &ad_asADIEntryList[ paiPdMap->iAdiIndex ],
+            AD_GetAdiValue( &ad_asADIEntryList[ psPdMap->iAdiIndex ],
                             pxDstPdDataBuf,
-                            paiPdMap->bNumElements,
-                            paiPdMap->bStartIndex,
+                            psPdMap->bNumElements,
+                            psPdMap->bStartIndex,
                             piPdBitOffset,
                             FALSE );
          }
          else
          {
-            *piPdBitOffset += paiPdMap->bNumElements;
+            *piPdBitOffset += psPdMap->bNumElements;
          }
 
-         paiPdMap++;
+         psPdMap++;
       }
    }
 }
@@ -1801,38 +1801,38 @@ static void WritePdMapFromBuffer( const ad_MapInfoType* pasPdMap,
                                   UINT16* piPdBitOffset )
 {
    UINT16 iIndex;
-   const ad_MapType* paiPdMap = pasPdMap->paiMappedAdiList;
+   const ad_MapType* psPdMap = pasPdMap->pasMappedAdiList;
 
-   if( paiPdMap )
+   if( psPdMap )
    {
       for( iIndex = 0; iIndex < pasPdMap->iNumMappedAdi; iIndex++ )
       {
-         if( paiPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
+         if( psPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
          {
-            if( paiPdMap->iAdiIndex >= ad_iNumOfADIs )
+            if( psPdMap->iAdiIndex >= ad_iNumOfADIs )
             {
                /*
                ** Pull the plug! The data in these tables should already have
                ** been checked and should be OK!
                */
                ABCC_LOG_FATAL( ABCC_EC_ERROR_IN_READ_MAP_CONFIG,
-                  (UINT32)paiPdMap->iAdiIndex,
+                  (UINT32)psPdMap->iAdiIndex,
                   "Error in read map configuration, ADI index out of range (%" PRIu16 ")\n",
-                  paiPdMap->iAdiIndex );
+                  psPdMap->iAdiIndex );
             }
-            SetAdiValue( &ad_asADIEntryList[ paiPdMap->iAdiIndex ],
+            SetAdiValue( &ad_asADIEntryList[ psPdMap->iAdiIndex ],
                          pxSrcPdDataBuf,
-                         paiPdMap->bNumElements,
-                         paiPdMap->bStartIndex,
+                         psPdMap->bNumElements,
+                         psPdMap->bStartIndex,
                          piPdBitOffset,
                          FALSE );
          }
          else
          {
-            *piPdBitOffset += paiPdMap->bNumElements;
+            *piPdBitOffset += psPdMap->bNumElements;
          }
 
-         paiPdMap++;
+         psPdMap++;
       }
    }
 }
@@ -1854,12 +1854,12 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
    ad_iNumOfADIs =  iNumAdi;
    ad_iHighestInstanceNumber = 0;
 
-   ad_ReadMapInfo.paiMappedAdiList = ad_PdReadMapping;
+   ad_ReadMapInfo.pasMappedAdiList = ad_PdReadMapping;
    ad_ReadMapInfo.iPdSize = 0;
    ad_ReadMapInfo.iNumMappedAdi = 0;
    ad_ReadMapInfo.iMaxNumMappedAdi = AD_MAX_NUM_READ_MAP_ENTRIES;
 
-   ad_WriteMapInfo.paiMappedAdiList = ad_PdWriteMapping;
+   ad_WriteMapInfo.pasMappedAdiList = ad_PdWriteMapping;
    ad_WriteMapInfo.iPdSize = 0;
    ad_WriteMapInfo.iNumMappedAdi = 0;
    ad_WriteMapInfo.iMaxNumMappedAdi = AD_MAX_NUM_WRITE_MAP_ENTRIES;
@@ -1904,9 +1904,9 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
                return( ABCC_EC_ERROR_IN_PD_MAP_CONFIG );
             }
 
-            ad_ReadMapInfo.paiMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
-            ad_ReadMapInfo.paiMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
-            ad_ReadMapInfo.paiMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
+            ad_ReadMapInfo.pasMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
+            ad_ReadMapInfo.pasMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
+            ad_ReadMapInfo.pasMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
             ad_ReadMapInfo.iNumMappedAdi++;
          }
          else
@@ -1921,9 +1921,9 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
                return( ABCC_EC_ERROR_IN_PD_MAP_CONFIG );
             }
 
-            ad_WriteMapInfo.paiMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
-            ad_WriteMapInfo.paiMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
-            ad_WriteMapInfo.paiMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
+            ad_WriteMapInfo.pasMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
+            ad_WriteMapInfo.pasMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
+            ad_WriteMapInfo.pasMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
             ad_WriteMapInfo.iNumMappedAdi++;
          }
          iMapIndex++;
@@ -2839,7 +2839,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 
 void AD_UpdatePdReadData( void* pxPdDataBuf )
 {
-   if( ad_ReadMapInfo.paiMappedAdiList )
+   if( ad_ReadMapInfo.iNumMappedAdi )
    {
       UINT16 iBitOffset = 0;
 
@@ -2851,7 +2851,7 @@ void AD_UpdatePdReadData( void* pxPdDataBuf )
 
 BOOL AD_UpdatePdWriteData( void* pxPdDataBuf )
 {
-   if( ad_WriteMapInfo.paiMappedAdiList )
+   if( ad_WriteMapInfo.iNumMappedAdi )
    {
       UINT16 iBitOffset = 0;
 
@@ -2912,7 +2912,7 @@ void AD_WriteBufferFromPdMap( void* pxDstPdDataBuf,
          }
 
          asPdMap.iAdiIndex = iAdiIndex;
-         sMapInfo.paiMappedAdiList = &asPdMap;
+         sMapInfo.pasMappedAdiList = &asPdMap;
 
          WriteBufferFromPdMap( pxDstPdDataBuf,
                                &iBitOffset,
@@ -2970,7 +2970,7 @@ void AD_WritePdMapFromBuffer( const AD_MapType* pasMap,
          }
 
          asPdMap.iAdiIndex = iAdiIndex;
-         sMapInfo.paiMappedAdiList = &asPdMap;
+         sMapInfo.pasMappedAdiList = &asPdMap;
 
          WritePdMapFromBuffer( &sMapInfo,
                                pxSrcPdDataBuf,

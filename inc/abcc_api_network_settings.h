@@ -13,6 +13,14 @@
 
 #include "abcc_types.h"
 
+#define PROFINET_STATION_NAME_MAX_LENGTH 240
+
+typedef struct
+{
+    char   stationName[PROFINET_STATION_NAME_MAX_LENGTH];
+    UINT8  length;
+} abStationName_t;
+
 /*------------------------------------------------------------------------------
 **  Comm settings:
 **
@@ -87,5 +95,30 @@ EXTFUNC BOOL ABCC_API_SetBaudrate( UINT8 bSwitchValue );
 */
 EXTFUNC void ABCC_API_SetCommSettings( ABCC_API_CommSettingType eCommSettings1,
                                        ABCC_API_CommSettingType eCommSettings2 );
+
+
+/*------------------------------------------------------------------------------
+** Start the sequence to read out the station name from the module
+**------------------------------------------------------------------------------
+** Arguments:
+**    None
+**
+** Returns:
+**    BOOL - TRUE if the sequence was started, FALSE if a sequence is already in progress
+**------------------------------------------------------------------------------
+*/
+EXTFUNC BOOL ABCC_API_UpdateStationId(void);
+
+/*------------------------------------------------------------------------------
+** Start the sequence to write the station name to the module
+**------------------------------------------------------------------------------
+** Arguments:
+**    stationName - Station name to write to the module
+**
+** Returns:
+**    BOOL - TRUE if the sequence was started, FALSE if a sequence is already in progress
+**------------------------------------------------------------------------------
+*/
+EXTFUNC BOOL ABCC_API_SetStationId(abStationName_t* stationName);
 
 #endif  /* inclusion lock */

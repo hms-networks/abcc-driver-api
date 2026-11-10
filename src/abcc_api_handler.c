@@ -136,6 +136,7 @@ static BOOL appl_fSetCommSettingsInProgress = FALSE;
 **------------------------------------------------------------------------------
 */
 static BOOL appl_fNwSupportsNodeId;
+static BOOL appl_fNwSupportsStationName;
 static BOOL appl_fNwSupportsBaudRate;
 static BOOL appl_fNwSupportsDhcp;
 static BOOL appl_fNwSupportsCommSettings;
@@ -169,6 +170,7 @@ static ABCC_CmdSeqRespStatusType HandleExceptionInfoResp( ABP_MsgType* psMsg, vo
 static ABCC_CmdSeqCmdStatusType ReadExeption( ABP_MsgType* psMsg, void* pxUserData );
 static ABCC_CmdSeqCmdStatusType ReadExeptionInfo( ABP_MsgType* psMsg, void* pxUserData );
 static ABCC_CmdSeqCmdStatusType UpdateNodeAddress( ABP_MsgType* psMsg, void* pxUserData );
+static ABCC_CmdSeqCmdStatusType UpdateWatchdogTimeout( ABP_MsgType* psMsg, void* pxUserData );
 static ABCC_CmdSeqCmdStatusType UpdateIpAddress( ABP_MsgType* psMsg, void* pxUserData );
 static ABCC_CmdSeqCmdStatusType UpdateNetmask( ABP_MsgType* psMsg, void* pxUserData );
 static ABCC_CmdSeqCmdStatusType UpdateGateway( ABP_MsgType* psMsg, void* pxUserData );
@@ -196,6 +198,7 @@ EXTFUNC void ABCC_API_CONFIG_ANYBUS_STATE_CHANGE_NOTIFY( ABP_AnbStateType eNewAn
 */
 static const ABCC_CmdSeqType appl_asUserInitPrepCmdSeq[] =
 {
+   ABCC_CMD_SEQ( UpdateWatchdogTimeout, NULL),
    ABCC_CMD_SEQ( UpdateIpAddress, NULL ),
    ABCC_CMD_SEQ( UpdateNetmask, NULL ),
    ABCC_CMD_SEQ( UpdateGateway, NULL ),
@@ -378,6 +381,27 @@ static void UpdateAddressDone( const ABCC_CmdSeqResultType eSeqResult, void* pxU
 }
 
 /*------------------------------------------------------------------------------
+**  Builds the command for setting the watchdog timeout (set attribute).
+**
+**  This function is a part of a command sequence. See description of
+**  ABCC_CmdSeqCmdHandler type in cmd_seq_if.h
+**------------------------------------------------------------------------------
+*/
+static ABCC_CmdSeqCmdStatusType UpdateWatchdogTimeout( ABP_MsgType* psMsg, void* pxUserData )
+{
+  (void)pxUserData;
+
+  const UINT16 watchdogTimeout = 52; // Timeout value in millisecond
+
+  ABCC_SetMsgHeader(psMsg, ABP_OBJ_NUM_ANB, 1, ABP_ANB_IA_WD_TIMEOUT, ABP_CMD_SET_ATTR, ABP_UINT16_SIZEOF,
+                    ABCC_GetNewSourceId());
+
+  ABCC_SetMsgData16(psMsg, watchdogTimeout, 0);
+
+  return ( ABCC_CMDSEQ_CMD_SEND );
+}
+
+/*------------------------------------------------------------------------------
 **  Builds the command for setting the ip-address (set attribute).
 **
 **  This function is a part of a command sequence. See description of
@@ -389,6 +413,7 @@ static ABCC_CmdSeqCmdStatusType UpdateIpAddress( ABP_MsgType* psMsg, void* pxUse
    (void)pxUserData;
 
    if( ( !appl_fNwSupportsNodeId ) &&
+       ( !appl_fNwSupportsStationName ) &&
        ( appl_fSetAddr ) )
    {
       ABCC_SetMsgHeader( psMsg,
@@ -399,7 +424,13 @@ static ABCC_CmdSeqCmdStatusType UpdateIpAddress( ABP_MsgType* psMsg, void* pxUse
                          4,
                          ABCC_GetNewSourceId() );
 
+      ABCC_API_CbfGetNetworkIpAddress(
+        &appl_sIpSettings.sAddress.uValue.abValue[0], &appl_sIpSettings.sAddress.uValue.abValue[1],
+        &appl_sIpSettings.sAddress.uValue.abValue[2], &appl_sIpSettings.sAddress.uValue.abValue[3]);
+
       ABCC_SetMsgString( psMsg, (char*)appl_sIpSettings.sAddress.uValue.abValue, 4, 0 );
+
+      appl_iNwNodeAddress = appl_sIpSettings.sAddress.uValue.abValue[3];
 
       return( ABCC_CMDSEQ_CMD_SEND );
    }
@@ -419,6 +450,7 @@ static ABCC_CmdSeqCmdStatusType UpdateNetmask( ABP_MsgType* psMsg, void* pxUserD
    (void)pxUserData;
 
    if( ( !appl_fNwSupportsNodeId ) &&
+       ( !appl_fNwSupportsStationName ) &&
        ( appl_fSetAddr ) )
    {
       ABCC_SetMsgHeader( psMsg,
@@ -428,6 +460,10 @@ static ABCC_CmdSeqCmdStatusType UpdateNetmask( ABP_MsgType* psMsg, void* pxUserD
                          ABP_CMD_SET_ATTR,
                          4,
                          ABCC_GetNewSourceId() );
+
+      ABCC_API_CbfGetNetworkSubnetmask(
+        &appl_sIpSettings.sNetmask.uValue.abValue[0], &appl_sIpSettings.sNetmask.uValue.abValue[1],
+        &appl_sIpSettings.sNetmask.uValue.abValue[2], &appl_sIpSettings.sNetmask.uValue.abValue[3]);
 
       ABCC_SetMsgString( psMsg, (char*)appl_sIpSettings.sNetmask.uValue.abValue, 4, 0 );
 
@@ -449,6 +485,7 @@ static ABCC_CmdSeqCmdStatusType UpdateGateway( ABP_MsgType* psMsg, void* pxUserD
    (void)pxUserData;
 
    if( ( !appl_fNwSupportsNodeId ) &&
+       ( !appl_fNwSupportsStationName ) &&
        ( appl_fSetAddr ) )
    {
       ABCC_SetMsgHeader( psMsg,
@@ -458,6 +495,10 @@ static ABCC_CmdSeqCmdStatusType UpdateGateway( ABP_MsgType* psMsg, void* pxUserD
                          ABP_CMD_SET_ATTR,
                          4,
                          ABCC_GetNewSourceId() );
+
+      ABCC_API_CbfGetDefaultGateway(
+        &appl_sIpSettings.sGateway.uValue.abValue[0], &appl_sIpSettings.sGateway.uValue.abValue[1],
+        &appl_sIpSettings.sGateway.uValue.abValue[2], &appl_sIpSettings.sGateway.uValue.abValue[3]);
 
       ABCC_SetMsgString( psMsg, (char*)appl_sIpSettings.sGateway.uValue.abValue, 4, 0 );
 
@@ -479,12 +520,15 @@ static ABCC_CmdSeqCmdStatusType UpdateDhcp( ABP_MsgType* psMsg, void* pxUserData
    (void)pxUserData;
 
    if( ( appl_fNwSupportsDhcp ) &&
+       ( !appl_fNwSupportsStationName ) &&
        ( appl_fSetAddr ) )
    {
+      BOOL dhcpSetting = ABCC_API_CbfGetNetworkDhcpValue();
+
       ABCC_SetByteAttribute( psMsg, ABP_OBJ_NUM_NC,
                              appl_sIpSettings.sDhcp.iInstance,
                              ABP_NC_VAR_IA_VALUE,
-                             (UINT8)appl_sIpSettings.sDhcp.uValue.fValue,
+                             (UINT8)dhcpSetting,
                              ABCC_GetNewSourceId() );
 
       return( ABCC_CMDSEQ_CMD_SEND );
@@ -1234,6 +1278,20 @@ void ABCC_CbfUserInitReq( void )
    {
       appl_fNwSupportsNodeId = FALSE;
       appl_fNwSupportsDhcp = TRUE;
+   }
+
+   if( ( iNetworkType == ABP_NW_TYPE_PRT ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR ) ||
+       ( iNetworkType == ABP_NW_TYPE_PRT_2P ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR_FO ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR_IIOT ) ||
+       ( iNetworkType == ABP_NW_TYPE_PIR_FO_IIOT ) )
+   {
+    appl_fNwSupportsStationName = TRUE;
+   }
+   else
+   {
+    appl_fNwSupportsStationName = FALSE;
    }
 
    if( ( iNetworkType == ABP_NW_TYPE_DEV ) ||

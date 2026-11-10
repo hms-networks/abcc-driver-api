@@ -12,6 +12,7 @@ set(abcc_api_SRCS
    ${ABCC_API_DIR}/src/host_objects/application_data_object.c
    ${ABCC_API_DIR}/src/anybus_objects/anybus_file_system_interface_object.c
    ${ABCC_API_DIR}/src/anybus_objects/diagnostic_object.c
+   ${ABCC_API_DIR}/src/abcc_api_profinet_station_name.c
 )
 
 # Complete list of header (.h) files inside the Anybus CompactCom API. This is
@@ -26,6 +27,7 @@ set(abcc_api_INCS
    ${ABCC_API_DIR}/src/abcc_api_config.h
    ${ABCC_API_DIR}/src/abcc_api_command_handler.h
    ${ABCC_API_DIR}/src/host_objects/application_data_object.h
+   ${ABCC_API_DIR}/inc/abcc_api_profinet_station_name.h
 )
 
 # Check if ABCC_API_LIB_TYPE is not already defined. ABCC_API_LIB_TYPE can be set in a

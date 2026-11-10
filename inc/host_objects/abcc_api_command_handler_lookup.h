@@ -69,7 +69,7 @@
 #define ABCC_APPLICATION_OBJ_OA_RESET_REQUEST_CBFUNC      { .bObject = ABP_OBJ_NUM_APP, .bInstance = ABP_INST_OBJ,                                           .bCommand = ABP_APP_CMD_RESET_REQUEST,                                                                                       .uCbx.pnResetReqObj    = ABCC_CbfApplicationObj_ResetRequest }
 
 /* Attribute 1: Configured */
-#define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetUint32Attr  = ABCC_CbfApplicationObjConfigured_Get }
+#define ABCC_APPLICATION_OBJ_CONFIGURED_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_CONFIGURED,   .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BOOL8,                                                              .uCbx.pnGetBool8Attr   = ABCC_CbfApplicationObjConfigured_Get }
 
 /* Attribute 2: Supported languages */
 #define ABCC_APPLICATION_OBJ_SUP_LANG_GET_VALUE(x, y)     { .bObject = ABP_OBJ_NUM_APP, .bInstance = 0x01, .uCmdExt.bAttr = ABP_APP_IA_SUP_LANG,     .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_BUFFER, .uData.pacStringBuffer    = (x),                                                                                                 .uAttrLength.iDataSize = (y) }
@@ -280,15 +280,15 @@
 #if CIET_OBJ_ENABLE
 /* Attribute 1: Vendor Code (default = 0x0212) */
 #define ABCC_CIET_OBJ_VENDOR_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_VENDOR_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjVendorCode_Get } 
+#define ABCC_CIET_OBJ_VENDOR_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjVendorCode_Get }
 
 /* Attribute 2: Vendor Name */
 #define ABCC_CIET_OBJ_VENDOR_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
-#define ABCC_CIET_OBJ_VENDOR_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_VENDOR_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjVendorName_Get } 
+#define ABCC_CIET_OBJ_VENDOR_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_VENDOR_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_VENDOR_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjVendorName_Get }
 
 /* Attribute 3: Model Code (default = 0x0000 0003) */
 #define ABCC_CIET_OBJ_MODEL_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32 = (x) }
-#define ABCC_CIET_OBJ_MODEL_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfCCLinkIETObjModelCode_Get } 
+#define ABCC_CIET_OBJ_MODEL_CODE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT32, .uCbx.pnGetUint32Attr = ABCC_CbfCCLinkIETObjModelCode_Get }
 
 /* Attribute 4: Expansion Model Code (default = 0x0000) */
 #define ABCC_CIET_OBJ_EXPANSION_MODEL_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_EXPANSION_MODEL_CODE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x), }
@@ -296,19 +296,19 @@
 
 /* Attribute 5: Model Name (max. length: 19 characters) */
 #define ABCC_CIET_OBJ_MODEL_NAME_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
-#define ABCC_CIET_OBJ_MODEL_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_MODEL_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjModelName_Get } 
+#define ABCC_CIET_OBJ_MODEL_NAME_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_MODEL_NAME, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_MODEL_NAME_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjModelName_Get }
 
 /* Attribute 6: Device Type (default = 0x007F) */
 #define ABCC_CIET_OBJ_DEVICE_TYPE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceType_Get } 
+#define ABCC_CIET_OBJ_DEVICE_TYPE_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_TYPE, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceType_Get }
 
-/* Attribute 7: Device Version */
-#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x) }
-#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkIETObjDeviceVersion_Get } 
+/* Attribute 7: Device Version (default = 0x0000) */
+#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
+#define ABCC_CIET_OBJ_DEVICE_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_DEVICE_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjDeviceVersion_Get }
 
 /* Attribute 8: Firmware Version (default = 0x0000) */
 #define ABCC_CIET_OBJ_FW_VERSION_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_FW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uData.iUnsigned16 = (x) }
-#define ABCC_CIET_OBJ_FW_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_FW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjFWVersion_Get } 
+#define ABCC_CIET_OBJ_FW_VERSION_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_FW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT16, .uCbx.pnGetUint16Attr = ABCC_CbfCCLinkIETObjFWVersion_Get }
 
 /* Attribute 9: Hardware Version (default = 0x00) */
 #define ABCC_CIET_OBJ_HW_VERSION_CODE_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_HW_VERSION, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8 = (x), }
@@ -316,10 +316,10 @@
 
 /* Attribute 10: Serial Number (max. length: 32 bytes) */
 #define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_VALUE(x) { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uData.pacString = (x) }
-#define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_SERIAL_NUMBER_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjSerialNumber_Get } 
+#define ABCC_CIET_OBJ_SERIAL_NUMBER_GET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_SERIAL_NUMBER, .bCommand = ABP_CMD_GET_ATTR, .eServiceTag = SERVICE_STR, .uAttrLength.iMaxDataSize = ABP_CIET_IA_SERIAL_NUMBER_DS, .uCbx.pnGetStrAttr = ABCC_CbfCCLinkIETObjSerialNumber_Get }
 
 /* Attribute 11: Clock Offset */
-#define ABCC_CIET_OBJ_CLOCK_OFFSET_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_CLOCK_OFFSET, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CIET_IA_CLOCK_OFFSET_DS, .uCbx.pnSetArrAttr = ABCC_CbfCCLinkIETObjClockOffset_Set } 
+#define ABCC_CIET_OBJ_CLOCK_OFFSET_SET_CBFUNC   { .bObject = ABP_OBJ_NUM_CIET, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CIET_IA_CLOCK_OFFSET, .bCommand = ABP_CMD_SET_ATTR, .eServiceTag = SERVICE_BUFFER, .uAttrLength.iDataSize = ABP_CIET_IA_CLOCK_OFFSET_DS, .uCbx.pnSetArrAttr = ABCC_CbfCCLinkIETObjClockOffset_Set }
 #endif
 
 /*------------------------------------------------------------------------------
@@ -351,7 +351,7 @@
 
 /* Attribute 5: Serial number */
 #define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32, .uData.lUnsigned32        = (x) }
-#define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNmber_Get }
+#define ABCC_ETHERCAT_OBJ_SERIAL_NUM_GET_CBFUNC       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_SERIAL_NUMBER,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT32,                                                             .uCbx.pnGetUint32Attr  = ABCC_CbfEtherCATObjSerialNumber_Get }
 
 /* Attribute 6: Manufacturer Device Name (max. length: 64 bytes) */
 #define ABCC_ETHERCAT_OBJ_DEVICE_NAME_GET_VALUE(x)       { .bObject = ABP_OBJ_NUM_ECT, .bInstance = 0x01, .uCmdExt.bAttr = ABP_ECT_IA_MANF_DEV_NAME,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_STR,    .uData.pacString      = (x) }
@@ -1352,7 +1352,7 @@ UINT16 ABCC_CbfCCLinkIETObjDeviceType_Get( void );
 **       Device Version of the device.
 **------------------------------------------------------------------------------
 */
-UINT8 ABCC_CbfCCLinkIETObjDeviceVersion_Get( void );
+UINT16 ABCC_CbfCCLinkIETObjDeviceVersion_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the Firmware Version to the CompactCom.
@@ -1396,7 +1396,7 @@ UINT16 ABCC_CbfCCLinkIETObjSerialNumber_Get( char* pcPackedStrDest, UINT16 iBuff
 **------------------------------------------------------------------------------
 ** Arguments:
 **       pvPackedArrSrc  - Pointer to buffer containing a packed struct of
-**                        1 x SINT64, 1 x SINT32, 1 x SINT16, 1 x SINT16
+**                         1 x SINT64, 1 x SINT32, 1 x SINT16, 1 x SINT16
 **       iSizeBytes - Size of the buffer in bytes, 16 in this case.
 **
 ** Returns:
@@ -1419,7 +1419,7 @@ void ABCC_CbfCCLinkIETObjClockOffset_Set( void* pvPackedArrSrc, UINT16 iSizeByte
 **       Serial number of the device.
 **------------------------------------------------------------------------------
 */
-UINT32 ABCC_CbfEtherCATObjSerialNmber_Get( void );
+UINT32 ABCC_CbfEtherCATObjSerialNumber_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to state whether the file over EtherCAT (FoE) is enabled or
@@ -1685,7 +1685,7 @@ UINT16 ABCC_CbfProfinetIoObjStationType_Get( char* pcPackedStrDest, UINT16 iBuff
 **       Note: With S2 redundancy enabled, the minimum number of ARs is 2.
 **------------------------------------------------------------------------------
 */
-UINT16 ABCC_CbfProfinetIoObjMaxAr_Get( void );
+UINT32 ABCC_CbfProfinetIoObjMaxAr_Get( void );
 
 /*------------------------------------------------------------------------------
 ** Callback function to retrieve the PROFINET Order ID to the CompactCom.

@@ -108,7 +108,7 @@ ad_MapType;
 /*------------------------------------------------------------------------------
 ** Type with mapping information for a specific direction (read/write).
 **------------------------------------------------------------------------------
-** paiMappedAdiList    - Pointer to list of all mapped items.
+** pasMappedAdiList    - Pointer to list of all mapped items.
 ** iNumMappedAdi       - Number of mapped ADI:s
 ** iMaxNumMappedAdi    - Maximum number of mapped ADI:s.
 ** iPdSize             - Current process data size in octets.
@@ -116,7 +116,7 @@ ad_MapType;
 */
 typedef struct ad_MapInfo
 {
-   ad_MapType*   paiMappedAdiList;
+   ad_MapType*   pasMappedAdiList;
    UINT16        iNumMappedAdi;
    UINT16        iMaxNumMappedAdi;
    UINT16        iPdSize;
@@ -203,7 +203,7 @@ while( 0 )
 
 #if !AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL
 /*------------------------------------------------------------------------------
-** Copies a 16 bit values from a source to a destination. Each value will be
+** Copies a 16 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -234,7 +234,7 @@ static void Copy16WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
 }
 
 /*------------------------------------------------------------------------------
-** Copies a 32 bit values from a source to a destination. Each value will be
+** Copies a 32 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -266,7 +266,7 @@ static void Copy32WithEndianSwap( void* pxDest, UINT16 iDestOctetOffset,
 
 
 /*------------------------------------------------------------------------------
-** Copies a 64 bit values from a source to a destination. Each value will be
+** Copies a 64 bit value from a source to a destination. Each value will be
 ** endian swapped. The function support octet alignment.
 **------------------------------------------------------------------------------
 ** Arguments:
@@ -382,7 +382,7 @@ static void UpdateMapSize( ad_MapInfoType* psMap )
    psMap->iPdSize = 0;
    for( iMapIndex = 0; iMapIndex < psMap->iNumMappedAdi; iMapIndex++ )
    {
-      iAdiIndex = psMap->paiMappedAdiList[ iMapIndex ].iAdiIndex;
+      iAdiIndex = psMap->pasMappedAdiList[ iMapIndex ].iAdiIndex;
 
       if( iAdiIndex != AD_MAP_PAD_INDEX )
       {
@@ -400,12 +400,12 @@ static void UpdateMapSize( ad_MapInfoType* psMap )
 
          psMap->iPdSize +=
             GetAdiSizeInBits( &ad_asADIEntryList[ iAdiIndex ],
-                                 psMap->paiMappedAdiList[ iMapIndex ].bNumElements,
-                                 psMap->paiMappedAdiList[ iMapIndex ].bStartIndex );
+                                 psMap->pasMappedAdiList[ iMapIndex ].bNumElements,
+                                 psMap->pasMappedAdiList[ iMapIndex ].bStartIndex );
       }
       else
       {
-         psMap->iPdSize += psMap->paiMappedAdiList[ iMapIndex ].bNumElements;
+         psMap->iPdSize += psMap->pasMappedAdiList[ iMapIndex ].bNumElements;
       }
    }
    psMap->iPdSize = SizeInOctets( 0, psMap->iPdSize );
@@ -700,16 +700,16 @@ static void RemapProcessDataCommand( ABP_MsgType* psMsg,
          {
             for( iIndex = 0; iIndex < iItemsToMove; iIndex++ )
             {
-               psCurrMap->paiMappedAdiList[ iMoveTo + iIndex ] =
-                  psCurrMap->paiMappedAdiList[ iMoveFrom + iIndex ];
+               psCurrMap->pasMappedAdiList[ iMoveTo + iIndex ] =
+                  psCurrMap->pasMappedAdiList[ iMoveFrom + iIndex ];
             }
          }
          else
          {
             for( iIndex = iItemsToMove; iIndex > 0; iIndex-- )
             {
-               psCurrMap->paiMappedAdiList[ iMoveTo + iIndex - 1 ] =
-                  psCurrMap->paiMappedAdiList[ iMoveFrom + iIndex - 1 ];
+               psCurrMap->pasMappedAdiList[ iMoveTo + iIndex - 1 ] =
+                  psCurrMap->pasMappedAdiList[ iMoveFrom + iIndex - 1 ];
             }
          }
       }
@@ -722,10 +722,10 @@ static void RemapProcessDataCommand( ABP_MsgType* psMsg,
       for( iAddItemIndex = 0; iAddItemIndex < iItemsToAdd; iAddItemIndex++ )
       {
          ABCC_GetMsgData16( psMsg, &iAdi, iMsgIndex );
-         psCurrMap->paiMappedAdiList[ iMapIndex ].iAdiIndex = GetAdiIndex( iAdi );
+         psCurrMap->pasMappedAdiList[ iMapIndex ].iAdiIndex = GetAdiIndex( iAdi );
          iMsgIndex += 2;
-         ABCC_GetMsgData8( psMsg, &psCurrMap->paiMappedAdiList[ iMapIndex ].bStartIndex, iMsgIndex++ );
-         ABCC_GetMsgData8( psMsg, &psCurrMap->paiMappedAdiList[ iMapIndex ].bNumElements, iMsgIndex++ );
+         ABCC_GetMsgData8( psMsg, &psCurrMap->pasMappedAdiList[ iMapIndex ].bStartIndex, iMsgIndex++ );
+         ABCC_GetMsgData8( psMsg, &psCurrMap->pasMappedAdiList[ iMapIndex ].bNumElements, iMsgIndex++ );
          iMapIndex++;
       }
 
@@ -1199,6 +1199,7 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
    case ABP_UINT8:
    case ABP_ENUM:
    case ABP_OCTET:
+   {
 #ifdef ABCC_SYS_16_BIT_CHAR
       /*
       ** Clear msb
@@ -1214,8 +1215,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT8:
+   {
 #ifdef ABCC_SYS_16_BIT_CHAR
       if( puValue->bSigned & 0x0080 )
       {
@@ -1241,8 +1244,11 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
+
 
    case ABP_UINT16:
+   {
       if( puValue->iUnsigned < puProp->sPropUint16.iMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1252,8 +1258,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT16:
+   {
       if( puValue->iSigned < puProp->sPropInt16.iMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1263,8 +1271,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_UINT32:
+   {
       if( puValue->lUnsigned < puProp->sPropUint32.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1274,8 +1284,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT32:
+   {
       if( puValue->lSigned < puProp->sPropInt32.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1285,8 +1297,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_FLOAT:
+   {
       if( puValue->rFloat < puProp->sPropFloat32.rMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1296,9 +1310,11 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 #if( ABCC_CFG_DOUBLE_ADI_SUPPORT_ENABLED )
    case ABP_DOUBLE:
+   {
       if( puValue->dDouble < puProp->sPropFloat64.dMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1308,10 +1324,12 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 #endif
 #if( ABCC_CFG_64BIT_ADI_SUPPORT_ENABLED )
    case ABP_UINT64:
+   {
       if( puValue->l64Unsigned < puProp->sPropUint64.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1321,8 +1339,10 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
    case ABP_SINT64:
+   {
       if( puValue->l64Signed < puProp->sPropInt64.lMinMaxDefault[ AD_MIN_VALUE_INDEX ] )
       {
          bErrCode = ABP_ERR_VAL_TOO_LOW;
@@ -1332,6 +1352,7 @@ static UINT8 checkMinMax( ad_AllDataType* puValue,
          bErrCode = ABP_ERR_VAL_TOO_HIGH;
       }
       break;
+   }
 
 #endif
    case ABP_CHAR:
@@ -1725,38 +1746,38 @@ static void WriteBufferFromPdMap( void* pxDstPdDataBuf,
                                   ad_MapInfoType* pasPdMap )
 {
    UINT16 iIndex;
-   const ad_MapType* paiPdMap = pasPdMap->paiMappedAdiList;
+   const ad_MapType* psPdMap = pasPdMap->pasMappedAdiList;
 
-   if( paiPdMap )
+   if( psPdMap )
    {
       for( iIndex = 0; iIndex < pasPdMap->iNumMappedAdi; iIndex++ )
       {
-         if( paiPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
+         if( psPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
          {
-            if( paiPdMap->iAdiIndex >= ad_iNumOfADIs )
+            if( psPdMap->iAdiIndex >= ad_iNumOfADIs )
             {
                /*
                ** Pull the plug! The data in these tables should already have
                ** been checked and should be OK!
                */
                ABCC_LOG_FATAL( ABCC_EC_ERROR_IN_PD_MAP_CONFIG,
-                  (UINT32)paiPdMap->iAdiIndex,
+                  (UINT32)psPdMap->iAdiIndex,
                   "Error in PD map configuration, ADI index out of range (%" PRIu16 ")\n",
-                  paiPdMap->iAdiIndex );
+                  psPdMap->iAdiIndex );
             }
-            AD_GetAdiValue( &ad_asADIEntryList[ paiPdMap->iAdiIndex ],
+            AD_GetAdiValue( &ad_asADIEntryList[ psPdMap->iAdiIndex ],
                             pxDstPdDataBuf,
-                            paiPdMap->bNumElements,
-                            paiPdMap->bStartIndex,
+                            psPdMap->bNumElements,
+                            psPdMap->bStartIndex,
                             piPdBitOffset,
                             FALSE );
          }
          else
          {
-            *piPdBitOffset += paiPdMap->bNumElements;
+            *piPdBitOffset += psPdMap->bNumElements;
          }
 
-         paiPdMap++;
+         psPdMap++;
       }
    }
 }
@@ -1780,38 +1801,38 @@ static void WritePdMapFromBuffer( const ad_MapInfoType* pasPdMap,
                                   UINT16* piPdBitOffset )
 {
    UINT16 iIndex;
-   const ad_MapType* paiPdMap = pasPdMap->paiMappedAdiList;
+   const ad_MapType* psPdMap = pasPdMap->pasMappedAdiList;
 
-   if( paiPdMap )
+   if( psPdMap )
    {
       for( iIndex = 0; iIndex < pasPdMap->iNumMappedAdi; iIndex++ )
       {
-         if( paiPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
+         if( psPdMap->iAdiIndex != AD_MAP_PAD_INDEX )
          {
-            if( paiPdMap->iAdiIndex >= ad_iNumOfADIs )
+            if( psPdMap->iAdiIndex >= ad_iNumOfADIs )
             {
                /*
                ** Pull the plug! The data in these tables should already have
                ** been checked and should be OK!
                */
                ABCC_LOG_FATAL( ABCC_EC_ERROR_IN_READ_MAP_CONFIG,
-                  (UINT32)paiPdMap->iAdiIndex,
+                  (UINT32)psPdMap->iAdiIndex,
                   "Error in read map configuration, ADI index out of range (%" PRIu16 ")\n",
-                  paiPdMap->iAdiIndex );
+                  psPdMap->iAdiIndex );
             }
-            SetAdiValue( &ad_asADIEntryList[ paiPdMap->iAdiIndex ],
+            SetAdiValue( &ad_asADIEntryList[ psPdMap->iAdiIndex ],
                          pxSrcPdDataBuf,
-                         paiPdMap->bNumElements,
-                         paiPdMap->bStartIndex,
+                         psPdMap->bNumElements,
+                         psPdMap->bStartIndex,
                          piPdBitOffset,
                          FALSE );
          }
          else
          {
-            *piPdBitOffset += paiPdMap->bNumElements;
+            *piPdBitOffset += psPdMap->bNumElements;
          }
 
-         paiPdMap++;
+         psPdMap++;
       }
    }
 }
@@ -1833,12 +1854,12 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
    ad_iNumOfADIs =  iNumAdi;
    ad_iHighestInstanceNumber = 0;
 
-   ad_ReadMapInfo.paiMappedAdiList = ad_PdReadMapping;
+   ad_ReadMapInfo.pasMappedAdiList = ad_PdReadMapping;
    ad_ReadMapInfo.iPdSize = 0;
    ad_ReadMapInfo.iNumMappedAdi = 0;
    ad_ReadMapInfo.iMaxNumMappedAdi = AD_MAX_NUM_READ_MAP_ENTRIES;
 
-   ad_WriteMapInfo.paiMappedAdiList = ad_PdWriteMapping;
+   ad_WriteMapInfo.pasMappedAdiList = ad_PdWriteMapping;
    ad_WriteMapInfo.iPdSize = 0;
    ad_WriteMapInfo.iNumMappedAdi = 0;
    ad_WriteMapInfo.iMaxNumMappedAdi = AD_MAX_NUM_WRITE_MAP_ENTRIES;
@@ -1883,9 +1904,9 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
                return( ABCC_EC_ERROR_IN_PD_MAP_CONFIG );
             }
 
-            ad_ReadMapInfo.paiMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
-            ad_ReadMapInfo.paiMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
-            ad_ReadMapInfo.paiMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
+            ad_ReadMapInfo.pasMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
+            ad_ReadMapInfo.pasMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
+            ad_ReadMapInfo.pasMappedAdiList[ ad_ReadMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
             ad_ReadMapInfo.iNumMappedAdi++;
          }
          else
@@ -1900,9 +1921,9 @@ EXTFUNC ABCC_ErrorCodeType AD_Init( const AD_AdiEntryType* psAdiEntry,
                return( ABCC_EC_ERROR_IN_PD_MAP_CONFIG );
             }
 
-            ad_WriteMapInfo.paiMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
-            ad_WriteMapInfo.paiMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
-            ad_WriteMapInfo.paiMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
+            ad_WriteMapInfo.pasMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bNumElements = bNumElem;
+            ad_WriteMapInfo.pasMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].bStartIndex = bElemStartIndex;
+            ad_WriteMapInfo.pasMappedAdiList[ ad_WriteMapInfo.iNumMappedAdi ].iAdiIndex = iAdiIndex;
             ad_WriteMapInfo.iNumMappedAdi++;
          }
          iMapIndex++;
@@ -2046,7 +2067,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
    iDataSize = 0;
    bErrCode = ABP_ERR_NO_ERROR;
 
-   if( iLeTOi( psMsgBuffer->sHeader.iInstance ) == ABP_INST_OBJ )
+   if( ABCC_GetMsgInstance( psMsgBuffer ) == ABP_INST_OBJ )
    {
       /*
       ** A request to the object instance.
@@ -2054,6 +2075,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
       switch( ABCC_GetMsgCmdBits( psMsgBuffer ) )
       {
       case ABP_CMD_GET_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
          case ABP_OA_NAME:
@@ -2077,55 +2099,55 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
 
          case ABP_APPD_OA_NR_READ_PD_MAPPABLE_INSTANCES:
-            {
-               UINT16 iIndex;
-               UINT16 iCnt = 0;
+         {
+            UINT16 iIndex;
+            UINT16 iCnt = 0;
 
-               for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            {
+               if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD )
                {
-                  if( ad_asADIEntryList[iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_READ_PD )
-                  {
-                     iCnt++;
-                  }
+                  iCnt++;
                }
-               ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
-               iDataSize = ABP_UINT16_SIZEOF;
             }
+            ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
+            iDataSize = ABP_UINT16_SIZEOF;
             break;
+         }
 
          case ABP_APPD_OA_NR_WRITE_PD_MAPPABLE_INSTANCES:
-            {
-               UINT16 iIndex;
-               UINT16 iCnt = 0;
+         {
+            UINT16 iIndex;
+            UINT16 iCnt = 0;
 
-               for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            {
+               if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD )
                {
-                  if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_MAPPABLE_WRITE_PD )
-                  {
-                     iCnt++;
-                  }
+                  iCnt++;
                }
-               ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
-               iDataSize = ABP_UINT16_SIZEOF;
             }
+            ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
+            iDataSize = ABP_UINT16_SIZEOF;
             break;
+         }
 
          case ABP_APPD_OA_NR_NV_INSTANCES:
-            {
-               UINT16 iIndex;
-               UINT16 iCnt = 0;
+         {
+            UINT16 iIndex;
+            UINT16 iCnt = 0;
 
-               for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            for( iIndex = 0; iIndex < ad_iNumOfADIs; iIndex++ )
+            {
+               if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_NVS_PARAMETER )
                {
-                  if( ad_asADIEntryList[ iIndex ].bDesc & ABP_APPD_DESCR_NVS_PARAMETER )
-                  {
-                     iCnt++;
-                  }
+                  iCnt++;
                }
-               ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
-               iDataSize = ABP_UINT16_SIZEOF;
             }
+            ABCC_SetMsgData16( psMsgBuffer, iCnt, 0 );
+            iDataSize = ABP_UINT16_SIZEOF;
             break;
+         }
 
          default:
             /*
@@ -2135,8 +2157,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
 
       case ABP_APPD_CMD_GET_INST_BY_ORDER:
+      {
          iTemp = ABCC_GetMsgCmdExt( psMsgBuffer );
 
          if( ( iTemp == 0 ) ||
@@ -2155,6 +2179,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             iDataSize = ABP_UINT16_SIZEOF;
          }
          break;
+      }
 
 #if( ABCC_CFG_REMAP_SUPPORT_ENABLED )
       case ABP_APPD_REMAP_ADI_WRITE_AREA:
@@ -2202,6 +2227,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             bErrCode = ABP_ERR_INV_CMD_EXT_1;
             break;
          }
+
          if( bErrCode != ABP_ERR_NO_ERROR )
          {
             break;
@@ -2261,15 +2287,17 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
       switch( ABCC_GetMsgCmdBits( psMsgBuffer ) )
       {
       case ABP_CMD_GET_ATTR:
+      {
          /*
          ** Switch on attribute.
          */
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
          case ABP_APPD_IA_NAME:
+         {
             if( psAdiEntry->pacName )
             {
-               iDataSize = (UINT16)strlen( psAdiEntry->pacName );
+               iDataSize = (UINT16) strlen( psAdiEntry->pacName );
                ABCC_SetMsgString( psMsgBuffer,
                                   psAdiEntry->pacName, iDataSize, 0 );
             }
@@ -2278,8 +2306,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = 0;
             }
             break;
+         }
 
          case ABP_APPD_IA_DATA_TYPE:
+         {
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             if( psAdiEntry->psStruct != NULL )
             {
@@ -2299,6 +2329,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = ABP_APPD_IA_DATA_TYPE_DS;
             }
             break;
+         }
 
          case ABP_APPD_IA_NUM_ELEM:
             ABCC_SetMsgData8( psMsgBuffer, psAdiEntry->bNumOfElements, 0 );
@@ -2306,6 +2337,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
 
          case ABP_APPD_IA_DESCRIPTOR:
+         {
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             if( psAdiEntry->psStruct != NULL )
             {
@@ -2325,8 +2357,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                iDataSize = ABP_APPD_IA_DESCRIPTOR_DS;
             }
             break;
+         }
 
          case ABP_APPD_IA_VALUE: /* Value. */
+         {
             if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
@@ -2348,30 +2382,42 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                             &iMsgBitOffset, TRUE );
             iDataSize = SizeInOctets( 0, iMsgBitOffset );
             break;
+         }
+
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
          case ABP_APPD_IA_MAX_VALUE:
+         {
             bErrCode = GetMinMaxDefault( psAdiEntry,
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_MAX_VALUE_INDEX,
                                          &iDataSize );
             iDataSize = SizeInOctets( 0, iDataSize );
             break;
+         }
+
          case ABP_APPD_IA_MIN_VALUE:
+         {
             bErrCode = GetMinMaxDefault( psAdiEntry,
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_MIN_VALUE_INDEX,
                                          &iDataSize );
             iDataSize = SizeInOctets( 0, iDataSize );
             break;
+         }
+
          case ABP_APPD_IA_DFLT_VALUE:
+         {
             bErrCode = GetMinMaxDefault( psAdiEntry,
                                          ABCC_GetMsgDataPtr( psMsgBuffer ),
                                          AD_DEFAULT_VALUE_INDEX,
                                          &iDataSize );
             iDataSize = SizeInOctets( 0, iDataSize );
             break;
+         }
 #endif
+
          case ABP_APPD_IA_NUM_SUB_ELEM:
+         {
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
             if( psAdiEntry->psStruct != NULL )
             {
@@ -2391,9 +2437,11 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                bErrCode = ABP_ERR_INV_CMD_EXT_0;
             }
             break;
+         }
 
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
          case ABP_APPD_IA_ELEM_NAME:
+         {
             if( psAdiEntry->psStruct != NULL )
             {
                UINT16 i;
@@ -2433,6 +2481,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
 
             break;
+         }
 #endif
 
          default:
@@ -2443,7 +2492,9 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
       case ABP_CMD_SET_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
          case ABP_APPD_IA_NAME:
@@ -2458,7 +2509,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
 
          case ABP_APPD_IA_VALUE:
-
+         {
             if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
             {
                bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
@@ -2469,12 +2520,12 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             ** Check the length of each array.
             */
             iItemSize = GetAdiSizeInOctets( psAdiEntry );
-            if( iLeTOi( psMsgBuffer->sHeader.iDataSize ) > iItemSize )
+            if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
             {
                bErrCode = ABP_ERR_TOO_MUCH_DATA;
                break;
             }
-            else if( iLeTOi( psMsgBuffer->sHeader.iDataSize ) < iItemSize )
+            else if( ABCC_GetMsgDataSize( psMsgBuffer ) < iItemSize )
             {
                bErrCode = ABP_ERR_NOT_ENOUGH_DATA;
                break;
@@ -2496,7 +2547,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
                   bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
                                                                    psAdiEntry->bNumOfElements,
                                                                    0,
-                                                                   iLeTOi( psMsgBuffer->sHeader.iDataSize ),
+                                                                   ABCC_GetMsgDataSize( psMsgBuffer ),
                                                                    ABCC_GetMsgDataPtr( psMsgBuffer ) );
                }
                else
@@ -2513,6 +2564,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
 
             break;
+         }
 
          default:
             /*
@@ -2522,9 +2574,10 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
 
       case ABP_CMD_GET_ENUM_STR:
-
+      {
          if( ( ABCC_GetMsgCmdExt0( psMsgBuffer ) == ABP_APPD_IA_VALUE ) &&
              ( psAdiEntry->bDataType == ABP_ENUM ) )
          {
@@ -2544,22 +2597,22 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             }
             else
             {
-               UINT8 bStringIndex;
+               UINT16 iStringIndex;
 
-               for( bStringIndex = 0; bStringIndex < psAdiEntry->uData.sENUM.psValueProps->bNumOfEnumStrings; bStringIndex++ )
+               for( iStringIndex = 0; iStringIndex < psAdiEntry->uData.sENUM.psValueProps->iNumOfEnumStrings; iStringIndex++ )
                {
-                  if( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].eValue ==
+                  if( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].bValue ==
                       ABCC_GetMsgCmdExt1( psMsgBuffer ) )
                   {
                      break;
                   }
                }
 
-               if( bStringIndex < psAdiEntry->uData.sENUM.psValueProps->bNumOfEnumStrings )
+               if( iStringIndex < psAdiEntry->uData.sENUM.psValueProps->iNumOfEnumStrings )
                {
-                  iDataSize = (UINT16)strlen( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].acEnumStr );
+                  iDataSize = (UINT16)strlen( psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].acEnumStr );
                   ABCC_SetMsgString( psMsgBuffer,
-                                     psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ bStringIndex ].acEnumStr,
+                                     psAdiEntry->uData.sENUM.psValueProps->pasEnumStrings[ iStringIndex ].acEnumStr,
                                      iDataSize, 0 );
                }
                else
@@ -2580,63 +2633,78 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             bErrCode = ABP_ERR_INV_CMD_EXT_0;
          }
          break;
+      }
 
       case ABP_CMD_GET_INDEXED_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
-            case ABP_APPD_IA_VALUE:
-               if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
-               {
-                  bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
-                  break;
-               }
-#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
-               else if( ( psAdiEntry->psStruct != NULL ) &&
-                          !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                   ABP_APPD_DESCR_GET_ACCESS ) )
-               {
-                  bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
-                  break;
-               }
-#endif
-               else
-               {
-                  AD_GetAdiValue( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
-                                  1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                  &iMsgBitOffset, TRUE );
-
-                  iDataSize = SizeInOctets( 0, iMsgBitOffset );
-
-                  if( iDataSize == 0 )
-                  {
-                     bErrCode = ABP_ERR_OUT_OF_RANGE;
-                  }
-               }
-            break;
-
-#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
-            case ABP_APPD_IA_ELEM_NAME:
-               if( ( psAdiEntry->psStruct != NULL ) &&
-                   ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
-               {
-                  if( ABCC_GetMsgCmdExt1( psMsgBuffer ) < psAdiEntry->bNumOfElements )
-                  {
-                     ABCC_SetMsgString( psMsgBuffer,
-                                        psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
-                                        (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
-                                        0 );
-                     iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
-                  }
-                  else
-                  {
-                     bErrCode = ABP_ERR_INV_CMD_EXT_1;
-                  }
-               }
-               else
-               {
-                  bErrCode = ABP_ERR_INV_CMD_EXT_0;
-               }
+         case ABP_APPD_IA_VALUE:
+         {
+            if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_GET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
                break;
+            }
+            else if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( psAdiEntry->bDataType == ABP_CHAR )
+            {
+               /* This command cannot be used for CHAR arrays. */
+               bErrCode = ABP_ERR_GENERAL_ERROR;
+               break;
+            }
+#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                       !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
+                                                ABP_APPD_DESCR_GET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_GETABLE;
+               break;
+            }
+#endif
+            else
+            {
+               AD_GetAdiValue( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
+                               1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
+                               &iMsgBitOffset, TRUE );
+
+               iDataSize = SizeInOctets( 0, iMsgBitOffset );
+
+               if( iDataSize == 0 )
+               {
+                  bErrCode = ABP_ERR_OUT_OF_RANGE;
+               }
+            }
+            break;
+         }
+
+#if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
+         case ABP_APPD_IA_ELEM_NAME:
+         {
+            if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                     ( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName != NULL ) )
+            {
+               ABCC_SetMsgString( psMsgBuffer,
+                                  psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName,
+                                  (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName ),
+                                  0 );
+               iDataSize = (UINT16)strlen( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].pacElementName );
+            }
+            else
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_0;
+            }
+            break;
+         }
 #endif
 
          default:
@@ -2644,79 +2712,96 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
             break;
          }
          break;
+      }
+
       case ABP_CMD_SET_INDEXED_ATTR:
+      {
          switch( ABCC_GetMsgCmdExt0( psMsgBuffer ) )
          {
-            case ABP_APPD_IA_VALUE:
-               if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
-               {
-                  bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
-                  break;
-               }
+         case ABP_APPD_IA_VALUE:
+         {
+            if( !( psAdiEntry->bDesc & ABP_APPD_DESCR_SET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+               break;
+            }
+            else if( ABCC_GetMsgCmdExt1( psMsgBuffer ) >= psAdiEntry->bNumOfElements )
+            {
+               bErrCode = ABP_ERR_INV_CMD_EXT_1;
+               break;
+            }
+            else if( psAdiEntry->bDataType == ABP_CHAR )
+            {
+               /* This command cannot be used for CHAR arrays. */
+               bErrCode = ABP_ERR_GENERAL_ERROR; 
+               break;
+            }
 #if( ABCC_CFG_STRUCT_DATA_TYPE_ENABLED )
-               else if( ( psAdiEntry->psStruct != NULL ) &&
-                        !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
-                                                 ABP_APPD_DESCR_SET_ACCESS ) )
+            else if( ( psAdiEntry->psStruct != NULL ) &&
+                     !( psAdiEntry->psStruct[ ABCC_GetMsgCmdExt1( psMsgBuffer ) ].bDesc &
+                                              ABP_APPD_DESCR_SET_ACCESS ) )
+            {
+               bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+               break;
+            }
+#endif
+            else
+            {
+               iItemSize = ( GetAdiSizeInBits( psAdiEntry, 1, ABCC_GetMsgCmdExt1( psMsgBuffer ) ) + 7 ) / 8;
+
+               if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
                {
-                  bErrCode = ABP_ERR_ATTR_NOT_SETABLE;
+                  bErrCode = ABP_ERR_TOO_MUCH_DATA;
                   break;
                }
-#endif
-               else
+               else if( ABCC_GetMsgDataSize( psMsgBuffer ) < iItemSize )
                {
-                  iItemSize = ( GetAdiSizeInBits( psAdiEntry, 1, ABCC_GetMsgCmdExt1( psMsgBuffer ) ) + 7 ) / 8;
-
-                  if( ABCC_GetMsgDataSize( psMsgBuffer ) > iItemSize )
-                  {
-                     bErrCode = ABP_ERR_TOO_MUCH_DATA;
-                     break;
-                  }
-                  else if( ABCC_GetMsgDataSize( psMsgBuffer ) < iItemSize )
-                  {
-                     bErrCode = ABP_ERR_NOT_ENOUGH_DATA;
-                     break;
-                  }
+                  bErrCode = ABP_ERR_NOT_ENOUGH_DATA;
+                  break;
+               }
 
 #if( AD_IA_MIN_MAX_DEFAULT_ENABLE )
    #if !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 
-                  bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
-                                          ABCC_GetMsgCmdExt1( psMsgBuffer ) );
+               bErrCode = VerifyRange( psAdiEntry, ABCC_GetMsgDataPtr( psMsgBuffer ),
+                                       ABCC_GetMsgCmdExt1( psMsgBuffer ) );
 
    #endif // !( AD_CFG_DISABLE_ADI_BYTE_SWAP_MESSAGE || AD_CFG_DISABLE_ADI_BYTE_SWAP_TOTAL )
 #endif
-                  if( bErrCode == ABP_ERR_NO_ERROR )
-                  {
+               if( bErrCode == ABP_ERR_NO_ERROR )
+               {
 #if( ABCC_CFG_ADI_TRANS_SET_CALLBACK_ENABLED )
-                     if( psAdiEntry->pnSetAdiValueTransparent != NULL )
-                     {
-                        bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
-                                                                         1,
-                                                                         ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                                                         iLeTOi( psMsgBuffer->sHeader.iDataSize ),
-                                                                         ABCC_GetMsgDataPtr( psMsgBuffer ) );
-                     }
-                     else
+                  if( psAdiEntry->pnSetAdiValueTransparent != NULL )
+                  {
+                     bErrCode = psAdiEntry->pnSetAdiValueTransparent( psAdiEntry,
+                                                                      1,
+                                                                      ABCC_GetMsgCmdExt1( psMsgBuffer ),
+                                                                      ABCC_GetMsgDataSize( psMsgBuffer ),
+                                                                      ABCC_GetMsgDataPtr( psMsgBuffer ) );
+                  }
+                  else
 #endif
-                     {
-                        SetAdiValue( psAdiEntry,
-                                     ABCC_GetMsgDataPtr( psMsgBuffer ),
-                                     1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
-                                     &iMsgBitOffset, TRUE );
-                        /*
-                        ** Success.
-                        */
-                        iDataSize = 0;
-                     }
+                  {
+                     SetAdiValue( psAdiEntry,
+                                  ABCC_GetMsgDataPtr( psMsgBuffer ),
+                                  1, ABCC_GetMsgCmdExt1( psMsgBuffer ),
+                                  &iMsgBitOffset, TRUE );
+                     /*
+                     ** Success.
+                     */
+                     iDataSize = 0;
                   }
                }
-               break;
+            }
+            break;
+         }
 
          default:
             bErrCode =  ABP_ERR_UNSUP_CMD;
             break;
          }
          break;
+      }
 
       default:
          /*
@@ -2754,7 +2839,7 @@ void AD_ProcObjectRequest( ABP_MsgType* psMsgBuffer )
 
 void AD_UpdatePdReadData( void* pxPdDataBuf )
 {
-   if( ad_ReadMapInfo.paiMappedAdiList )
+   if( ad_ReadMapInfo.iNumMappedAdi )
    {
       UINT16 iBitOffset = 0;
 
@@ -2766,7 +2851,7 @@ void AD_UpdatePdReadData( void* pxPdDataBuf )
 
 BOOL AD_UpdatePdWriteData( void* pxPdDataBuf )
 {
-   if( ad_WriteMapInfo.paiMappedAdiList )
+   if( ad_WriteMapInfo.iNumMappedAdi )
    {
       UINT16 iBitOffset = 0;
 
@@ -2827,7 +2912,7 @@ void AD_WriteBufferFromPdMap( void* pxDstPdDataBuf,
          }
 
          asPdMap.iAdiIndex = iAdiIndex;
-         sMapInfo.paiMappedAdiList = &asPdMap;
+         sMapInfo.pasMappedAdiList = &asPdMap;
 
          WriteBufferFromPdMap( pxDstPdDataBuf,
                                &iBitOffset,
@@ -2885,7 +2970,7 @@ void AD_WritePdMapFromBuffer( const AD_MapType* pasMap,
          }
 
          asPdMap.iAdiIndex = iAdiIndex;
-         sMapInfo.paiMappedAdiList = &asPdMap;
+         sMapInfo.pasMappedAdiList = &asPdMap;
 
          WritePdMapFromBuffer( &sMapInfo,
                                pxSrcPdDataBuf,
@@ -2917,6 +3002,7 @@ UINT16 AD_AdiMappingReq( const AD_AdiEntryType** ppsAdiEntry,
    return( ad_iNumOfADIs );
 }
 
+#if( ABCC_CFG_REMAP_SUPPORT_ENABLED )
 void AD_RemapDone( void )
 {
    /*
@@ -2925,6 +3011,7 @@ void AD_RemapDone( void )
    */
    ABCC_TriggerWrPdUpdate();
 }
+#endif
 
 void AD_GetAdiValue( const AD_AdiEntryType* psAdiEntry,
                      void* pxDest,

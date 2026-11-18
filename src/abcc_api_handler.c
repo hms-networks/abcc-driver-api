@@ -66,25 +66,33 @@ typedef struct
 appl_IpSettingsType;
 
 /*------------------------------------------------------------------------------
-** ABCC Handler states
+** ABCC Handler states (public type, see abcc_api.h)
 **------------------------------------------------------------------------------
 */
-typedef enum appl_AbccHandlerState
-{
-   ABCC_API_INIT,
-   ABCC_API_WAITCOM,
-   ABCC_API_WAIT_FW_UPDATE,
-   ABCC_API_RUN,
-   ABCC_API_RESTART,
-   ABCC_API_HALT
-}
-appl_AbccHandlerStateType;
+typedef ABCC_API_HandlerStateType appl_AbccHandlerStateType;
 
 /*------------------------------------------------------------------------------
 ** Current state of the application state machine.
 **------------------------------------------------------------------------------
 */
 static appl_AbccHandlerStateType appl_eAbccHandlerState = ABCC_API_INIT;
+
+/*------------------------------------------------------------------------------
+** Optional runtime handlers (NULL = default behavior), see abcc_api.h
+**------------------------------------------------------------------------------
+*/
+static ABCC_API_AdiMappingHandlerType    appl_pnAdiMappingHandler = NULL;
+static ABCC_API_NewReadPdHandlerType     appl_pnNewReadPdHandler = NULL;
+static ABCC_API_UpdateWritePdHandlerType appl_pnUpdateWritePdHandler = NULL;
+static ABCC_API_HandlerStateNotifyType   appl_pnHandlerStateNotify = NULL;
+
+/*------------------------------------------------------------------------------
+** Halt request from ABCC_API_RequestHalt(), handled in ABCC_API_Run().
+** The error code is written before the flag is set.
+**------------------------------------------------------------------------------
+*/
+static volatile BOOL appl_fHaltRequested = FALSE;
+static volatile ABCC_ErrorCodeType appl_eHaltErrorCode = ABCC_EC_NO_ERROR;
 
 /*------------------------------------------------------------------------------
 ** Network Node address.
@@ -727,8 +735,16 @@ EXTFUNC ABCC_ErrorCodeType ABCC_API_Init( void )
 ABCC_ErrorCodeType ABCC_API_Run( void )
 {
    static ABCC_ErrorCodeType eErrorCode = ABCC_EC_NO_ERROR;
+   static appl_AbccHandlerStateType eNotifiedState = ABCC_API_INIT;
    UINT32 lStartupTimeMs;
    ABCC_CommunicationStateType eAbccComState;
+
+   if( appl_fHaltRequested )
+   {
+      appl_fHaltRequested = FALSE;
+      eErrorCode = appl_eHaltErrorCode;
+      appl_eAbccHandlerState = ABCC_API_HALT;
+   }
 
    switch( appl_eAbccHandlerState )
    {
@@ -751,11 +767,19 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
       if( eErrorCode == ABCC_EC_NO_ERROR )
       {
          /*
-         ** Init application data object
+         ** Init application data object. With a runtime ADI mapping handler,
+         ** the ADI list is installed in ABCC_CbfAdiMappingReq().
          */
-         if( AD_Init( ABCC_API_asAdiEntryList,
-                      ABCC_API_CbfGetNumAdi(),
-                      ABCC_API_asAdObjDefaultMap ) != ABCC_EC_NO_ERROR )
+         if( appl_pnAdiMappingHandler != NULL )
+         {
+            if( AD_Init( NULL, 0, NULL ) != ABCC_EC_NO_ERROR )
+            {
+               eErrorCode = ABCC_EC_INTERNAL_ERROR;
+            }
+         }
+         else if( AD_Init( ABCC_API_asAdiEntryList,
+                           ABCC_API_CbfGetNumAdi(),
+                           ABCC_API_asAdObjDefaultMap ) != ABCC_EC_NO_ERROR )
          {
             eErrorCode = ABCC_EC_INTERNAL_ERROR;
          }
@@ -901,6 +925,19 @@ ABCC_ErrorCodeType ABCC_API_Run( void )
       break;
    }
 
+   /*
+   ** Notify state changes, also those caused in interrupt context.
+   */
+   if( appl_eAbccHandlerState != eNotifiedState )
+   {
+      eNotifiedState = appl_eAbccHandlerState;
+
+      if( appl_pnHandlerStateNotify != NULL )
+      {
+         appl_pnHandlerStateNotify( eNotifiedState, eErrorCode );
+      }
+   }
+
    return( eErrorCode );
 }
 
@@ -1027,6 +1064,29 @@ void ABCC_API_Restart( void )
    appl_eAbccHandlerState = ABCC_API_RESTART;
 }
 
+void ABCC_API_SetAdiMappingHandler( ABCC_API_AdiMappingHandlerType pnHandler )
+{
+   appl_pnAdiMappingHandler = pnHandler;
+}
+
+void ABCC_API_SetProcessDataHandlers( ABCC_API_NewReadPdHandlerType pnNewReadPd,
+                                      ABCC_API_UpdateWritePdHandlerType pnUpdateWritePd )
+{
+   appl_pnNewReadPdHandler = pnNewReadPd;
+   appl_pnUpdateWritePdHandler = pnUpdateWritePd;
+}
+
+void ABCC_API_SetHandlerStateNotify( ABCC_API_HandlerStateNotifyType pnNotify )
+{
+   appl_pnHandlerStateNotify = pnNotify;
+}
+
+void ABCC_API_RequestHalt( ABCC_ErrorCodeType eErrorCode )
+{
+   appl_eHaltErrorCode = eErrorCode;
+   appl_fHaltRequested = TRUE;
+}
+
 #if ABCC_CFG_SPI_DYNAMIC_MSG_FRAG_LEN
 ABCC_ErrorCodeType ABCC_API_SetMsgFragSize( const UINT16 iReqMsgFragSize )
 {
@@ -1047,11 +1107,33 @@ BOOL ABCC_API_IsSupervised( void )
 UINT16  ABCC_CbfAdiMappingReq( const AD_AdiEntryType**  const ppsAdiEntry,
                                const AD_MapType** const ppsDefaultMap )
 {
+   if( appl_pnAdiMappingHandler != NULL )
+   {
+      const AD_AdiEntryType* psAdiEntry = NULL;
+      const AD_MapType* psDefaultMap = NULL;
+      UINT16 iNumAdi;
+
+      iNumAdi = appl_pnAdiMappingHandler( (ABCC_API_NetworkType)ABCC_NetworkType(),
+                                          &psAdiEntry,
+                                          &psDefaultMap );
+
+      if( AD_Init( psAdiEntry, iNumAdi, psDefaultMap ) != ABCC_EC_NO_ERROR )
+      {
+         ABCC_LOG_ERROR( ABCC_EC_INTERNAL_ERROR, 0, "Invalid ADI configuration from mapping handler\n" );
+         ABCC_API_RequestHalt( ABCC_EC_INTERNAL_ERROR );
+         AD_Init( NULL, 0, NULL );
+      }
+   }
+
    return( AD_AdiMappingReq( ppsAdiEntry, ppsDefaultMap ) );
 }
 
 BOOL ABCC_CbfUpdateWriteProcessData( void* pxWritePd )
 {
+   if( appl_pnUpdateWritePdHandler != NULL )
+   {
+      return( appl_pnUpdateWritePdHandler( pxWritePd ) );
+   }
 
    /*
    ** AD_UpdatePdWriteData is a general function that updates all ADI:s according
@@ -1071,6 +1153,12 @@ void ABCC_CbfRemapDone( void )
 
 void ABCC_CbfNewReadPd( void* pxReadPd )
 {
+   if( appl_pnNewReadPdHandler != NULL )
+   {
+      appl_pnNewReadPdHandler( pxReadPd );
+      return;
+   }
+
    /*
    ** AD_UpdatePdReadData is a general function that updates all ADI:s according
    ** to current map.

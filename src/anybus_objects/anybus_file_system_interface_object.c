@@ -617,6 +617,7 @@ ABCC_ErrorCodeType ANB_FSI_FileCopy( UINT16 iInstance, char* pacSrc, char* pacDe
 
    UINT16                        iSizeSrc;
    UINT16                        iSizeDest;
+   UINT16                        iMsgSize;
 
    if( ( iInstance == 0 ) ||
        ( pacSrc == NULL ) ||
@@ -641,6 +642,12 @@ ABCC_ErrorCodeType ANB_FSI_FileCopy( UINT16 iInstance, char* pacSrc, char* pacDe
       return( ABCC_EC_PARAMETER_NOT_VALID );
    }
 
+   /*
+   ** The check above limits the sum to ABCC_CFG_MAX_MSG_SIZE,
+   ** so it fits into a UINT16.
+   */
+   iMsgSize = (UINT16)( iSizeSrc + ABP_CHAR_SIZEOF + iSizeDest );
+
    psEntry = anb_fsi_AllocTransactionEntry();
    if( !psEntry )
    {
@@ -654,11 +661,11 @@ ABCC_ErrorCodeType ANB_FSI_FileCopy( UINT16 iInstance, char* pacSrc, char* pacDe
       return( ABCC_EC_OUT_OF_MSG_BUFFERS );
    }
 
-   ABCC_SetMsgHeader( psMsg, ABP_OBJ_NUM_FSI, iInstance, 0, ABP_FSI_CMD_FILE_COPY, iSizeSrc + ABP_CHAR_SIZEOF + iSizeDest, ABCC_GetNewSourceId() );
+   ABCC_SetMsgHeader( psMsg, ABP_OBJ_NUM_FSI, iInstance, 0, ABP_FSI_CMD_FILE_COPY, iMsgSize, ABCC_GetNewSourceId() );
    ABCC_SetMsgCmdExt( psMsg, 0 );
    ABCC_SetMsgString( psMsg, pacSrc, iSizeSrc, 0 );
    ABCC_SetMsgData8( psMsg, 0, iSizeSrc ); /* NUL character */
-   ABCC_SetMsgString( psMsg, pacDest, iSizeDest, iSizeSrc + ABP_CHAR_SIZEOF );
+   ABCC_SetMsgString( psMsg, pacDest, iSizeDest, (UINT16)( iSizeSrc + ABP_CHAR_SIZEOF ) );
 
    psEntry->bSrcId = ABCC_GetMsgSourceId( psMsg );
    psEntry->pnCallback = pnCallback;
@@ -680,6 +687,7 @@ ABCC_ErrorCodeType ANB_FSI_FileRename( UINT16 iInstance, char* pacOld, char* pac
 
    UINT16                        iSizeOld;
    UINT16                        iSizeNew;
+   UINT16                        iMsgSize;
 
    if( ( iInstance == 0 ) ||
        ( pacOld == NULL ) ||
@@ -704,6 +712,12 @@ ABCC_ErrorCodeType ANB_FSI_FileRename( UINT16 iInstance, char* pacOld, char* pac
       return( ABCC_EC_PARAMETER_NOT_VALID );
    }
 
+   /*
+   ** The check above limits the sum to ABCC_CFG_MAX_MSG_SIZE,
+   ** so it fits into a UINT16.
+   */
+   iMsgSize = (UINT16)( iSizeOld + ABP_CHAR_SIZEOF + iSizeNew );
+
    psEntry = anb_fsi_AllocTransactionEntry();
    if( !psEntry )
    {
@@ -717,11 +731,11 @@ ABCC_ErrorCodeType ANB_FSI_FileRename( UINT16 iInstance, char* pacOld, char* pac
       return( ABCC_EC_OUT_OF_MSG_BUFFERS );
    }
 
-   ABCC_SetMsgHeader( psMsg, ABP_OBJ_NUM_FSI, iInstance, 0, ABP_FSI_CMD_FILE_RENAME, iSizeOld + ABP_CHAR_SIZEOF + iSizeNew, ABCC_GetNewSourceId() );
+   ABCC_SetMsgHeader( psMsg, ABP_OBJ_NUM_FSI, iInstance, 0, ABP_FSI_CMD_FILE_RENAME, iMsgSize, ABCC_GetNewSourceId() );
    ABCC_SetMsgCmdExt( psMsg, 0 );
    ABCC_SetMsgString( psMsg, pacOld, iSizeOld, 0 );
    ABCC_SetMsgData8( psMsg, 0, iSizeOld ); /* NUL character */
-   ABCC_SetMsgString( psMsg, pacNew, iSizeNew, iSizeOld + ABP_CHAR_SIZEOF );
+   ABCC_SetMsgString( psMsg, pacNew, iSizeNew, (UINT16)( iSizeOld + ABP_CHAR_SIZEOF ) );
 
    psEntry->bSrcId = ABCC_GetMsgSourceId( psMsg );
    psEntry->pnCallback = pnCallback;

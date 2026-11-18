@@ -38,6 +38,34 @@ typedef UINT16 ABCC_API_NetworkType;
 */
 typedef ABCC_FwVersionType ABCC_API_FwVersionType;
 
+/*------------------------------------------------------------------------------
+** State of the ABCC API handler (see ABCC_API_Run()).
+**------------------------------------------------------------------------------
+*/
+typedef enum ABCC_API_HandlerState
+{
+   ABCC_API_INIT,
+   ABCC_API_WAITCOM,
+   ABCC_API_WAIT_FW_UPDATE,
+   ABCC_API_RUN,
+   ABCC_API_RESTART,
+   ABCC_API_HALT
+}
+ABCC_API_HandlerStateType;
+
+/*------------------------------------------------------------------------------
+** Optional runtime handlers, see ABCC_API_SetAdiMappingHandler(),
+** ABCC_API_SetProcessDataHandlers() and ABCC_API_SetHandlerStateNotify().
+**------------------------------------------------------------------------------
+*/
+typedef UINT16 (*ABCC_API_AdiMappingHandlerType)( ABCC_API_NetworkType iNetworkType,
+                                                  const AD_AdiEntryType** ppsAdiEntry,
+                                                  const AD_MapType** ppsDefaultMap );
+typedef void (*ABCC_API_NewReadPdHandlerType)( void* pxReadPd );
+typedef BOOL (*ABCC_API_UpdateWritePdHandlerType)( void* pxWritePd );
+typedef void (*ABCC_API_HandlerStateNotifyType)( ABCC_API_HandlerStateType eNewState,
+                                                 ABCC_ErrorCodeType eErrorCode );
+
 /*******************************************************************************
 ** Anybus CompactCom Driver API functions.
 ********************************************************************************
@@ -239,6 +267,83 @@ EXTFUNC ABP_AppStatusType ABCC_API_GetAppStatus( void );
 **------------------------------------------------------------------------------
 */
 EXTFUNC void ABCC_API_SetAppStatus( ABP_AppStatusType eAppStatus );
+
+/*------------------------------------------------------------------------------
+** Registers a handler that provides the ADI list and the default process data
+** map at runtime, when the ABCC requests the mapping (SETUP state). This allows
+** the ADI configuration to depend on the network type of the plugged module.
+** The returned lists are passed to AD_Init() and must stay valid until the
+** next mapping request.
+** Without a handler (NULL, default), ABCC_API_asAdiEntryList,
+** ABCC_API_CbfGetNumAdi() and ABCC_API_asAdObjDefaultMap are used.
+**
+** Shall be called before the first call to ABCC_API_Run(). The handler is
+** called in the context configured for the ABCC events (may be interrupt
+** context). If no valid configuration exists, the handler shall call
+** ABCC_API_RequestHalt() and return 0.
+**------------------------------------------------------------------------------
+** Arguments:
+**    pnHandler         - Handler, or NULL for the static ADI list.
+**
+** Returns:
+**    None
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_SetAdiMappingHandler( ABCC_API_AdiMappingHandlerType pnHandler );
+
+/*------------------------------------------------------------------------------
+** Registers handlers that receive the raw read process data buffer and fill
+** the raw write process data buffer, instead of AD_UpdatePdReadData() and
+** AD_UpdatePdWriteData(). Each handler may be NULL (default) to keep the
+** ADI-based update.
+**
+** Shall be called before the first call to ABCC_API_Run(). The handlers are
+** called in the context configured for the ABCC events (may be interrupt
+** context).
+**------------------------------------------------------------------------------
+** Arguments:
+**    pnNewReadPd       - Handler for new read process data, or NULL.
+**    pnUpdateWritePd   - Handler to update write process data, or NULL. Shall
+**                        return TRUE if the buffer has been updated.
+**
+** Returns:
+**    None
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_SetProcessDataHandlers( ABCC_API_NewReadPdHandlerType pnNewReadPd,
+                                              ABCC_API_UpdateWritePdHandlerType pnUpdateWritePd );
+
+/*------------------------------------------------------------------------------
+** Registers a function that is notified when the ABCC API handler changes its
+** state, e.g. ABCC_API_HALT (with the error code that caused it) or
+** ABCC_API_INIT after a restart (the ABCC is held in reset at that point).
+**
+** The notification is always called from ABCC_API_Run(), i.e. from the
+** context of the main loop, also for state changes caused in interrupt
+** context.
+**------------------------------------------------------------------------------
+** Arguments:
+**    pnNotify          - Notification function, or NULL (default).
+**
+** Returns:
+**    None
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_SetHandlerStateNotify( ABCC_API_HandlerStateNotifyType pnNotify );
+
+/*------------------------------------------------------------------------------
+** Requests the ABCC API handler to enter ABCC_API_HALT. May be called from any
+** context, also from callbacks in interrupt context. The state change takes
+** place in the next call to ABCC_API_Run(), which then returns eErrorCode.
+**------------------------------------------------------------------------------
+** Arguments:
+**    eErrorCode        - Reason for the halt.
+**
+** Returns:
+**    None
+**------------------------------------------------------------------------------
+*/
+EXTFUNC void ABCC_API_RequestHalt( ABCC_ErrorCodeType eErrorCode );
 
 #if ABCC_CFG_INT_ENABLED
 /*------------------------------------------------------------------------------

@@ -4,6 +4,26 @@
 ********************************************************************************
 ** File Description:
 ** Command handler lookup macros and callback function definitions.
+**
+** Attribute macro conventions:
+**
+** For each object attribute, up to three macros may be defined:
+**
+** _GET_VALUE(x) - Provided when the attribute has a compile-time constant
+**                 value (x). Used for predefined responses, e.g. when the
+**                 attribute is read via ABCC_API_OBJ_ATTRIBUTE_RESPONSE_LIST.
+**
+** _GET_CBFUNC   - Registers a callback (ABCC_Cbf<...>_Get) that supplies the
+**                 value when it is read from the Anybus.
+**
+** _SET_CBFUNC   - Registers a callback (ABCC_Cbf<...>_Set) that receives a
+**                 new value written from the Anybus. Only for writable
+**                 attributes.
+**
+** Attributes whose values are unit-specific (serial number, MAC-ID, i.e.
+** inherent to each ABCC40 module) or dynamic (runtime state) intentionally
+** get no _GET_VALUE(x) macro; they are callback-only. Do not add one,
+** and do not report the absence as a defect.
 ********************************************************************************
 */
 

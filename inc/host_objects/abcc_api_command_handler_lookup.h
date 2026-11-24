@@ -284,11 +284,14 @@
 #define ABCC_CCLINKIE_OBJ_SW_VERSION_GET_CBFUNC         { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_SW_VERSION,       .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkIEObjSwVersion_Get } 
 
 /* Attribute 7: Enable SLMP (default = 0x01) */
-/* Not implemented */
+#define ABCC_CCLINKIE_OBJ_ENABLE_SLMP_GET_VALUE(x)      { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_ENABLE_SLMP,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uData.bUnsigned8        = (x) }
+#define ABCC_CCLINKIE_OBJ_ENABLE_SLMP_GET_CBFUNC        { .bObject = ABP_OBJ_NUM_CFN, .bInstance = 0x01, .uCmdExt.bAttr = ABP_CFN_IA_ENABLE_SLMP,      .bCommand = ABP_CMD_GET_ATTR,     .eServiceTag = SERVICE_UINT8, .uCbx.pnGetUint8Attr = ABCC_CbfCCLinkIEObjEnableSLMP_Get }
 
 /* Attribute 8: Enable SLMP Request Forwarding (default = 0x00) */
-/* Not implemented */
-
+/* Not supported: the Anybus forwards SLMP requests to the application
+** via the Slmp_Server_Request command (0x11), which is not implemented
+** in the driver API. Forwarding therefore stays disabled, and the
+** CompactCom answers SLMP requests itself. */
 #endif
 
 /*------------------------------------------------------------------------------
@@ -1589,6 +1592,19 @@ UINT32 ABCC_CbfCCLinkIEObjModelCode_Get( void );
 **------------------------------------------------------------------------------
 */
 UINT8 ABCC_CbfCCLinkIEObjSwVersion_Get( void );
+
+/*------------------------------------------------------------------------------
+** Callback function to provide whether SLMP shall be enabled or not.
+**------------------------------------------------------------------------------
+** Arguments:
+**       None.
+**
+** Returns:
+**       0 - SLMP disabled.
+**       1 - SLMP enabled.
+**------------------------------------------------------------------------------
+*/
+UINT8 ABCC_CbfCCLinkIEObjEnableSLMP_Get( void );
 
 /*------------------------------------------------------------------------------
 ** CC-Link IE TSN Host Object (0xE1)
